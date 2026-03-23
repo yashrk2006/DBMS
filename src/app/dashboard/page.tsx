@@ -222,7 +222,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex items-center gap-3">
                            <Badge variant={config.color} className="gap-1 px-2.5 py-1">
-                             <config.view size={12} />
+                             <config.icon size={12} />
                              {app.status}
                            </Badge>
                            <ArrowRight size={14} className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
