@@ -39,7 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex min-height-screen bg-slate-50/50">
+    <div className="flex min-h-screen bg-slate-50/50">
       {/* Sidebar - Desktop */}
       <aside className="hidden md:flex w-64 flex-col bg-white border-r border-slate-200 fixed top-0 left-0 h-screen z-40">
         <div className="p-6 border-b border-slate-100">
@@ -138,8 +138,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-64 p-6 md:p-10 pt-24 md:pt-10">
-        <div className="max-w-6xl mx-auto">
+      <main className="flex-1 md:ml-64 p-6 md:p-10 pt-24 md:pt-10 transition-all duration-300">
+        <div className="max-w-[1400px] mx-auto w-full">
           {children}
         </div>
       </main>

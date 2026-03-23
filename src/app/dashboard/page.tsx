@@ -118,17 +118,17 @@ export default function DashboardPage() {
            initial={{ opacity: 0, scale: 0.95 }}
            animate={{ opacity: 1, scale: 1 }}
         >
-          <Button className="gap-2 shadow-lg shadow-indigo-100 px-6 py-6 rounded-2xl">
+          <Button className="gap-2 shadow-lg shadow-indigo-100 h-12 px-6 rounded-2xl">
             <Zap size={18} fill="currentColor" />
-            Launch SkillSync AI
+            Launch AI Engine
           </Button>
         </motion.div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
         {statItems.map((item, index) => (
-          <Card key={item.label} transition={{ delay: index * 0.1 }} className="group hover:shadow-xl hover:border-indigo-100 transition-all duration-300 overflow-hidden relative border-none shadow-md bg-white">
+          <Card key={item.label} transition={{ delay: index * 0.1 }} className="group hover:shadow-xl hover:border-indigo-100 transition-all duration-300 relative border-none shadow-md bg-white">
             <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-bl-full opacity-50 transition-all group-hover:bg-indigo-50" />
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div className={`p-3 rounded-2xl ${item.bg} ${item.color}`}>
