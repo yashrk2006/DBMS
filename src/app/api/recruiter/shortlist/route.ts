@@ -12,7 +12,8 @@ export async function POST(request: Request) {
     const result = await recruiterShortlistAgent(jobDescription, candidates);
 
     return NextResponse.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as Error;
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

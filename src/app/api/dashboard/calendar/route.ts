@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { supabaseAdmin as supabase } from '@/lib/supabase';
+import { CalendarEvent } from '@/types';
 
 export async function GET(request: Request) {
   try {
@@ -10,9 +11,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'User ID required' }, { status: 400 });
     }
 
-    const { data: events, error } = await supabaseAdmin
+    const { data: events, error } = await supabase
       .from('event')
-      .select('*')
+      .select('event_id, user_id, title, description, event_type, start_time, location')
       .or(`user_id.eq.${userId},user_id.is.null`)
       .order('start_time', { ascending: true });
 
@@ -21,9 +22,12 @@ export async function GET(request: Request) {
        throw error;
     }
 
-    return NextResponse.json({ success: true, events: events || [] });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    const typedEvents: CalendarEvent[] = events || [];
+
+    return NextResponse.json({ success: true, events: typedEvents });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
 
@@ -36,7 +40,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'user_id, title, and start_time are required' }, { status: 400 });
     }
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('event')
       .insert({
         user_id,
@@ -55,7 +59,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, data });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

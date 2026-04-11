@@ -106,6 +106,10 @@ export async function POST(request: Request) {
       skillItem = newSkill;
     }
 
+    if (!skillItem) {
+      return NextResponse.json({ success: false, error: 'Skill initialization failed.' }, { status: 500 });
+    }
+
     if (action === 'delete') {
       const { error } = await supabaseAdmin
         .from('student_skill')

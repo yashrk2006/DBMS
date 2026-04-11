@@ -1,10 +1,41 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase';
-import { PDFParse } from 'pdf-parse';
 
-// BUILD_STABILIZATION_ID: REF_VER_002
+import { analyzeResumeAgent } from '@/lib/agents';
+
+// BUILD_STABILIZATION_ID: REF_VER_005
+export const runtime = 'nodejs';
+
 export async function POST(request: Request) {
   try {
+    // Safety Vault: Deferred parser loading & Web Primitives Polyfill
+    let PDFParse: any;
+    try {
+      const canvas = require('@napi-rs/canvas');
+      
+      // Inject Web Primitives missing in Node.js but required by modern PDF engines
+      // @ts-ignore
+      if (typeof global.DOMMatrix === 'undefined') global.DOMMatrix = canvas.DOMMatrix;
+      // @ts-ignore
+      if (typeof global.Path2D === 'undefined') global.Path2D = canvas.Path2D;
+      // @ts-ignore
+      if (typeof global.DOMPoint === 'undefined') global.DOMPoint = canvas.DOMPoint;
+      // @ts-ignore
+      if (typeof global.DOMRect === 'undefined') global.DOMRect = canvas.DOMRect;
+      
+      console.log(`[Resume Pipeline] Web Primitives established. DOMMatrix: ${typeof global.DOMMatrix}`);
+
+      const parserModule = require('pdf-parse');
+      PDFParse = parserModule.PDFParse;
+      if (!PDFParse) throw new Error("Parser class not found in module exports.");
+    } catch (loadErr: any) {
+      console.error("[Resume Pipeline] Primary Engine Initialization failure:", loadErr);
+      return NextResponse.json({ 
+        success: false, 
+        error: `Neural Engine Offline: ${loadErr.message || "Failed to initialize native PDF components."}` 
+      }, { status: 500 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const studentId = formData.get('studentId') as string;
@@ -13,12 +44,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'File and Student ID are required' }, { status: 400 });
     }
 
+    console.log(`[Resume Pipeline] Syncing document: ${file.name} (${file.size} bytes) for student ${studentId}`);
+
     // 1. Initial Storage Sync
     const fileExt = file.name.split('.').pop();
     const fileName = `${studentId}-${Date.now()}.${fileExt}`;
     const filePath = `${fileName}`;
 
     const buffer = Buffer.from(await file.arrayBuffer());
+    console.log(`[Resume Pipeline] Buffer generated. Length: ${buffer.length}`);
 
     const { data: uploadData, error: uploadErr } = await supabase.storage
       .from('resumes')
@@ -39,65 +73,42 @@ export async function POST(request: Request) {
     // 2. Intelligence Layer: PDF Extraction
     let extractedText = "";
     try {
-      // Use the named export class for this specific pdf-parse version
+      console.log(`[Resume Pipeline] Initiating PDFParse engine...`);
       const parser = new PDFParse({ data: buffer });
-      const textResult = await parser.getText();
-      extractedText = textResult.text;
+      const data = await parser.getText();
+      extractedText = data.text || "";
       await parser.destroy();
-    } catch (parseErr) {
-      console.warn("PDF Extraction failure:", parseErr);
+      console.log(`[Resume Pipeline] Extraction complete. Raw length: ${extractedText.length}`);
+    } catch (parseErr: any) {
+      console.error("[Resume Pipeline] PDF Engine Crash:", parseErr);
+      return NextResponse.json({ 
+        success: false, 
+        error: `Neural Engine Exception: ${parseErr.message || "The PDF parser encountered a system-level conflict."}` 
+      }, { status: 500 });
     }
 
-    // 3. AI Analysis & Skill Mapping
-    let aiAnalysis = "Resume uploaded but AI analysis pending.";
-    let extractedSkills: string[] = [];
-
-    const cohereKey = process.env.COHERE_API_KEY;
-    if (cohereKey && extractedText) {
-      try {
-        const prompt = `You are a Recruitment Intelligence Agent. Analyze the following resume text.
-        
-        TASK:
-        1. Write a 2-sentence professional executive summary.
-        2. Extract the TOP 5 technical skills as a comma-separated list.
-        
-        RESUME TEXT:
-        ${extractedText.substring(0, 4000)}
-        
-        RETURN FORMAT:
-        SUMMARY: [Your Summary]
-        SKILLS: [Skill1, Skill2, Skill3, Skill4, Skill5]`;
-
-        const res = await fetch('https://api.cohere.com/v1/chat', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${cohereKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: prompt, model: 'command-r-plus' })
-        });
-        const aiData = await res.json();
-        const text = aiData.text || "";
-        
-        const summaryMatch = text.match(/SUMMARY:\s*(.*)/);
-        const skillsMatch = text.match(/SKILLS:\s*(.*)/);
-        
-        if (summaryMatch) aiAnalysis = summaryMatch[1].trim();
-        if (skillsMatch) {
-          extractedSkills = skillsMatch[1].split(',').map((s: string) => s.trim().split(' ')[0]);
-        }
-      } catch (aiErr) {
-        console.error("Cohere Intelligence Sync Error:", aiErr);
-      }
+    if (!extractedText || extractedText.trim().length < 5) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Document sync failure: No selectable text detected. Ensure your resume is not a flat image or scanned document." 
+      }, { status: 400 });
     }
 
-    // 4. Persistence: Dashboard State Sync
+    // 3. AI Intelligence Hub Integration
+    console.log(`[Resume Pipeline] Calling Intelligence Agent with ${extractedText.length} characters...`);
+    let aiAnalysisResult = await analyzeResumeAgent(extractedText);
+    
+    // 4. Persistence: Deep Sync
     await supabase
       .from('student')
       .update({ 
         resume_url: publicUrl,
-        ai_resume_analysis: aiAnalysis
+        ai_resume_analysis: aiAnalysisResult
       })
       .eq('student_id', studentId);
 
-    // Auto-populate skills if found
+    // Auto-populate detected skills into profile
+    const extractedSkills = aiAnalysisResult.skills || [];
     if (extractedSkills.length > 0) {
       for (const skillName of extractedSkills) {
         let { data: skillObj } = await supabase
@@ -107,15 +118,13 @@ export async function POST(request: Request) {
           .single();
         
         if (!skillObj) {
-          const { data: newSkill, error: createErr } = await supabase
+          const { data: newSkill } = await supabase
             .from('skill')
             .insert({ skill_name: skillName })
             .select('skill_id')
             .single();
           
-          if (!createErr && newSkill) {
-            skillObj = newSkill;
-          }
+          if (newSkill) skillObj = newSkill;
         }
 
         if (skillObj) {
@@ -133,7 +142,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ 
       success: true, 
       url: publicUrl,
-      analysis: aiAnalysis,
+      analysis: aiAnalysisResult,
       skills_extracted: extractedSkills.length
     });
   } catch (error: any) {

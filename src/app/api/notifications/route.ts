@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin as supabase } from '@/lib/supabase';
+import { Notification } from '@/types';
 
 export async function GET(request: Request) {
   try {
@@ -10,22 +11,26 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'User ID required' }, { status: 400 });
     }
 
-    const { data, error } = await supabase
+    const { data: rawNotifs, error } = await supabase
       .from('notification')
-      .select('*')
+      .select('notification_id, user_id, title, message, type, is_read, created_at')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
     if (error) {
       console.warn('Notification fetch warning:', error.message);
-      // Return empty array instead of failing hard if table is missing or RLS blocks
+      // Return empty array instead of failing hard to maintain UI stability
       return NextResponse.json({ success: true, data: [], notifications: [] });
     }
+
+    const notifications: Notification[] = rawNotifs || [];
     
-    // Return as 'data' for frontend compatibility (dashboard reads notifData.data)
-    return NextResponse.json({ success: true, data, notifications: data });
-  } catch (error: any) {
+    // Return as 'data' and 'notifications' for frontend compatibility
+    return NextResponse.json({ success: true, data: notifications, notifications });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Notification API Error:', error);
+    // Silent fail on GET to keep dashboard functional
     return NextResponse.json({ success: true, data: [], notifications: [] });
   }
 }
@@ -46,8 +51,9 @@ export async function POST(request: Request) {
 
     if (error) throw error;
     return NextResponse.json({ success: true, data });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
 
@@ -75,7 +81,8 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

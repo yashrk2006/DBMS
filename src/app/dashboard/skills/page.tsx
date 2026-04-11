@@ -127,7 +127,7 @@ export default function SkillsPage() {
     return allSkills.filter(s => 
       s.skill_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
       !mySkills.find(ms => ms.skill_name.toLowerCase() === s.skill_name.toLowerCase())
-    ).slice(0, 5);
+    ).slice(0, 10);
   }, [allSkills, searchQuery, mySkills]);
 
   return (
@@ -170,6 +170,9 @@ export default function SkillsPage() {
                                     onKeyDown={(e) => { if (e.key === 'Enter') addSkill(); }}
                                     className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[11px] font-black uppercase tracking-widest focus:bg-white focus:ring-4 focus:ring-slate-900/5 focus:border-slate-300 transition-all outline-none placeholder:text-slate-300"
                                 />
+                                <div className="mt-2 px-1 text-[8px] font-bold text-slate-300 uppercase tracking-widest">
+                                  Tip: You can type any skill and press Enter to add it.
+                                </div>
                                 <AnimatePresence>
                                     {filteredSkills.length > 0 && (
                                         <motion.div 

@@ -14,6 +14,7 @@ interface Posting {
   duration: string;
   location: string;
   stipend: string;
+  min_cgpa: number;
   application: { application_id: number; status: string }[];
 }
 
@@ -26,7 +27,7 @@ export default function JobPostings() {
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const [formData, setFormData] = useState({ title: '', description: '', duration: '', location: '', stipend: '', skills: '' });
+  const [formData, setFormData] = useState({ title: '', description: '', duration: '', location: '', stipend: '', skills: '', min_cgpa: '0.0' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -81,7 +82,7 @@ export default function JobPostings() {
       if (data.success) {
         setPostings([{ ...data.data, application: [] }, ...postings]);
         setIsModalOpen(false);
-        setFormData({ title: '', description: '', duration: '', location: '', stipend: '', skills: '' });
+        setFormData({ title: '', description: '', duration: '', location: '', stipend: '', skills: '', min_cgpa: '0.0' });
       }
     } catch (e) {
       console.error('Insert error:', e);
@@ -217,6 +218,9 @@ export default function JobPostings() {
                       <div className="flex items-center gap-2.5 text-xs text-amber-600 font-black">
                         <IndianRupee size={13} className="shrink-0" /> {job.stipend || 'Unpaid'}
                       </div>
+                      <div className="flex items-center gap-2.5 text-xs text-indigo-600 font-black">
+                        <TrendingUp size={13} className="shrink-0" /> Min {job.min_cgpa || '0.0'} CGPA
+                      </div>
                     </div>
                   </div>
 
@@ -335,11 +339,19 @@ export default function JobPostings() {
                     className="w-full h-13 px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-600/20 focus:border-amber-600 transition-all font-bold text-slate-900 text-sm" />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase tracking-[3px] text-slate-400">Stipend / Compensation *</label>
-                  <input required placeholder="e.g. ₹30,000 / month"
-                    value={formData.stipend} onChange={e => setFormData({...formData, stipend: e.target.value})}
-                    className="w-full h-13 px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-600/20 focus:border-amber-600 transition-all font-bold text-slate-900 text-sm" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black uppercase tracking-[3px] text-slate-400">Stipend / Compensation *</label>
+                    <input required placeholder="e.g. ₹30,000 / month"
+                      value={formData.stipend} onChange={e => setFormData({...formData, stipend: e.target.value})}
+                      className="w-full h-13 px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-600/20 focus:border-amber-600 transition-all font-bold text-slate-900 text-sm" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black uppercase tracking-[3px] text-slate-400">Min CGPA Required *</label>
+                    <input required type="number" step="0.01" min="0" max="10" placeholder="e.g. 8.5"
+                      value={formData.min_cgpa} onChange={e => setFormData({...formData, min_cgpa: e.target.value})}
+                      className="w-full h-13 px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-600/20 focus:border-amber-600 transition-all font-bold text-slate-900 text-sm" />
+                  </div>
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 flex justify-end gap-4">

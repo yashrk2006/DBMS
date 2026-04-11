@@ -1,9 +1,39 @@
 import { NextResponse } from 'next/server';
 import { analyzeResumeAgent } from '@/lib/agents';
 import { supabase } from '@/lib/supabase';
+
+export const runtime = 'nodejs';
+
 export async function POST(request: Request) {
   try {
-    const pdf = require('pdf-parse');
+    // Safety Vault: Deferred parser loading & Web Primitives Polyfill
+    let PDFParse: any;
+    try {
+      const canvas = require('@napi-rs/canvas');
+      
+      // Inject Web Primitives missing in Node.js but required by modern PDF engines
+      // @ts-ignore
+      if (typeof global.DOMMatrix === 'undefined') global.DOMMatrix = canvas.DOMMatrix;
+      // @ts-ignore
+      if (typeof global.Path2D === 'undefined') global.Path2D = canvas.Path2D;
+      // @ts-ignore
+      if (typeof global.DOMPoint === 'undefined') global.DOMPoint = canvas.DOMPoint;
+      // @ts-ignore
+      if (typeof global.DOMRect === 'undefined') global.DOMRect = canvas.DOMRect;
+      
+      console.log(`[Re-Analysis] Web Primitives established. DOMMatrix: ${typeof global.DOMMatrix}`);
+
+      const parserModule = require('pdf-parse');
+      PDFParse = parserModule.PDFParse;
+      if (!PDFParse) throw new Error("Parser class not found in module exports.");
+    } catch (loadErr: any) {
+      console.error("[Re-Analysis] Library Load failure:", loadErr);
+      return NextResponse.json({ 
+        success: false, 
+        error: `Neural Engine Offline: ${loadErr.message || "Failed to initialize native PDF components."}` 
+      }, { status: 500 });
+    }
+
     const contentType = request.headers.get('content-type') || '';
     if (!contentType.includes('multipart/form-data')) {
       return NextResponse.json({ success: false, error: 'Expected multipart/form-data POST' }, { status: 400 });
@@ -17,6 +47,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'No file uploaded' }, { status: 400 });
     }
 
+    console.log(`[Re-Analysis] Processing document: ${file.name} for user ${userId}`);
+
     // Size limit: 10MB
     if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json({ success: false, error: 'PDF exceeds 10MB limit' }, { status: 400 });
@@ -25,20 +57,24 @@ export async function POST(request: Request) {
     let text = '';
     try {
       const buffer = Buffer.from(await file.arrayBuffer());
-      const data = await pdf(buffer);
-      text = data.text;
+      console.log(`[Re-Analysis] Initiating PDFParse engine...`);
+      const parser = new PDFParse({ data: buffer });
+      const data = await parser.getText();
+      text = data.text || "";
+      await parser.destroy();
+      console.log(`[Re-Analysis] Extraction complete. Text length: ${text.length}`);
     } catch (parseError: any) {
-      console.error('PDF Parse Internal Error:', parseError);
+      console.error('[Re-Analysis] PDF Parse Internal Error:', parseError);
       return NextResponse.json({ 
         success: false, 
-        error: `Core logic failure: ${parseError.message || 'The Neural Core encountered a PDF library crash. Ensure standard PDF format.'}` 
+        error: `Neural Engine Exception: ${parseError.message || 'The PDF engine encountered a system-level conflict.'}` 
       }, { status: 500 });
     }
 
     if (!text || text.trim().length < 5) {
       return NextResponse.json({ 
         success: false, 
-        error: 'The uploaded document appears to be empty or unscannable. Please provide a standard PDF resume.' 
+        error: 'Document sync failure: No selectable text detected. Ensure your resume is not a flat image or scanned document.' 
       }, { status: 400 });
     }
 

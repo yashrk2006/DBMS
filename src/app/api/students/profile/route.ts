@@ -79,7 +79,8 @@ export async function GET(request: Request) {
           branch: student?.branch,
           graduation_year: student?.graduation_year,
           resume_url: student?.resume_url,
-          email: student?.email
+          email: student?.email,
+          cgpa: student?.cgpa
         },
         stats: {
           skills: skillsCountRes.count || 0,
@@ -118,6 +119,7 @@ export async function POST(request: Request) {
         branch: profile.branch,
         roll_no: profile.roll_no,
         graduation_year: profile.graduation_year ? parseInt(profile.graduation_year) : null,
+        cgpa: profile.cgpa ? parseFloat(profile.cgpa) : null,
         resume_url: profile.resume_url || null
       } as any, { onConflict: 'student_id' })
       .select()

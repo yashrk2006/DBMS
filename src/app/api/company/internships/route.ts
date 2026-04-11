@@ -27,6 +27,7 @@ export async function GET(request: Request) {
       ...job,
       id: job.internship_id.toString(),
       application: job.application || [],
+      min_cgpa: job.min_cgpa || 0,
       requirements: {
           role_skills: job.internship_skill?.map((ir: any) => ir.skill.skill_name) || []
       }
@@ -42,7 +43,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { company_id, title, description, duration, location, stipend, skills } = body;
+    const { company_id, title, description, duration, location, stipend, skills, min_cgpa } = body;
 
     if (!company_id || !title) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
@@ -57,7 +58,8 @@ export async function POST(request: Request) {
         description,
         duration,
         location,
-        stipend
+        stipend,
+        min_cgpa: min_cgpa || 0
       } as any)
       .select()
       .single();

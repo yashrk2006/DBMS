@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const { data, error } = await supabaseAdmin
       .from('college_directory')
       .select('name, roll_no, enrollment_no, course, branch, batch_year')
-      .or(`roll_no.eq."${identifier}",enrollment_no.eq."${identifier}"`)
+      .or(`roll_no.eq.${identifier},enrollment_no.eq.${identifier}`)
       .single();
 
     if (error || !data) {

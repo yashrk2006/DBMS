@@ -30,6 +30,7 @@ export default function InternshipsPage() {
     questions: [] as string[],
     isLoading: false
   });
+  const [cgpa, setCgpa] = useState<number>(0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -46,6 +47,9 @@ export default function InternshipsPage() {
       const statsResult = await respStats.json();
       const currentSkills = statsResult.success ? statsResult.student.skills.map((s: any) => s.skill_name) : [];
       setMySkills(currentSkills);
+      if (statsResult.student?.cgpa) {
+        setCgpa(Number(statsResult.student.cgpa));
+      }
 
       const respInternships = await fetch(`/api/internships?userId=${userId}&t=${Date.now()}`, { cache: 'no-store' });
       const internshipsResult = await respInternships.json();
@@ -73,6 +77,7 @@ export default function InternshipsPage() {
             missing_skills: diagnosis.missing,
             match_percentage: matchPercent,
             applied: i.applied,
+            min_cgpa: i.min_cgpa || 0,
             success_probability: probability,
             match_diagnosis: diagnosis
           };
@@ -140,6 +145,15 @@ export default function InternshipsPage() {
 
   async function handleApply(internship: Internship) {
     if (applying || internship.applied) return;
+
+    // Eligibility Check
+    const minRequired = internship.min_cgpa || 0;
+    if (cgpa < minRequired) {
+      toast.error(`Eligibility Error: This role requires a minimum CGPA of ${minRequired}. Your CGPA is ${cgpa}.`, { 
+        icon: "🚫" 
+      });
+      return;
+    }
     
     setApplying(internship.id);
     const { data: { session } } = await supabase.auth.getSession();
@@ -372,6 +386,13 @@ export default function InternshipsPage() {
                                      <span className="text-[11px] font-black text-amber-600 uppercase tracking-[2px]">{i.stipend}</span>
                                   </div>
                                </div>
+                               <div className="flex items-center gap-4 group/item">
+                                  <div className="size-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:text-indigo-600 shadow-inner group-hover/item:border-indigo-200 transition-all duration-500"><GraduationCap size={16} /></div>
+                                  <div className="flex flex-col">
+                                     <span className="text-[8px] font-black uppercase tracking-[3px] text-slate-300">Requirement</span>
+                                     <span className={`text-[11px] font-black uppercase tracking-[2px] ${cgpa < (i.min_cgpa || 0) ? 'text-rose-600' : 'text-indigo-600'}`}>{i.min_cgpa || '0.0'}+ CGPA</span>
+                                  </div>
+                               </div>
                             </div>
                             <div className="flex gap-3">
                                 <button
@@ -384,16 +405,18 @@ export default function InternshipsPage() {
                              </div>
                          </div>
                          <motion.button
-                           whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(217,119,6,0.15)" }} whileTap={{ scale: 0.95 }}
+                           whileHover={i.applied || cgpa < (i.min_cgpa || 0) ? {} : { scale: 1.05, boxShadow: "0 20px 40px rgba(217,119,6,0.15)" }} whileTap={i.applied || cgpa < (i.min_cgpa || 0) ? {} : { scale: 0.95 }}
                            onClick={() => handleApply(i)}
-                           disabled={i.applied || applying === i.id}
+                           disabled={i.applied || applying === i.id || cgpa < (i.min_cgpa || 0)}
                            className={`px-12 py-6 rounded-2xl text-[11px] font-black uppercase tracking-[5px] shadow-lg transition-all relative overflow-hidden group/btn border border-slate-200 flex items-center gap-5 ${
-                             i.applied ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" : "bg-amber-600 text-white hover:bg-amber-500 border-amber-500"
+                             i.applied ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" : 
+                             cgpa < (i.min_cgpa || 0) ? "bg-slate-900 text-slate-400 border-slate-800 cursor-not-allowed" :
+                             "bg-amber-600 text-white hover:bg-amber-500 border-amber-500"
                            }`}
                          >
                             <div className="absolute inset-0 bg-white/20 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                            {applying === i.id ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2 }}><Cpu size={20} /></motion.div> : i.applied ? <ShieldCheck size={20} /> : <Zap size={20} className="fill-white" />}
-                            <span className="relative z-10">{applying === i.id ? 'Processing...' : i.applied ? 'Applied' : 'Apply Now'}</span>
+                            {applying === i.id ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2 }}><Cpu size={20} /></motion.div> : i.applied ? <ShieldCheck size={20} /> : cgpa < (i.min_cgpa || 0) ? <ShieldCheck size={20} className="opacity-20" /> : <Zap size={20} className="fill-white" />}
+                            <span className="relative z-10">{applying === i.id ? 'Processing...' : i.applied ? 'Applied' : cgpa < (i.min_cgpa || 0) ? 'Low CGPA' : 'Apply Now'}</span>
                          </motion.button>
                       </div>
 

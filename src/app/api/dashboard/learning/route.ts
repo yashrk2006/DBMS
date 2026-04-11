@@ -1,16 +1,20 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { supabaseAdmin as supabase } from '@/lib/supabase';
+import { Course } from '@/types';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
-    let query = supabaseAdmin.from('course').select('*');
+    // Define selecting only necessary fields
+    const targetedSelect = 'course_id, title, description, category, thumbnail_url, duration, instructor';
+
+    let query = supabase.from('course').select(targetedSelect);
 
     // Personalized Filtering: If we have a userId, fetch their branch
     if (userId) {
-      const { data: student } = await supabaseAdmin
+      const { data: student } = await supabase
         .from('student')
         .select('branch')
         .eq('student_id', userId)
@@ -32,7 +36,7 @@ export async function GET(request: Request) {
       }
     }
 
-    const { data: courses, error } = await query
+    const { data: coursesRaw, error } = await query
       .order('created_at', { ascending: false })
       .limit(6);
 
@@ -41,18 +45,21 @@ export async function GET(request: Request) {
        throw error;
     }
 
+    let courses: Course[] = coursesRaw || [];
+
     // If filtered results are empty, return all courses as fallback
-    if (courses?.length === 0) {
-      const { data: fallback } = await supabaseAdmin
+    if (courses.length === 0) {
+      const { data: fallbackRaw } = await supabase
         .from('course')
-        .select('*')
+        .select(targetedSelect)
         .order('created_at', { ascending: false })
         .limit(6);
-      return NextResponse.json({ success: true, courses: fallback || [] });
+      courses = fallbackRaw || [];
     }
 
-    return NextResponse.json({ success: true, courses: courses || [] });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true, courses });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

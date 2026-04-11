@@ -1,16 +1,16 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
-import { Student, Application } from '@/types';
+import { Student, Application, Course, CalendarEvent, Notification, AIResumeAnalysis } from '@/types';
 import { toast } from 'react-hot-toast';
 import { AI_ENGINE } from '@/lib/ai-engine';
 import { Sparkles, Zap, Cpu, ShieldCheck } from 'lucide-react';
 
 // Helper component for Material Symbols Icons
-const Icon = ({ name, className = "", style = {} }: { name: string, className?: string, style?: any }) => (
+const Icon = ({ name, className = "", style = {} }: { name: string, className?: string, style?: React.CSSProperties }) => (
   <span className={`material-symbols-outlined ${className}`} style={style}>{name}</span>
 );
 
@@ -18,12 +18,13 @@ export default function DashboardPage() {
   const router = useRouter();
   const [userName, setUserName] = useState('');
   const [rollNo, setRollNo] = useState('');
+  const [cgpa, setCgpa] = useState<number>(0);
   const [stats, setStats] = useState({ applications: 0, skills: 0, internships: 0, accepted: 0 });
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [recentApplications, setRecentApplications] = useState<Application[]>([]);
   const [completionPct, setCompletionPct] = useState(0);
-  const [courses, setCourses] = useState<any[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [skills, setSkills] = useState<{label: string, val: number, color: string}[]>([]);
   
@@ -33,38 +34,44 @@ export default function DashboardPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
   // AI Agent States
-  const [resumeAnalysis, setResumeAnalysis] = useState<any>(null);
-  const [aiJobs, setAiJobs] = useState<any[] | null>(null);
-  const [aiRoadmap, setAiRoadmap] = useState<any>(null);
+  const [resumeAnalysis, setResumeAnalysis] = useState<import('@/types').AIResumeAnalysis | null>(null);
+  const [aiJobs, setAiJobs] = useState<import('@/types').Internship[] | null>(null);
+  const [aiRoadmap, setAiRoadmap] = useState<{summary: string, roadmap: string[]} | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [hasJoinedCommunity, setHasJoinedCommunity] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function load() {
       const { data: { session } } = await supabase.auth.getSession();
       const userId = session?.user?.id;
       
       if (!userId) {
-        setLoading(false);
-        return; // Layout will handle redirect
+        if (!controller.signal.aborted) setLoading(false);
+        return;
       }
 
       try {
-        const response = await fetch(`/api/dashboard/stats?userId=${userId}`);
+        const response = await fetch(`/api/dashboard/stats?userId=${userId}`, { signal: controller.signal });
         const data = await response.json();
-        if (data.success) {
+        
+        if (data.success && !controller.signal.aborted) {
           const student = data.student as Student;
           if (!student) { setLoading(false); return; }
           setUserName(student.name.split(' ')[0]);
           setRollNo(student.roll_no || '');
+          setCgpa(Number(student.cgpa) || 0);
           setStats(data.stats);
           setRecentApplications(data.recentApplications);
 
           if (data.student?.skills && data.student.skills.length > 0) {
             const colors = ['bg-emerald-400', 'bg-purple-500', 'bg-orange-400', 'bg-cyan-400', 'bg-[#575a93]'];
-            setSkills(data.student.skills.slice(0,3).map((sk: any, i: number) => ({
+            setSkills(data.student.skills.slice(0,3).map((sk: import('@/types').Skill, i: number) => ({
               label: sk.skill_name || 'Skill',
               val: sk.level === 'Advanced' ? 90 : sk.level === 'Intermediate' ? 60 : sk.level === 'Expert' ? 95 : 30,
               color: colors[i % colors.length]
@@ -76,38 +83,47 @@ export default function DashboardPage() {
           const checks = [!!student.name, !!student.college, !!student.email, data.stats.skills >= 3];
           setCompletionPct(Math.round((checks.filter(Boolean).length / checks.length) * 100));
 
-          // Resume Intelligence: Load saved analysis results
           if (student.ai_resume_analysis) {
             setResumeAnalysis(student.ai_resume_analysis);
           }
         }
 
-        // Fetch Live Learning & Calendar Context
         const [learnRes, calRes, notifRes] = await Promise.all([
-           fetch('/api/dashboard/learning'),
-           fetch(`/api/dashboard/calendar?userId=${userId}`),
-           fetch(`/api/notifications?userId=${userId}`)
+           fetch('/api/dashboard/learning', { signal: controller.signal }),
+           fetch(`/api/dashboard/calendar?userId=${userId}`, { signal: controller.signal }),
+           fetch(`/api/notifications?userId=${userId}`, { signal: controller.signal })
         ]);
-        const learnData = await learnRes.json();
-        const calData = await calRes.json();
-        const notifData = await notifRes.json();
-        
-        if (learnData.success) setCourses(learnData.courses.slice(0, 3));
-        if (calData.success) setEvents(calData.events.slice(0, 3));
-        if (notifData.success) setNotifications(notifData.data);
 
-        setLoading(false);
-      } catch (e) {
-        console.error(e);
-        setLoading(false);
+        const [learnData, calData, notifData] = await Promise.all([
+          learnRes.json(),
+          calRes.json(),
+          notifRes.json()
+        ]);
+        
+        if (!controller.signal.aborted) {
+          if (learnData.success) setCourses(learnData.courses.slice(0, 3));
+          if (calData.success) setEvents(calData.events.slice(0, 3));
+          if (notifData.success) setNotifications(notifData.data);
+          setLoading(false);
+        }
+      } catch (e: unknown) {
+        if (e instanceof Error && e.name === 'AbortError') return;
+        console.error('Dashboard load error:', e);
+        if (!controller.signal.aborted) setLoading(false);
       }
     }
+
     load();
-  }, []);
 
-  if (loading) return null;
+    if (typeof window !== 'undefined') {
+       setHasJoinedCommunity(localStorage.getItem('skillsync_community_joined') === 'true');
+    }
 
-  const handleUploadResume = async (e?: React.FormEvent) => {
+    return () => controller.abort();
+  }, [supabase]);
+
+
+  const handleUploadResume = useCallback(async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const file = selectedFile || fileInputRef.current?.files?.[0];
     if (!file) return toast.error("Please select a PDF file first");
@@ -117,19 +133,25 @@ export default function DashboardPage() {
     toast.loading("AI Agent parsing resume...", { id: "resume-toast" });
     setIsAnalyzing(true);
     
+    const controller = new AbortController();
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const userId = session?.user?.id;
-      if (!userId) return toast.error("Auth session expired. Please re-login.");
+      if (!userId) {
+        toast.error("Auth session expired. Please re-login.", { id: "resume-toast" });
+        setIsAnalyzing(false);
+        return;
+      }
 
-      // Use the unified AI Resume Pipeline
       const formData = new FormData();
       formData.append('file', file);
       formData.append('studentId', userId);
 
       const res = await fetch('/api/upload/resume', {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: controller.signal
       });
       
       const data = await res.json();
@@ -137,15 +159,13 @@ export default function DashboardPage() {
          setResumeAnalysis(data.analysis);
          toast.success(`Success! Extracted ${data.skills_extracted} skills.`, { id: "resume-toast" });
          
-         // Refresh dashboard metrics
-         const statsRes = await fetch(`/api/dashboard/stats?userId=${userId}`);
+         const statsRes = await fetch(`/api/dashboard/stats?userId=${userId}`, { signal: controller.signal });
          const statsData = await statsRes.json();
          if (statsData.success) {
             setStats(statsData.stats);
-            // Update skills display locally if skills were returned in stats
             if (statsData.student?.skills) {
                const colors = ['bg-emerald-400', 'bg-purple-500', 'bg-orange-400', 'bg-cyan-400', 'bg-[#575a93]'];
-               setSkills(statsData.student.skills.slice(0,3).map((sk: any, i: number) => ({
+               setSkills(statsData.student.skills.slice(0,3).map((sk: import('@/types').Skill, i: number) => ({
                  label: sk.skill_name || 'Skill',
                  val: sk.level === 'Advanced' ? 90 : 60,
                  color: colors[i % colors.length]
@@ -155,19 +175,24 @@ export default function DashboardPage() {
       } else {
          toast.error(data.error || "Analysis failed", { id: "resume-toast" });
       }
-    } catch(e: any) { 
-      console.error("Dashboard Intelligence Critical Error:", e);
+    } catch(err: unknown) { 
+      if (err instanceof Error && err.name === 'AbortError') return;
+      console.error("Dashboard Intelligence Critical Error:", err);
       toast.error("Processing error. Ensure you have a valid PDF format.", { id: "resume-toast" }); 
+    } finally {
+      setIsAnalyzing(false);
     }
-    setIsAnalyzing(false);
-  };
+  }, [selectedFile, supabase]);
 
-  const handleMatchJobs = async () => {
+  const handleMatchJobs = useCallback(async () => {
      if(!resumeAnalysis || !resumeAnalysis.skills) return toast.error("Please generate resume profile first!");
      toast.loading("AI Agent matching jobs...", { id: "jobs-toast" });
+     const controller = new AbortController();
      try {
        const res = await fetch('/api/dashboard/ai/match-jobs', {
-          method: 'POST', body: JSON.stringify({ skills: resumeAnalysis.skills })
+          method: 'POST', 
+          body: JSON.stringify({ skills: resumeAnalysis.skills }),
+          signal: controller.signal
        });
        
        if (!res.headers.get("content-type")?.includes("application/json")) throw new Error("Recruitment API Outage (Non-JSON)");
@@ -177,18 +202,23 @@ export default function DashboardPage() {
            setAiJobs(data.data.internships);
            toast.success("Strategic Match-making Complete!", { id: "jobs-toast" });
        }
-     } catch(e: any) { 
+     } catch(err: unknown) { 
+       if (err instanceof Error && err.name === 'AbortError') return;
+       const e = err as Error;
        console.error("Job Match Error:", e);
        toast.error(e.message || "Neural Matcher Error: Critical System Outage", { id: "jobs-toast" }); 
      }
-  };
+  }, [resumeAnalysis]);
 
-  const handleSkillGap = async () => {
+  const handleSkillGap = useCallback(async () => {
      if(!resumeAnalysis) return toast.error("Needs resume profile first");
      toast.loading("AI Agent detecting skill gaps...", { id: "gap-toast" });
+     const controller = new AbortController();
      try {
        const res = await fetch('/api/dashboard/ai/skill-gap', {
-          method: 'POST', body: JSON.stringify({ studentSkills: resumeAnalysis.skills, requiredSkills: ['System Design', 'SQL', ...(resumeAnalysis.missing||[])] })
+          method: 'POST', 
+          body: JSON.stringify({ studentSkills: resumeAnalysis.skills, requiredSkills: ['System Design', 'SQL', ...(resumeAnalysis.missing||[])] }),
+          signal: controller.signal
        });
        
        if (!res.headers.get("content-type")?.includes("application/json")) throw new Error("Intelligence API Desync (Non-JSON)");
@@ -198,13 +228,14 @@ export default function DashboardPage() {
          setAiRoadmap(data.data);
          toast.success("Competency Roadmap Operationalized", { id: "gap-toast" });
        }
-     } catch(e: any) {
+     } catch(err: unknown) {
+          const e = err as Error;
          console.error("Skill Gap Error:", e);
          toast.error(e.message || "Roadmap Generation Failure", { id: "gap-toast" });
      }
-  };
+  }, [resumeAnalysis]);
 
-  const handleSyncSkills = async () => {
+  const handleSyncSkills = useCallback(async () => {
     if (!resumeAnalysis || !resumeAnalysis.skills) return;
 
     const { data: { session } } = await supabase.auth.getSession();
@@ -212,11 +243,13 @@ export default function DashboardPage() {
     if (!userId) return toast.error("Session identity lost.");
 
     toast.loading("Syncing to Official Profile...", { id: "sync-toast" });
+    const controller = new AbortController();
     try {
       const res = await fetch('/api/dashboard/ai/sync-skills', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, skills: resumeAnalysis.skills })
+        body: JSON.stringify({ userId, skills: resumeAnalysis.skills }),
+        signal: controller.signal
       });
       
       if (!res.headers.get("content-type")?.includes("application/json")) throw new Error("Sync Engine Offline");
@@ -224,8 +257,7 @@ export default function DashboardPage() {
       const data = await res.json();
       if (data.success) {
         toast.success("Skills Merged into Inventory!", { id: "sync-toast" });
-        // Refresh local stats to reflect new skills count
-        const response = await fetch(`/api/dashboard/stats?userId=${userId}`);
+        const response = await fetch(`/api/dashboard/stats?userId=${userId}`, { signal: controller.signal });
         if (response.ok) {
            const result = await response.json();
            if (result.success) setStats(result.stats);
@@ -233,11 +265,13 @@ export default function DashboardPage() {
       } else {
         toast.error(data.error || "Sync calibration failed", { id: "sync-toast" });
       }
-    } catch (e: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') return;
+      const e = err as Error;
       console.error("Sync Error:", e);
       toast.error(e.message || "Sync failed", { id: "sync-toast" });
     }
-  };
+  }, [resumeAnalysis, supabase]);
 
   const handleClearAnalysis = async () => {
     setResumeAnalysis(null);
@@ -248,6 +282,63 @@ export default function DashboardPage() {
     }
     toast.success("Intelligence Cache Cleared. Ready for new upload.", { icon: "🧹" });
   };
+
+  const handleApplyJob = useCallback(async (job: import('@/types').Internship) => {
+    // 1. Eligibility Check
+    const minRequired = job.min_cgpa || 0;
+    if (cgpa < minRequired) {
+      toast.error(`Eligibility Error: This role requires a minimum CGPA of ${minRequired}. Your current CGPA is ${cgpa}.`, { 
+        id: "apply-toast",
+        icon: "🚫" 
+      });
+      return;
+    }
+
+    toast.loading(`Deploying application to ${job.company_name}...`, { id: "apply-toast" });
+    const controller = new AbortController();
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      if (!userId) {
+        toast.error("Session expired", { id: "apply-toast" });
+        return;
+      }
+
+      const res = await fetch('/api/dashboard/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: userId,
+          internshipId: job.internship_id,
+          companyId: job.company_id
+        }),
+        signal: controller.signal
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`Application deployed! ${job.title} match verified.`, { id: "apply-toast" });
+        setStats(prev => ({ ...prev, applications: prev.applications + 1 }));
+        if (aiJobs) {
+          setAiJobs(aiJobs.map(j => (j.internship_id === job.internship_id) ? { ...j, applied: true } : j));
+        }
+      } else {
+        toast.error(data.error || "Application failed", { id: "apply-toast" });
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') return;
+      console.error("Apply Error:", err);
+      toast.error("Application subsystem interrupted", { id: "apply-toast" });
+    }
+  }, [aiJobs, supabase]);
+
+  const handleJoinCommunity = () => {
+    setHasJoinedCommunity(true);
+    localStorage.setItem('skillsync_community_joined', 'true');
+    toast.success("Welcome to the SkillSync Community!", { icon: "🤝" });
+  };
+  if (loading) return null;
 
   return (
     <>
@@ -274,7 +365,7 @@ export default function DashboardPage() {
                 <span className="relative z-10 flex items-center gap-3">AI Assistant <Sparkles className="size-3 text-emerald-400 animate-pulse" /></span>
               </button>
               <div className="flex items-center gap-6">
-                <button onClick={() => toast("Dark mode rendering engine initializing...", { icon: "🌙" })} className="w-12 h-12 bg-white rounded-2xl shadow-soft border border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-all text-slate-400 hover:text-[#575a93]"><Icon name="wb_sunny" className="text-xl" /></button>
+                <button onClick={() => toast("Adaptive Glassmorphism arriving in Alpha 3", { icon: "✨" })} className="w-12 h-12 bg-white rounded-2xl shadow-soft border border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-all text-slate-400 hover:text-[#575a93]"><Icon name="wb_sunny" className="text-xl" /></button>
                 <div className="relative group">
                   <button onClick={() => router.push('/dashboard/notifications')} className="w-12 h-12 bg-white rounded-2xl shadow-soft border border-slate-100 flex items-center justify-center hover:bg-slate-50 transition-all text-slate-400 hover:text-[#575a93]"><Icon name="notifications" className="text-xl" /></button>
                   {notifications.filter(n => !n.is_read).length > 0 && (
@@ -359,8 +450,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            <div className="bg-[#0c0f10] p-8 rounded-[2.2rem] text-white relative flex flex-col min-h-[220px] shadow-soft hover:-translate-y-1 transition-transform group">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-fr">
+            <div className="bg-[#0c0f10] p-8 rounded-[2.2rem] text-white relative flex flex-col shadow-soft hover:-translate-y-1 transition-transform group overflow-hidden">
               <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] mb-6 opacity-60">Job Feed</h3>
               <div className="relative flex-1">
                 <div className="bg-white rounded-[1.5rem] p-5 text-[#2d3335] relative z-10 shadow-xl min-h-[140px] flex flex-col justify-center">
@@ -373,8 +464,15 @@ export default function DashboardPage() {
                         <h4 className="font-bold text-[13px] leading-tight tracking-tight uppercase">{aiJobs[0].title || 'SkillSync Intern'}</h4>
                       </div>
                       <div className="flex justify-between items-center">
-                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{aiJobs[0].company_name}</p>
-                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded">{aiJobs[0].match_score}% Match</span>
+                        <p className="text-[11px] font-black text-slate-400 upperCase tracking-widest">{aiJobs[0].company_name}</p>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded">{aiJobs[0].match_percentage}% Match</span>
+                          {aiJobs[0].min_cgpa !== undefined && aiJobs[0].min_cgpa > 0 && (
+                            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter ${cgpa >= aiJobs[0].min_cgpa ? 'text-indigo-600 bg-indigo-50' : 'text-rose-600 bg-rose-50'}`}>
+                              Req: {aiJobs[0].min_cgpa} CGPA
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ) : recentApplications[0] ? (
@@ -406,22 +504,36 @@ export default function DashboardPage() {
                     </div>
                   )}
                 </div>
-                <div className="absolute inset-0 bg-[#575a93]/20 rounded-[1.5rem] rotate-2 translate-x-2 translate-y-2 blur-sm" />
+                <div className="absolute inset-0 bg-[#575a93]/10 rounded-[1.5rem] rotate-2 translate-x-1 translate-y-1 blur-sm" />
               </div>
-
-              {aiJobs ? (
-                 <div className="mt-8 flex gap-2">
-                   <button onClick={() => toast("Applied to Top AI Match!", { icon: "✅" })} className="bg-emerald-400 text-white w-full py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-500 transition-colors">🚀 Apply Match</button>
-                   <button onClick={handleSkillGap} className="bg-amber-400 text-white w-full py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-amber-500 transition-colors">🧠 Skill Gap</button>
-                 </div>
-              ) : resumeAnalysis ? (
-                 <button onClick={handleMatchJobs} className="mt-8 bg-amber-500 text-white shadow-lg w-full py-3.5 rounded-2xl text-[10px] font-bold flex items-center justify-center gap-2 uppercase tracking-widest hover:bg-amber-600 transition-colors">🔍 Match Jobs</button>
-              ) : (
-                 <button onClick={() => {toast("Generating Application payload...", { icon: "🚀" }); router.push('/dashboard/internships');}} className="mt-8 bg-white/10 w-full py-3.5 rounded-2xl text-[10px] font-bold flex items-center justify-center gap-2 uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">💡 Tap to apply</button>
-              )}
+              
+              <div className="mt-auto pt-6 flex flex-col gap-4">
+                <div className="flex items-center gap-2 opacity-40">
+                  <div className="h-[1px] flex-1 bg-white/20" />
+                  <span className="text-[8px] font-black uppercase tracking-[0.2em]">Live Radar</span>
+                  <div className="h-[1px] flex-1 bg-white/20" />
+                </div>
+                {aiJobs ? (
+                   <div className="flex gap-2">
+                     <button 
+                       onClick={() => handleApplyJob(aiJobs[0])} 
+                       disabled={cgpa < (aiJobs[0].min_cgpa || 0)}
+                       className={`${cgpa >= (aiJobs[0].min_cgpa || 0) ? 'bg-emerald-400 hover:bg-emerald-500' : 'bg-slate-700 cursor-not-allowed'} text-white w-full py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2`}
+                     >
+                       {cgpa >= (aiJobs[0].min_cgpa || 0) ? '🚀 Apply Match' : '🔒 Low CGPA'}
+                     </button>
+                     <button onClick={handleSkillGap} className="bg-amber-400 text-white w-full py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-amber-500 transition-colors">🧠 Skill Gap</button>
+                   </div>
+                ) : resumeAnalysis ? (
+                   <button onClick={handleMatchJobs} className="bg-amber-500 text-white shadow-lg w-full py-3.5 rounded-2xl text-[10px] font-bold flex items-center justify-center gap-2 uppercase tracking-widest hover:bg-amber-600 transition-colors">🔍 Match Jobs</button>
+                ) : (
+                   <button onClick={() => {toast("Generating Application payload...", { icon: "🚀" }); router.push('/dashboard/internships');}} className="bg-white/10 w-full py-3.5 rounded-2xl text-[10px] font-bold flex items-center justify-center gap-2 uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">💡 Tap to apply</button>
+                )}
+              </div>
+              <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-[#575a93]/10 blur-[80px] pointer-events-none" />
             </div>
 
-            <div className="bg-white p-8 rounded-[2.2rem] shadow-soft flex flex-col justify-between hover:-translate-y-1 transition-transform group">
+            <div className="bg-white p-8 rounded-[2.2rem] shadow-soft flex flex-col hover:-translate-y-1 transition-transform group border border-slate-50">
               <div className="flex items-center gap-2 mb-4">
                 <img 
                   className="w-9 h-9 rounded-full object-cover border border-slate-100 shadow-sm" 
@@ -441,46 +553,60 @@ export default function DashboardPage() {
               </div>
               <div className="flex justify-between items-center mt-auto">
                 <button onClick={() => router.push('/dashboard/interview')} className="text-[12px] font-bold text-[#575a93] uppercase tracking-widest">Open Hub</button>
-                <button onClick={() => router.push('/dashboard/interview/simulation')} className="w-9 h-9 bg-slate-50 text-[#575a93] rounded-xl flex items-center justify-center group-hover:bg-[#575a93] group-hover:text-white transition-colors">
+                <button onClick={() => router.push('/dashboard/interview')} className="w-9 h-9 bg-slate-50 text-[#575a93] rounded-xl flex items-center justify-center group-hover:bg-[#575a93] group-hover:text-white transition-colors">
                   <Icon name="chevron_right" className="text-lg" />
                 </button>
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-[2.2rem] shadow-soft flex flex-col items-center text-center hover:-translate-y-1 transition-transform group relative overflow-hidden">
+            <div className={`bg-white p-8 rounded-[2.2rem] shadow-soft flex flex-col items-center text-center hover:-translate-y-1 transition-transform group relative overflow-hidden ${
+                resumeAnalysis ? (resumeAnalysis.score >= 75 ? 'border-b-4 border-emerald-400' : resumeAnalysis.score >= 40 ? 'border-b-4 border-amber-400' : 'border-b-4 border-rose-500') : ''
+            }`}>
               {resumeAnalysis ? (
                  <>
-                   <div className="absolute top-0 right-0 bg-emerald-100 text-emerald-700 font-black text-xs px-4 py-2 rounded-bl-2xl">ATS {resumeAnalysis.score}%</div>
-                   <h4 className="font-extrabold text-[15px] mb-1 tracking-[-0.02em] text-emerald-600">Resume Analyzed</h4>
+                   <div className={`absolute top-0 right-0 font-black text-[10px] px-5 py-2.5 rounded-bl-3xl shadow-sm transition-colors ${
+                       resumeAnalysis.score >= 75 ? 'bg-emerald-400 text-white' : 
+                       resumeAnalysis.score >= 40 ? 'bg-amber-400 text-white' : 
+                       'bg-rose-500 text-white'
+                   }`}>
+                       ATS {resumeAnalysis.score}%
+                   </div>
+                   <h4 className={`font-black text-[16px] mb-1 tracking-[-0.03em] ${
+                       resumeAnalysis.score >= 75 ? 'text-emerald-600' : 
+                       resumeAnalysis.score >= 40 ? 'text-amber-600' : 
+                       'text-rose-600'
+                   }`}>
+                       {resumeAnalysis.score >= 75 ? 'Optimized Profile' : 'Needs Calibration'}
+                   </h4>
                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
-                     <Icon name="check_circle" className="text-[12px] text-emerald-500" />
+                     <Icon name={resumeAnalysis.score >= 75 ? "verified" : "error_outline"} className={`text-[14px] ${resumeAnalysis.score >= 75 ? 'text-emerald-500' : 'text-rose-500'}`} />
                      {uploadedFileName || "Current Active Profile"}
                    </p>
-                    <div className="text-left w-full mt-2 space-y-4">
+                    <div className="text-left w-full mt-2 space-y-4 max-h-[380px] overflow-y-auto pr-3 custom-scrollbar">
                       <div>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2 flex items-center justify-between">
-                            Found Competencies
-                            <span className="text-[8px] opacity-40">{resumeAnalysis.skills?.length || 0} Matched</span>
+                            Technical Inventory
+                            <span className="text-[9px] font-bold text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full">{resumeAnalysis.skills?.length || 0} Detected</span>
                         </p>
-                         <div className="flex flex-wrap gap-1.5 opacity-90">{(resumeAnalysis.skills||[]).map((s:string)=><span key={s} className="bg-emerald-50 text-emerald-700 text-[10px] px-2.5 py-1 rounded-lg font-black border border-emerald-100/50">{s}</span>)}</div>
+                         <div className="flex flex-wrap gap-2 opacity-90">{(resumeAnalysis.skills||[]).map((s:string)=><span key={s} className="bg-slate-50 text-slate-700 text-[10px] px-3 py-1.5 rounded-xl font-bold border border-slate-100 transition-colors hover:bg-white hover:border-slate-200">{s}</span>)}</div>
                       </div>
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => toast.error("Document link unavailable in this session. Check Profile page.")}
-                          className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 flex items-center justify-center gap-2"
-                        >
-                          <Icon name="visibility" className="text-sm" /> View doc.
-                        </button>
-                        <button 
-                          onClick={() => setIsUploadModalOpen(true)}
-                          className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 flex items-center justify-center gap-2"
-                        >
-                          <Icon name="upload_file" className="text-sm" /> Update
-                        </button>
-                      </div>
+                      <div className="flex gap-2.5">
+                         <button 
+                           onClick={() => router.push('/dashboard/profile')}
+                           className="flex-1 py-3.5 rounded-2xl border border-slate-100 bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-white hover:shadow-sm transition-all flex items-center justify-center gap-2"
+                         >
+                           <Icon name="visibility" className="text-[14px]" /> View
+                         </button>
+                         <button 
+                           onClick={() => setIsUploadModalOpen(true)}
+                           className="flex-1 py-3.5 rounded-2xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 shadow-lg shadow-slate-200 transition-all flex items-center justify-center gap-2"
+                         >
+                           <Icon name="upload_file" className="text-[14px]" /> Update
+                         </button>
+                       </div>
                       <div>
                         <p className="text-[10px] text-rose-400 font-bold uppercase tracking-widest mb-2 flex items-center justify-between">
-                            System Gaps
+                            Critical Gaps
                             <span className="text-[8px] opacity-40">High Priority</span>
                         </p>
                         <div className="flex flex-wrap gap-1.5 opacity-90">{(resumeAnalysis.missing||[]).map((s:string)=><span key={s} className="bg-rose-50 text-rose-600 text-[10px] px-2.5 py-1 rounded-lg font-black border border-rose-100/50">{s}</span>)}</div>
@@ -511,21 +637,21 @@ export default function DashboardPage() {
                        >
                          <Icon name="refresh" className="text-[12px]" /> Re-Analyze Experience
                        </button>
-                     </div>
-                   </div>
-                 </>
-              ) : (
-                 <>
-                   <h4 className="font-extrabold text-[15px] mb-2 tracking-[-0.02em]">Upload your CV</h4>
-                   <p className="text-[11px] text-[#717171] leading-tight mb-6 font-medium">Receive curator recommendations</p>
-                   <div onClick={() => setIsUploadModalOpen(true)} className="w-full flex-1 bg-slate-50 rounded-[1.8rem] flex flex-col items-center justify-center gap-3 p-6 group-hover:bg-[#F4F7FF] transition-colors cursor-pointer">
-                     <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-                       <Icon name="folder" className="text-[#575a93] text-3xl" />
-                     </div>
-                     <p className="text-[10px] font-bold text-[#575a93] uppercase tracking-widest">Drag & Drop file</p>
-                   </div>
-                 </>
-              )}
+                      </div>
+                    </div>
+                  </>
+               ) : (
+                  <>
+                    <h4 className="font-extrabold text-[15px] mb-2 tracking-[-0.02em]">Upload your CV</h4>
+                    <p className="text-[11px] text-[#717171] leading-tight mb-6 font-medium">Receive curator recommendations</p>
+                    <div onClick={() => setIsUploadModalOpen(true)} className="w-full flex-1 bg-slate-50 rounded-[1.8rem] flex flex-col items-center justify-center gap-3 p-6 group-hover:bg-[#F4F7FF] transition-colors cursor-pointer">
+                      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+                        <Icon name="folder" className="text-[#575a93] text-3xl" />
+                      </div>
+                      <p className="text-[10px] font-bold text-[#575a93] uppercase tracking-widest">Drag & Drop file</p>
+                    </div>
+                  </>
+               )}
             </div>
           </div>
 
@@ -541,7 +667,7 @@ export default function DashboardPage() {
                   onClick={() => router.push(`/dashboard/learning`)}
                   className="bg-white/60 backdrop-blur-md p-7 rounded-[2.2rem] relative border border-white hover:border-[#575a93]/30 transition-all group cursor-pointer shadow-soft active:scale-[0.98]"
                 >
-                  <button className="absolute top-6 right-6 text-slate-300 group-hover:text-[#575a93] transition-colors"><Icon name="more_vert" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); toast("Course bookmarked", { icon: "🔖" }); }} className="absolute top-6 right-6 text-slate-300 group-hover:text-[#575a93] transition-colors"><Icon name="more_vert" /></button>
                   <div className="w-full h-32 flex items-center justify-center mb-6 relative">
                     <div className="relative w-20 h-20">
                       <div className="absolute top-0 right-0 w-10 h-10 bg-orange-400 rounded-full shadow-lg z-10" />
@@ -568,37 +694,36 @@ export default function DashboardPage() {
         <aside className="w-full xl:w-[340px] flex flex-col gap-8">
           <div className="bg-white p-8 rounded-[2.2rem] shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
             <div className="flex justify-between items-center mb-8">
-              <button className="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100"><Icon name="menu" className="text-xl" /></button>
-              <div className="bg-slate-50 rounded-xl px-4 py-2 flex items-center gap-2 cursor-pointer border border-slate-100">
-                <Icon name="calendar_today" className="text-[14px]" />
-                <span className="text-[11px] font-bold uppercase tracking-wider">{new Date().toLocaleString('en-us', { month: 'short' })}</span>
-                <Icon name="expand_more" className="text-[14px]" />
-              </div>
-            </div>
+               <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))} className="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 hover:bg-slate-100 transition-colors"><Icon name="chevron_left" className="text-xl" /></button>
+               <div className="bg-slate-50 rounded-xl px-4 py-2 flex items-center gap-2 cursor-pointer border border-slate-100">
+                 <Icon name="calendar_today" className="text-[14px]" />
+                 <span className="text-[11px] font-black uppercase tracking-wider">{currentMonth.toLocaleString('en-us', { month: 'short', year: 'numeric' })}</span>
+               </div>
+               <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))} className="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 hover:bg-slate-100 transition-colors"><Icon name="chevron_right" className="text-xl" /></button>
+             </div>
             <div className="grid grid-cols-7 gap-y-4 text-center">
               {['S','M','T','W','T','F','S'].map((d, i) => <span key={i} className="text-[10px] font-bold text-slate-400">{d}</span>)} 
               {(function getCalendarDays() {
-                const now = new Date();
-                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                const firstDay = startOfMonth.getDay();
-                const days = [];
-                
-                // Days from prev month
-                const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-                for (let i = firstDay - 1; i >= 0; i--) {
-                  days.push({ val: prevMonthEnd - i, current: false, month: now.getMonth() - 1 });
-                }
-                // Days from current month
-                for (let i = 1; i <= endOfMonth.getDate(); i++) {
-                  days.push({ val: i, current: true, month: now.getMonth() });
-                }
-                // Days from next month
-                while (days.length < 42) {
-                  days.push({ val: days.length - (firstDay + endOfMonth.getDate()) + 1, current: false, month: now.getMonth() + 1 });
-                }
-                return days;
-              })().map((dateObj, i) => {
+                 const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+                 const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+                 const firstDay = startOfMonth.getDay();
+                 const days = [];
+                 
+                 // Days from prev month
+                 const prevMonthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 0).getDate();
+                 for (let i = firstDay - 1; i >= 0; i--) {
+                   days.push({ val: prevMonthEnd - i, current: false, month: currentMonth.getMonth() - 1 });
+                 }
+                 // Days from current month
+                 for (let i = 1; i <= endOfMonth.getDate(); i++) {
+                   days.push({ val: i, current: true, month: currentMonth.getMonth() });
+                 }
+                 // Days from next month
+                 while (days.length < 42) {
+                   days.push({ val: days.length - (firstDay + endOfMonth.getDate()) + 1, current: false, month: currentMonth.getMonth() + 1 });
+                 }
+                 return days;
+               })().map((dateObj, i) => {
                 const now = new Date();
                 const isToday = dateObj.val === now.getDate() && dateObj.current && dateObj.month === now.getMonth();
                 const isSelected = selectedDate?.getDate() === dateObj.val && selectedDate?.getMonth() === dateObj.month;
@@ -637,14 +762,8 @@ export default function DashboardPage() {
               <h3 className="font-extrabold text-[15px] uppercase tracking-tight">Active Schedule</h3>
               <button onClick={() => router.push('/dashboard/calendar')} className="text-[11px] font-bold text-[#9395D3] hover:text-[#575a93] transition-colors">View all</button>
             </div>
-            <div className="flex flex-col gap-4">
-               {(selectedDate 
-                 ? events.filter(e => {
-                     const d = new Date(e.start_time);
-                     return d.getDate() === selectedDate.getDate() && d.getMonth() === selectedDate.getMonth();
-                   })
-                 : events
-               ).length === 0 ? (
+            <div className="flex flex-col gap-4 max-h-[580px] overflow-y-auto pr-2 custom-scrollbar">
+               {events.length === 0 ? (
                  <div className="py-10 text-center space-y-3 opacity-40">
                    <Icon name="event_upcoming" className="text-4xl text-slate-300" />
                    <p className="text-[10px] font-black uppercase tracking-widest">{selectedDate ? "No signals for this date" : "No upcoming signals"}</p>
@@ -672,8 +791,8 @@ export default function DashboardPage() {
                             <Icon name="person" className="text-sm" />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-slate-900 uppercase">{(e as any).recruiter_name || "Institutional Advisor"}</p>
-                            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">{(e as any).recruiter_role || "Corporate Recruiter"}</p>
+                            <p className="text-[10px] font-black text-slate-900 uppercase">{e.recruiter_name || "Institutional Advisor"}</p>
+                            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">{e.recruiter_role || "Corporate Recruiter"}</p>
                         </div>
                     </div>
                     <p className="text-[10px] text-slate-400 leading-tight font-black uppercase tracking-wider flex items-center gap-2 bg-white/50 px-4 py-2 rounded-xl border border-slate-100/50 w-fit">
@@ -688,10 +807,16 @@ export default function DashboardPage() {
           <div className="bg-slate-950 p-8 rounded-[2.2rem] shadow-soft flex items-center justify-between border border-white/10 relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative z-10">
-              <h3 className="text-2xl font-black mb-1 tracking-tighter text-white">1350+</h3>
-              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[2px]">SkillSync Community</p>
-            </div>
-            <button className="relative z-10 px-6 py-2.5 bg-white text-slate-950 rounded-xl text-[10px] font-black hover:scale-105 transition-all active:scale-95 uppercase tracking-widest shadow-xl">Join</button>
+               <h3 className="text-2xl font-black mb-1 tracking-tighter text-white">1350+</h3>
+               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[2px]">SkillSync Community</p>
+             </div>
+             {hasJoinedCommunity ? (
+               <div className="bg-emerald-500/10 text-emerald-400 px-6 py-2.5 rounded-xl text-[10px] font-black flex items-center gap-2 border border-emerald-500/20">
+                 <Icon name="check_circle" className="text-sm" /> Joined
+               </div>
+             ) : (
+               <button onClick={handleJoinCommunity} className="relative z-10 px-6 py-2.5 bg-white text-slate-950 rounded-xl text-[10px] font-black hover:scale-105 transition-all active:scale-95 uppercase tracking-widest shadow-xl">Join</button>
+             )}
           </div>
         </aside>
       </div>
@@ -885,9 +1010,9 @@ export default function DashboardPage() {
           {aiJobs ? (
               <div className="space-y-3 relative z-10">
                  <h4 className="text-lg font-bold text-emerald-400 uppercase tracking-widest mb-1">Top Internships</h4>
-                 {aiJobs.slice(0,2).map((j, i) => (
-                    <div key={i} className="bg-white/10 p-3 rounded-xl border border-white/5 flex justify-between items-center">
-                       <div><p className="text-sm font-bold">{j.role}</p><p className="text-[10px] opacity-60">{j.company}</p></div>
+                 {aiJobs.slice(0,2).map((j: import('@/types').Internship, i: number) => (
+                    <div key={i} className="bg-white/10 p-3 rounded-xl border border-white/5 flex justify-between items-center" onClick={() => handleApplyJob(j)}>
+                       <div><p className="text-sm font-bold">{j.title}</p><p className="text-[10px] opacity-60">{j.company_name}</p></div>
                        <div className="text-emerald-400 font-bold bg-emerald-400/10 px-2 py-1 rounded text-xs">{j.match_percentage}%</div>
                     </div>
                  ))}
@@ -995,9 +1120,9 @@ export default function DashboardPage() {
             <span onClick={() => router.push('/dashboard/learning')} className="text-xs font-bold text-[#575a93] uppercase tracking-widest cursor-pointer">View All</span>
           </div>
           <div className="space-y-3">
-            {resumeAnalysis?.missingKeywords && resumeAnalysis.missingKeywords.length > 0 ? (
-              resumeAnalysis.missingKeywords.slice(0, 3).map((skill: string, i: number) => (
-                <div key={i} className="bg-white p-5 rounded-[1.8rem] flex items-center gap-4 shadow-soft active:scale-95 transition-transform border border-slate-50">
+            {resumeAnalysis?.missing && resumeAnalysis.missing.length > 0 ? (
+              resumeAnalysis.missing.slice(0, 3).map((skill: string, i: number) => (
+                <div key={i} onClick={() => router.push('/dashboard/learning')} className="bg-white p-5 rounded-[1.8rem] flex items-center gap-4 shadow-soft active:scale-95 transition-transform border border-slate-50 cursor-pointer">
                   <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600">
                     <Icon name="bolt" className="text-2xl" />
                   </div>
@@ -1019,9 +1144,18 @@ export default function DashboardPage() {
             )}
           </div>
         </section>
+
+        {/* Global Community (Mobile Join) */}
+        {!hasJoinedCommunity && (
+          <div className="bg-slate-950 p-6 rounded-3xl flex items-center justify-between border border-white/10">
+            <div>
+              <h3 className="text-xl font-black text-white">Join 1k+ students</h3>
+              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">SkillSync Global Network</p>
+            </div>
+            <button onClick={handleJoinCommunity} className="bg-white text-slate-950 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Join</button>
+          </div>
+        )}
       </main>
     </>
   );
 }
-
-

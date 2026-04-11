@@ -19,6 +19,7 @@ interface ProfileState {
   college: string;
   branch: string;
   graduation_year: string;
+  cgpa: string;
   resume_url: string;
   bio: string;
   email: string;
@@ -34,7 +35,7 @@ interface CompletionStep {
 export default function ProfilePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<ProfileState>({
-    name: '', roll_no: '', college: '', branch: '', graduation_year: '', resume_url: '', bio: '', email: ''
+    name: '', roll_no: '', college: '', branch: '', graduation_year: '', cgpa: '', resume_url: '', bio: '', email: ''
   });
   const [skills, setSkills] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -106,6 +107,7 @@ export default function ProfilePage() {
             college: student.college || '',
             branch: student.branch || '',
             graduation_year: student.graduation_year?.toString() || '',
+            cgpa: student.cgpa?.toString() || '',
             resume_url: student.resume_url || '',
             bio: student.bio || '',
             email: student.email || ''
@@ -131,6 +133,7 @@ export default function ProfilePage() {
     { label: 'University / College', done: !!profile.college.trim(), icon: School, hint: 'Add your institution for college placement tracking' },
     { label: 'Branch / Major', done: !!profile.branch.trim(), icon: BookOpen, hint: 'Your field of study helps match you with relevant roles' },
     { label: 'Graduation Year', done: !!profile.graduation_year, icon: GraduationCap, hint: 'Companies filter candidates by batch year' },
+    { label: 'Current CGPA', done: !!profile.cgpa && parseFloat(profile.cgpa) > 0, icon: TrendingUp, hint: 'Essential for job eligibility matching' },
     { label: 'Portfolio / Resume Link', done: !!profile.resume_url.trim(), icon: FileText, hint: 'A direct link to your resume dramatically boosts visibility' },
     { label: 'At Least 3 Skills', done: skillCount >= 3, icon: Award, hint: 'Add skills in the Skills tab to get matched with suitable roles' },
     { label: 'First Application', done: appCount > 0, icon: Zap, hint: 'Apply to at least one internship to activate your tracking' },
@@ -410,6 +413,20 @@ export default function ProfilePage() {
                       onChange={e => setProfile(p => ({ ...p, branch: e.target.value }))}
                       placeholder="e.g. Computer Science"
                       className="w-full h-14 px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
+                    />
+                  </div>
+
+                  {/* CGPA */}
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-amber-600 uppercase tracking-[3px] flex items-center gap-2">
+                      <TrendingUp size={11} /> Current CGPA
+                    </label>
+                    <input 
+                      type="number" step="0.01" min="0" max="10"
+                      value={profile.cgpa}
+                      onChange={e => setProfile(p => ({ ...p, cgpa: e.target.value }))}
+                      placeholder="e.g. 9.15"
+                      className="w-full h-14 px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-black text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
                     />
                   </div>
 

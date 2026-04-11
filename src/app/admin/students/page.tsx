@@ -19,6 +19,9 @@ interface Student {
   branch: string;
   academic_year: string;
   resume_url?: string;
+  cgpa: number;
+  applications_count: number;
+  rejections_count: number;
   student_skill?: { skill_name: string; level: string }[];
 }
 
@@ -27,6 +30,10 @@ export default function AdminStudentsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortBy, setSortBy] = useState<'name' | 'cgpa' | 'roll_no'>('name');
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [studentDetails, setStudentDetails] = useState<any>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -45,12 +52,32 @@ export default function AdminStudentsPage() {
     load();
   }, []);
 
+  const handleOpenDetails = async (student: Student) => {
+    setSelectedStudent(student);
+    setLoadingDetails(true);
+    try {
+      const res = await fetch(`/api/admin/students/${student.student_id}`);
+      const data = await res.json();
+      if (data.success) {
+        setStudentDetails(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to load student details:', err);
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
   const filtered = students.filter(s => 
     s.name?.toLowerCase().includes(search.toLowerCase()) ||
     s.college?.toLowerCase().includes(search.toLowerCase()) ||
     s.branch?.toLowerCase().includes(search.toLowerCase()) ||
     s.roll_no?.toLowerCase().includes(search.toLowerCase())
-  );
+  ).sort((a, b) => {
+    if (sortBy === 'cgpa') return (Number(b.cgpa) || 0) - (Number(a.cgpa) || 0);
+    if (sortBy === 'roll_no') return (a.roll_no || '').localeCompare(b.roll_no || '');
+    return (a.name || '').localeCompare(b.name || '');
+  });
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-[70vh] gap-8">
@@ -69,6 +96,7 @@ export default function AdminStudentsPage() {
   );
 
   return (
+    <>
     <div className="space-y-10 pb-20 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-10 border-b border-slate-100">
@@ -93,6 +121,16 @@ export default function AdminStudentsPage() {
               />
               <Search size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" />
            </div>
+
+           <select 
+             value={sortBy} 
+             onChange={(e) => setSortBy(e.target.value as any)}
+             className="h-14 px-6 rounded-2xl border border-slate-100 bg-white text-[10px] font-black uppercase tracking-[3px] focus:border-amber-500/30 transition-all shadow-sm outline-none appearance-none cursor-pointer pr-12 min-w-[160px]"
+           >
+             <option value="name">Sort by Name</option>
+             <option value="cgpa">Sort by CGPA</option>
+             <option value="roll_no">Sort by Roll No</option>
+           </select>
            
            <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200 shadow-inner">
               <button 
@@ -168,9 +206,14 @@ export default function AdminStudentsPage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter line-clamp-1 mb-1 group-hover:text-amber-600 transition-colors">{s.name}</h3>
-                    <div className="flex items-center gap-2">
-                       <Mail size={12} className="text-slate-300" />
-                       <span className="text-[10px] font-bold text-slate-400 line-clamp-1">{s.email}</span>
+                    <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                          <Mail size={12} className="text-slate-300" />
+                          <span className="text-[10px] font-bold text-slate-400 line-clamp-1">{s.email}</span>
+                       </div>
+                       <div className="px-2 py-0.5 rounded bg-amber-50 text-amber-600 text-[10px] font-black border border-amber-100">
+                          {s.cgpa} CGPA
+                       </div>
                     </div>
                   </div>
 
@@ -180,14 +223,16 @@ export default function AdminStudentsPage() {
                       <div className="text-[10px] font-black text-slate-600 uppercase tracking-[2px] line-clamp-1">{s.branch || 'N/A'}</div>
                     </div>
                     <div>
-                      <div className="text-[8px] font-black text-slate-300 uppercase tracking-[3px] mb-1">Academic Year</div>
-                      <div className="text-[10px] font-black text-slate-600 uppercase tracking-[2px]">{s.academic_year || 'N/A'} Year</div>
+                      <div className="text-[8px] font-black text-slate-300 uppercase tracking-[3px] mb-1">Applications</div>
+                      <div className="text-[10px] font-black text-slate-600 uppercase tracking-[2px] flex items-center gap-1">
+                        {s.applications_count} Total · <span className="text-rose-500">{s.rejections_count} R</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-amber-50 group-hover:border-amber-100 transition-all">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-amber-50 group-hover:border-amber-100 transition-all cursor-pointer" onClick={() => handleOpenDetails(s)}>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-[3px]">Skill Strength</span>
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-[3px]">Institutional Readiness</span>
                       <span className="text-[9px] font-black text-amber-600">{(s.student_skill?.length ?? 0) * 20}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-white rounded-full overflow-hidden border border-slate-100">
@@ -286,5 +331,112 @@ export default function AdminStudentsPage() {
         </div>
       )}
     </div>
+
+    {/* Detail Modal Overlay */}
+    <AnimatePresence>
+      {selectedStudent && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 lg:p-12">
+           <motion.div 
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             onClick={() => setSelectedStudent(null)}
+             className="absolute inset-0 bg-slate-950/40 backdrop-blur-xl"
+           />
+           
+           <motion.div 
+             initial={{ opacity: 0, scale: 0.9, y: 40 }}
+             animate={{ opacity: 1, scale: 1, y: 0 }}
+             exit={{ opacity: 0, scale: 0.9, y: 40 }}
+             className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden flex flex-col"
+           >
+              <div className="p-8 lg:p-12 border-b border-slate-50 flex items-start justify-between">
+                 <div className="flex gap-6 items-center">
+                    <div className="size-20 rounded-[2rem] bg-amber-600 text-white flex items-center justify-center text-3xl font-black shadow-xl">
+                       {selectedStudent.name.charAt(0)}
+                    </div>
+                    <div className="space-y-1">
+                       <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">{selectedStudent.name}</h2>
+                       <div className="flex items-center gap-3 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                          <span>{selectedStudent.roll_no}</span>
+                          <span className="opacity-20">|</span>
+                          <span>{selectedStudent.cgpa} CGPA</span>
+                       </div>
+                    </div>
+                 </div>
+                 <button onClick={() => setSelectedStudent(null)} className="p-3 bg-slate-50 rounded-2xl text-slate-400 hover:text-slate-900 transition-colors">
+                    <AlertCircle size={20} />
+                 </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-8 lg:p-12 space-y-12 bg-slate-50/30">
+                 {loadingDetails ? (
+                   <div className="py-20 flex flex-col items-center justify-center gap-4">
+                      <Activity className="text-amber-600 animate-spin" />
+                      <span className="text-[10px] font-black uppercase tracking-[5px] text-slate-400">Synchronizing Activity Data...</span>
+                   </div>
+                 ) : studentDetails && (
+                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                      <div className="space-y-8">
+                         <div className="space-y-4">
+                           <h3 className="text-[10px] font-black uppercase tracking-[5px] text-slate-400">Live Application Stream</h3>
+                           <div className="space-y-3">
+                              {(studentDetails.applications || []).map((app: any) => (
+                                <div key={app.application_id} className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-amber-200 transition-all">
+                                   <div>
+                                      <div className="text-sm font-black text-slate-900 uppercase tracking-tight">{app.internship?.title}</div>
+                                      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{app.internship?.company?.company_name}</div>
+                                   </div>
+                                   <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border transition-colors ${
+                                      app.status === 'Accepted' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                                      app.status === 'Rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                      'bg-amber-50 text-amber-600 border-amber-100'
+                                   }`}>
+                                      {app.status}
+                                   </div>
+                                </div>
+                              ))}
+                              {(!studentDetails.applications || studentDetails.applications.length === 0) && (
+                                <div className="p-10 text-center border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 text-[10px] font-black uppercase tracking-widest">No Active Applications Found</div>
+                              )}
+                           </div>
+                         </div>
+                      </div>
+
+                      <div className="space-y-8">
+                         <div className="space-y-4">
+                           <h3 className="text-[10px] font-black uppercase tracking-[5px] text-slate-400">Institutional Signals</h3>
+                           <div className="space-y-3">
+                              {(studentDetails.notifications || []).slice(0, 5).map((n: any) => (
+                                <div key={n.notification_id} className="p-5 bg-white/60 rounded-2xl border border-slate-50 flex gap-4">
+                                   <div className="size-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                                      <Activity size={14} className="text-slate-400" />
+                                   </div>
+                                   <div>
+                                      <div className="text-[11px] font-black text-slate-800 uppercase tracking-tight mb-1">{n.title}</div>
+                                      <p className="text-[10px] font-medium text-slate-500 leading-relaxed">{n.message}</p>
+                                   </div>
+                                </div>
+                              ))}
+                           </div>
+                         </div>
+                      </div>
+                   </div>
+                 )}
+              </div>
+              
+              <div className="p-8 lg:p-12 border-t border-slate-50 bg-slate-50/50 flex justify-end">
+                 <button 
+                   onClick={() => setSelectedStudent(null)}
+                   className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[3px] rounded-2xl hover:bg-black transition-all shadow-xl active:scale-95"
+                 >
+                    Dismiss Intelligence
+                 </button>
+              </div>
+           </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+    </>
   );
 }

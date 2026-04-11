@@ -8,30 +8,14 @@ import {
   MoreVertical, Calendar, TrendingUp, Target, Sparkles, Brain, Award, Star, Download
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Application as IApplication } from '@/types';
+import { 
+  EnrichedCompanyApplication, 
+  TalentDiscoveryProfile, 
+  CompanyStats 
+} from '@/types';
 import { exportToCSV } from '@/lib/utils/export';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
-
-// Enriched application for the company view
-interface EnrichedCompanyApplication extends IApplication {
-  student_name: string;
-  student_roll_no?: string;
-  student_skills: string[];
-  role_title: string;
-  match_score: number;
-  ai_interview_guide: string[];
-}
-
-interface TalentDiscoveryProfile {
-  id: string;
-  name: string;
-  skills: string[];
-  top_match: {
-    role: string;
-    score: number;
-  };
-}
 
 const statusColors: Record<string, { color: string; bg: string; border: string }> = {
   'Pending':      { color: 'text-slate-500',  bg: 'bg-slate-50',   border: 'border-slate-100'  },
@@ -43,26 +27,36 @@ const statusColors: Record<string, { color: string; bg: string; border: string }
 
 export default function CompanyDashboard() {
   const router = useRouter();
-  const [stats, setStats] = useState({ activeRoles: 0, totalApplicants: 0, pendingReview: 0, interviewsScheduled: 0, isVerified: false });
+  const [stats, setStats] = useState<CompanyStats>({ 
+    activeRoles: 0, 
+    totalApplicants: 0, 
+    pendingReview: 0, 
+    interviewsScheduled: 0, 
+    isVerified: false 
+  });
   const [applications, setApplications] = useState<EnrichedCompanyApplication[]>([]);
   const [talentDiscovery, setTalentDiscovery] = useState<TalentDiscoveryProfile[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<EnrichedCompanyApplication | null>(null);
   const [loading, setLoading] = useState(true);
   const [isShortlisting, setIsShortlisting] = useState(false);
-  const [aiShortlist, setAiShortlist] = useState<any>(null);
+  const [aiShortlist, setAiShortlist] = useState<any>(null); // Shortlist UI is polymorphic
 
   useEffect(() => {
+    const controller = new AbortController();
+    
     async function load() {
       const { data: { session } } = await supabase.auth.getSession();
       const storedId = session?.user?.id;
       
       if (!storedId) {
-        router.push('/auth/login');
+        window.location.href = '/auth/login';
         return;
       }
 
       try {
-        const response = await fetch(`/api/company/stats?companyId=${storedId}`);
+        const response = await fetch(`/api/company/stats?companyId=${storedId}`, {
+          signal: controller.signal
+        });
         const result = await response.json();
 
         if (result.success) {
@@ -71,12 +65,16 @@ export default function CompanyDashboard() {
           setTalentDiscovery(result.talentDiscovery);
         }
         setLoading(false);
-      } catch (e) {
-        console.error('Failed to load company dashboard:', e);
-        setLoading(false);
+      } catch (e: any) {
+        if (e.name !== 'AbortError') {
+          console.error('Failed to load company dashboard:', e);
+          setLoading(false);
+        }
       }
     }
     load();
+
+    return () => controller.abort();
   }, [router]);
 
   const handleStatusUpdate = async (appId: string, newStatus: string) => {
@@ -96,8 +94,9 @@ export default function CompanyDashboard() {
       } else {
         toast.error(result.error || "Failed to update status");
       }
-    } catch (e) {
-      console.error(e);
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error(error);
       toast.error("Network error updating status");
     }
   };
@@ -111,7 +110,6 @@ export default function CompanyDashboard() {
         skills: app.student_skills || [] 
       }));
 
-      // Use the description of the internship being viewed, or a general summary
       const jobContext = applications[0]?.role_title || "Technical Position";
       const jd = `Looking for top candidates for the ${jobContext} role. Focus on technical maturity, skill alignment, and architectural depth.`;
 
@@ -371,11 +369,11 @@ export default function CompanyDashboard() {
                                     <div className="flex justify-between items-start mb-3">
                                         <div>
                                             <h4 className="font-black text-slate-900 text-sm uppercase tracking-tight">{talent.name}</h4>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Match: <span className="text-emerald-600">{talent.top_match.role}</span></span>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Match: <span className="text-emerald-600">{talent.top_match?.role || 'N/A'}</span></span>
                                         </div>
                                         <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-100 text-emerald-600 rounded-lg">
                                             <Star size={10} className="fill-emerald-600" />
-                                            <span className="text-[10px] font-black">{talent.top_match.score}%</span>
+                                            <span className="text-[10px] font-black">{talent.top_match?.score || 0}%</span>
                                         </div>
                                     </div>
                                     <button 
@@ -383,7 +381,11 @@ export default function CompanyDashboard() {
                                         toast.promise(
                                           fetch('/api/notifications', {
                                             method: 'POST',
-                                            body: JSON.stringify({ userId: talent.id, title: "Internship Invitation", message: `You have been invited to apply for ${talent.top_match.role}` })
+                                            body: JSON.stringify({ 
+                                              userId: talent.id, 
+                                              title: "Internship Invitation", 
+                                              message: `You have been invited to apply for ${talent.top_match?.role || 'a position'}` 
+                                            })
                                           }),
                                           { loading: 'Sending invite...', success: 'Candidate Invited!', error: 'Service Unavailable' }
                                         );

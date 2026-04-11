@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin as supabase } from '@/lib/supabase';
 import { AI_ENGINE } from '@/lib/ai-engine';
 import { notifyStatusUpdate } from '@/lib/notifications';
+import { EnrichedCompanyApplication } from '@/types';
 
 export async function GET(request: Request) {
   try {
@@ -15,7 +16,11 @@ export async function GET(request: Request) {
     // 1. Fetch Company Internships (to filter applications)
     const { data: internships } = await supabase
       .from('internship')
-      .select('internship_id, title, internship_skill(skill(skill_name))')
+      .select(`
+        internship_id, 
+        title, 
+        internship_skill(skill(skill_name))
+      `)
       .eq('company_id', companyId);
 
     const internIds = (internships || []).map((i: any) => i.internship_id);
@@ -24,12 +29,23 @@ export async function GET(request: Request) {
     const { data: applications, error } = await supabase
       .from('application')
       .select(`
-        *,
+        application_id,
+        status,
+        applied_date,
+        internship_id,
         student(
-          student_id, name, email, college, branch, graduation_year, roll_no,
-          student_skill(skill(skill_name))
+          student_id, 
+          name, 
+          email, 
+          college, 
+          branch, 
+          graduation_year, 
+          roll_no,
+          student_skill(skill(skill_name)),
+          ai_resume_analysis,
+          resume_url
         ),
-        internship(internship_id, title)
+        internship(title)
       `)
       .in('internship_id', internIds)
       .order('applied_date', { ascending: false });
@@ -37,7 +53,7 @@ export async function GET(request: Request) {
     if (error) throw error;
 
     // 3. Enrich with AI matching logic
-    const enriched = (applications || []).map((app: any) => {
+    const enriched: EnrichedCompanyApplication[] = (applications || []).map((app: any) => {
       const studentSkills = app.student?.student_skill?.map((sk: any) => sk.skill.skill_name) || [];
       const role = internships?.find((i: any) => i.internship_id === app.internship_id);
       const requiredSkills = role?.internship_skill?.map((ir: any) => ir.skill.skill_name) || [];
@@ -46,25 +62,22 @@ export async function GET(request: Request) {
       const aiInterviewQuestions = (app.student && role) ? AI_ENGINE.generateInterviewQuestions(studentSkills, role.title) : [];
 
       return {
-        ...app,
         application_id: app.application_id.toString(),
+        student_id: app.student?.student_id || '',
+        internship_id: app.internship_id.toString(),
+        company_id: companyId,
+        status: app.status,
+        applied_date: app.applied_date,
+        student_name: app.student?.name || 'Unknown',
+        student_roll_no: app.student?.roll_no || 'N/A',
+        student_skills: studentSkills,
+        role_title: app.internship?.title || 'Unknown Role',
         match_score: matchScore,
-        ai_interview_questions: aiInterviewQuestions,
-        student: app.student ? {
-          name: app.student.name,
-          email: app.student.email,
-          college: app.student.college,
-          branch: app.student.branch,
-          roll_no: app.student.roll_no,
-          graduation_year: app.student.graduation_year || '2025',
-          skills: app.student.student_skill?.map((sk: any) => ({
-            skill_name: sk.skill.skill_name
-          }))
-        } : null,
-        internship: app.internship ? {
-            title: app.internship.title,
-            company_id: companyId
-        } : null
+        ai_interview_guide: aiInterviewQuestions,
+        resume_analysis: app.student?.ai_resume_analysis ? {
+          ...app.student.ai_resume_analysis,
+          resume_url: app.student.resume_url
+        } : undefined
       };
     });
 
@@ -88,7 +101,8 @@ export async function PATCH(request: Request) {
     const { data: application, error: fetchError } = await supabase
       .from('application')
       .select(`
-        *,
+        application_id,
+        status,
         student(student_id, name, email),
         internship(title)
       `)
@@ -102,7 +116,7 @@ export async function PATCH(request: Request) {
     // 2. Update status
     const { data: updated, error } = await supabase
       .from('application')
-      .update({ status } as any)
+      .update({ status })
       .eq('application_id', id)
       .select()
       .single();

@@ -13,8 +13,14 @@ export async function GET(request: Request) {
       .from('internship')
       .select(`
         *,
-        company(company_name),
-        internship_skill(skill(skill_name))
+        company:company_id (
+          company_name
+        ),
+        internship_skill (
+          skill:skill_id (
+            skill_name
+          )
+        )
       `)
       .order('internship_id', { ascending: false });
 

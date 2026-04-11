@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { Toaster, toast } from 'react-hot-toast';
 
 import { motion, AnimatePresence } from 'framer-motion';
+import PulseAgent from '@/components/dashboard/PulseAgent';
 
 // Helper component for Material Symbols Icons
 const Icon = ({ name, className = "", style = {} }: { name: string, className?: string, style?: any }) => (
@@ -264,6 +265,9 @@ export default function DashboardLayout({
           {children}
         </div>
       </main>
+
+      {/* Global Pulse Agent Companion */}
+      <PulseAgent />
     </div>
   );
 }
