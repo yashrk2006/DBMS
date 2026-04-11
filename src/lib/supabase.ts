@@ -20,16 +20,18 @@ export const supabase =
 // ─── Admin Client (Server-Side Only) ────────────────────────────────────────
 // For administrative tasks (bypassing RLS).
 // Only use this in API routes and server components.
-export const supabaseAdmin = createClient(
-  supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-);
+export const supabaseAdmin = typeof window === 'undefined'
+  ? createClient(
+      supabaseUrl,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    )
+  : null as any;
 
 
 

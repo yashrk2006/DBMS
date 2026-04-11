@@ -28,10 +28,10 @@ export async function GET(request: Request) {
     if (skillsError) throw skillsError;
 
     const studentSkills = (skilledData || []).map((s: any) => ({
-      skill_id: s.skill.skill_id,
-      skill_name: s.skill.skill_name,
+      skill_id: s.skill?.skill_id,
+      skill_name: s.skill?.skill_name || 'Legacy Skill',
       proficiency_level: s.proficiency_level
-    }));
+    })).filter(s => s.skill_id);
 
     // 2. Fetch All Internships for AI Insights
     const { data: allInternshipsRaw } = await supabase
@@ -138,10 +138,10 @@ export async function POST(request: Request) {
       .eq('student_id', userId);
 
     const updatedSkills = (updatedSkillsRaw || []).map((s: any) => ({
-      skill_id: s.skill.skill_id,
-      skill_name: s.skill.skill_name,
+      skill_id: s.skill?.skill_id,
+      skill_name: s.skill?.skill_name || 'Legacy Skill',
       proficiency_level: s.proficiency_level
-    }));
+    })).filter(s => s.skill_id);
 
     return NextResponse.json({ 
       success: true, 

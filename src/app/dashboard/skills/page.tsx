@@ -35,7 +35,8 @@ export default function SkillsPage() {
   const [selectedLevel, setSelectedLevel] = useState<typeof LEVELS[number]>('Beginner');
   const [aiSkillSuggestions, setAiSkillSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [matrixSearch, setMatrixSearch] = useState(''); // Local search for existing skills
   const [aiInsights, setAiInsights] = useState<{ marketReach: number, nextBestSkill: any } | null>(null);
 
   const load = useCallback(async () => {
@@ -123,12 +124,12 @@ export default function SkillsPage() {
   };
 
   const filteredSkills = useMemo(() => {
-    if (!searchQuery) return [];
+    if (!searchTerm) return [];
     return allSkills.filter(s => 
-      s.skill_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      s.skill_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
       !mySkills.find(ms => ms.skill_name.toLowerCase() === s.skill_name.toLowerCase())
     ).slice(0, 10);
-  }, [allSkills, searchQuery, mySkills]);
+  }, [allSkills, searchTerm, mySkills]);
 
   return (
     <div className="space-y-12 pb-24">
@@ -162,9 +163,9 @@ export default function SkillsPage() {
                                  <input 
                                     type="text" 
                                     placeholder="TYPE OR SEARCH 40+ SKILLS..."
-                                    value={searchQuery || selectedSkillName}
+                                    value={searchTerm || selectedSkillName}
                                     onChange={(e) => {
-                                      setSearchQuery(e.target.value);
+                                      setSearchTerm(e.target.value);
                                       setSelectedSkillName(''); // clear previous selection when typing new
                                     }}
                                     onKeyDown={(e) => { if (e.key === 'Enter') addSkill(); }}
@@ -301,9 +302,21 @@ export default function SkillsPage() {
                     <div className="size-10 rounded-xl bg-slate-50 text-slate-700 border border-slate-100 flex items-center justify-center shadow-sm"><Layers size={18} /></div>
                     <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Active Skill Matrix</h2>
                 </div>
-                <div className="flex items-center gap-2">
-                    <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[9px] font-black uppercase tracking-[3px] text-slate-400">{mySkills.length} Verified Entries</span>
+                <div className="flex items-center gap-6">
+                    <div className="relative group w-48">
+                        <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                        <input 
+                            type="text"
+                            placeholder="FILTER MATRIX..."
+                            value={matrixSearch}
+                            onChange={(e) => setMatrixSearch(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest focus:bg-white focus:border-slate-300 outline-none transition-all"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-[9px] font-black uppercase tracking-[3px] text-slate-400">{mySkills.length} Verified Entries</span>
+                    </div>
                 </div>
             </div>
 
@@ -315,7 +328,9 @@ export default function SkillsPage() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <AnimatePresence mode="popLayout">
-                        {mySkills.map((ms, index) => {
+                        {mySkills
+                        .filter(s => !matrixSearch || s.skill_name.toLowerCase().includes(matrixSearch.toLowerCase()))
+                        .map((ms, index) => {
                             const config = levelConfig[ms.proficiency_level] || levelConfig['Beginner'];
                             return (
                                 <motion.div key={ms.skill_name} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: index * 0.05 }} className="group relative bg-white p-8 rounded-[2.5rem] border border-slate-100 hover:border-amber-500/30 transition-all duration-500 shadow-sm hover:shadow-xl">

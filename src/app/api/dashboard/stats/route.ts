@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     // 1. Fetch Student Data - Optimized Selection
     const { data: studentData, error: studentError } = await supabase
       .from('student')
-      .select('student_id, name, email, roll_no, college, ai_resume_analysis, cgpa')
+      .select('student_id, name, email, roll_no, college, cgpa, ai_resume_analysis')
       .eq('student_id', userId)
       .single();
 
@@ -30,8 +30,8 @@ export async function GET(request: Request) {
       .eq('student_id', userId);
 
     const studentSkills = (skilledData || []).map((s: any) => ({
-      skill_name: s.skill.skill_name as string,
-      level: s.proficiency_level as string
+      skill_name: s.skill?.skill_name || 'Legacy Skill',
+      level: s.proficiency_level || 'Beginner'
     }));
 
     // 3. Fetch All Internships (for AI matching) - Optimized Selection
@@ -123,7 +123,7 @@ export async function GET(request: Request) {
         email: studentData.email,
         roll_no: studentData.roll_no,
         college: studentData.college,
-        cgpa: studentData.cgpa || 0,
+        cgpa: studentData?.cgpa || 0,
         skills: studentSkills,
         market_reach: marketReach,
         high_impact_skill: highImpactSkill,

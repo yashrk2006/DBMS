@@ -60,6 +60,7 @@ export default function ReviewCandidates() {
   const [now, setNow] = useState<number>(0);
   const [aiAssessments, setAiAssessments] = useState<Record<string, string[]>>({});
   const [generatingId, setGeneratingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleGenerateAssessment = async (candidate: Candidate) => {
     setGeneratingId(candidate.application_id);
@@ -168,7 +169,19 @@ export default function ReviewCandidates() {
     'Rejected': candidates.filter(c => c.status === 'Rejected').length,
   };
 
-  const filtered = activeTab === 'All' ? candidates : candidates.filter(c => c.status === activeTab);
+  const filtered = candidates.filter(c => {
+    const statusMatch = activeTab === 'All' || c.status === activeTab;
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return statusMatch;
+
+    const nameMatch = c.student?.name?.toLowerCase().includes(query);
+    const emailMatch = c.student?.email?.toLowerCase().includes(query);
+    const rollMatch = c.student?.roll_no?.toLowerCase().includes(query);
+    const titleMatch = c.internship?.title?.toLowerCase().includes(query);
+    const skillMatch = c.student?.skills?.some(s => s.skill_name.toLowerCase().includes(query));
+
+    return statusMatch && (nameMatch || emailMatch || rollMatch || titleMatch || skillMatch);
+  });
   const acceptRate = candidates.length > 0 ? Math.round((counts['Accepted'] / candidates.length) * 100) : 0;
 
   return (
@@ -180,12 +193,24 @@ export default function ReviewCandidates() {
             {candidates.length} total applicants · <span className="text-emerald-600 font-black">{acceptRate}%</span> acceptance rate
           </p>
         </div>
-        <div className="inline-flex items-center gap-2 bg-white border border-slate-100 text-slate-500 px-4 py-2 rounded-xl text-sm font-semibold shadow-sm">
-          <span className="relative flex size-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full size-2 bg-emerald-500"></span>
-          </span>
-          Live Pipeline
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <div className="relative group w-full md:w-80">
+            <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-600 transition-colors" />
+            <input 
+              type="text"
+              placeholder="SEARCH CANDIDATES OR SKILLS..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-14 pr-6 py-4 bg-white border border-slate-100 rounded-2xl text-[11px] font-black uppercase tracking-widest focus:ring-4 focus:ring-slate-900/5 focus:border-slate-300 transition-all outline-none placeholder:text-slate-300 shadow-sm"
+            />
+          </div>
+          <div className="inline-flex items-center gap-2 bg-white border border-slate-100 text-slate-500 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[2px] shadow-sm">
+            <span className="relative flex size-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full size-2 bg-emerald-500"></span>
+            </span>
+            Live Pipeline
+          </div>
         </div>
       </header>
 

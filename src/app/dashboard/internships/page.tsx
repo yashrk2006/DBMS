@@ -43,7 +43,7 @@ export default function InternshipsPage() {
     }
     
     try {
-      const respStats = await fetch(`/api/dashboard/stats?userId=${userId}`);
+      const respStats = await fetch(`/api/dashboard/stats?userId=${userId}&t=${Date.now()}`, { cache: 'no-store' });
       const statsResult = await respStats.json();
       const currentSkills = statsResult.success ? statsResult.student.skills.map((s: any) => s.skill_name) : [];
       setMySkills(currentSkills);

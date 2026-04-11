@@ -409,19 +409,10 @@ export default function LoginPage() {
                   <div className="size-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center mb-6">
                       <KeyRound size={32} />
                   </div>
-                  <div className="flex bg-slate-100 p-1.5 rounded-2xl">
-                    <button 
-                      onClick={() => setAuthMode('login')}
-                      className={`px-8 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${authMode === 'login' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
-                    >
-                      Log In
-                    </button>
-                    <button 
-                      onClick={() => setAuthMode('signup')}
-                      className={`px-8 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${authMode === 'signup' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
-                    >
-                      Register
-                    </button>
+                  <div className="flex bg-slate-100/50 p-1.5 rounded-2xl">
+                    <div className="px-8 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white text-slate-900 shadow-sm border border-slate-100">
+                      Authorized Entry Only
+                    </div>
                   </div>
                </div>
                
@@ -498,6 +489,28 @@ export default function LoginPage() {
                              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{corp.industry}</p>
                            </button>
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedRole === 'admin' && authMode === 'login' && (
+                    <div className="pt-8 mt-8 border-t border-slate-100">
+                      <p className="text-[10px] font-black uppercase tracking-[3px] text-slate-400 mb-6 text-center">Administrative Access Directory</p>
+                      <div className="grid grid-cols-1 gap-4">
+                         <button
+                           onClick={() => {
+                             setEmail('admin@skillsync.com');
+                             setPassword('admin123456');
+                             toast.success('Admin Credentials Synchronized');
+                           }}
+                           className="group p-5 rounded-3xl border border-slate-900 bg-slate-900 text-white hover:bg-amber-600 hover:border-amber-600 transition-all text-left flex items-center justify-between shadow-xl"
+                         >
+                           <div>
+                              <p className="text-[11px] font-black uppercase tracking-[4px] mb-1">TNP Placement Officer</p>
+                              <p className="text-[9px] font-bold opacity-50 uppercase tracking-widest">Master Authority Account</p>
+                           </div>
+                           <ShieldCheck size={20} className="text-white/40 group-hover:text-white transition-opacity text-amber-500" />
+                         </button>
                       </div>
                     </div>
                   )}

@@ -57,7 +57,10 @@ export default function DashboardPage() {
       }
 
       try {
-        const response = await fetch(`/api/dashboard/stats?userId=${userId}`, { signal: controller.signal });
+        const response = await fetch(`/api/dashboard/stats?userId=${userId}&t=${Date.now()}`, { 
+          signal: controller.signal,
+          cache: 'no-store'
+        });
         const data = await response.json();
         
         if (data.success && !controller.signal.aborted) {
@@ -71,9 +74,9 @@ export default function DashboardPage() {
 
           if (data.student?.skills && data.student.skills.length > 0) {
             const colors = ['bg-emerald-400', 'bg-purple-500', 'bg-orange-400', 'bg-cyan-400', 'bg-[#575a93]'];
-            setSkills(data.student.skills.slice(0,3).map((sk: import('@/types').Skill, i: number) => ({
-              label: sk.skill_name || 'Skill',
-              val: sk.level === 'Advanced' ? 90 : sk.level === 'Intermediate' ? 60 : sk.level === 'Expert' ? 95 : 30,
+            setSkills(data.student.skills.map((sk: any, i: number) => ({
+              label: (typeof sk === 'string' ? sk : sk?.skill_name) || 'Skill',
+              val: typeof sk === 'object' && sk.level ? (sk.level === 'Advanced' ? 95 : sk.level === 'Intermediate' ? 70 : sk.level === 'Expert' ? 100 : 40) : 75,
               color: colors[i % colors.length]
             })));
           } else {
@@ -165,9 +168,9 @@ export default function DashboardPage() {
             setStats(statsData.stats);
             if (statsData.student?.skills) {
                const colors = ['bg-emerald-400', 'bg-purple-500', 'bg-orange-400', 'bg-cyan-400', 'bg-[#575a93]'];
-               setSkills(statsData.student.skills.slice(0,3).map((sk: import('@/types').Skill, i: number) => ({
-                 label: sk.skill_name || 'Skill',
-                 val: sk.level === 'Advanced' ? 90 : 60,
+               setSkills(statsData.student.skills.map((sk: any, i: number) => ({
+                 label: (typeof sk === 'string' ? sk : sk?.skill_name) || 'Skill',
+                 val: typeof sk === 'object' && sk.level ? (sk.level === 'Advanced' ? 95 : 70) : 75,
                  color: colors[i % colors.length]
                })));
             }
@@ -257,7 +260,7 @@ export default function DashboardPage() {
       const data = await res.json();
       if (data.success) {
         toast.success("Skills Merged into Inventory!", { id: "sync-toast" });
-        const response = await fetch(`/api/dashboard/stats?userId=${userId}`, { signal: controller.signal });
+        const response = await fetch(`/api/dashboard/stats?userId=${userId}`, { cache: 'no-store', signal: controller.signal });
         if (response.ok) {
            const result = await response.json();
            if (result.success) setStats(result.stats);
@@ -433,18 +436,21 @@ export default function DashboardPage() {
                   </div>
                   <p className="text-[11px] text-slate-400 font-black uppercase tracking-[3px] mt-2">Skill Progression</p>
                 </div>
-                <div className="flex-1 space-y-6">
-                  {skills.map((s) => (
-                    <div key={s.label}>
+                <div className="flex-1 space-y-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  {(skills.length > 0 ? skills : stats.skills > 0 ? Array(Math.min(stats.skills, 5)).fill(null) : []).map((s, i) => (
+                    <div key={i} className={!s ? 'animate-pulse' : ''}>
                       <div className="flex justify-between text-[10px] font-black mb-2 uppercase tracking-widest">
-                        <span className="text-slate-400">{s.label}</span>
-                        <span className="text-slate-950">{s.val}%</span>
+                        <span className="text-slate-400">{s?.label || 'Indexing...'}</span>
+                        <span className="text-slate-950">{s?.val || '0'}%</span>
                       </div>
                       <div className="h-2 bg-slate-100 rounded-full overflow-hidden shadow-inner">
-                        <motion.div initial={{ width: 0 }} animate={{ width: `${s.val}%` }} className={`h-full ${s.color} rounded-full shadow-lg`} />
+                        <motion.div initial={{ width: 0 }} animate={{ width: `${s?.val || 0}%` }} className={`h-full ${s?.color || 'bg-slate-200'} rounded-full shadow-lg`} />
                       </div>
                     </div>
                   ))}
+                  {skills.length === 0 && stats.skills === 0 && (
+                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest text-center py-4">No skills indexed</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -455,27 +461,69 @@ export default function DashboardPage() {
               <h3 className="text-[11px] font-bold uppercase tracking-[0.05em] mb-6 opacity-60">Job Feed</h3>
               <div className="relative flex-1">
                 <div className="bg-white rounded-[1.5rem] p-5 text-[#2d3335] relative z-10 shadow-xl min-h-[140px] flex flex-col justify-center">
-                  {aiJobs && aiJobs[0] ? (
+                  {aiJobs && aiJobs.filter(j => 
+                    !searchTerm || 
+                    j.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    j.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+                  )[0] ? (
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 flex items-center justify-center p-1 bg-amber-50 rounded-lg text-amber-600">
                           <Icon name="bolt" className="text-xl" />
                         </div>
-                        <h4 className="font-bold text-[13px] leading-tight tracking-tight uppercase">{aiJobs[0].title || 'SkillSync Intern'}</h4>
+                        <h4 className="font-bold text-[13px] leading-tight tracking-tight uppercase">
+                          {aiJobs.filter(j => 
+                            !searchTerm || 
+                            j.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            j.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+                          )[0].title || 'SkillSync Intern'}
+                        </h4>
                       </div>
                       <div className="flex justify-between items-center">
-                        <p className="text-[11px] font-black text-slate-400 upperCase tracking-widest">{aiJobs[0].company_name}</p>
+                        <p className="text-[11px] font-black text-slate-400 upperCase tracking-widest">
+                          {aiJobs.filter(j => 
+                            !searchTerm || 
+                            j.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            j.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+                          )[0].company_name}
+                        </p>
                         <div className="flex flex-col items-end gap-1">
-                          <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded">{aiJobs[0].match_percentage}% Match</span>
-                          {aiJobs[0].min_cgpa !== undefined && aiJobs[0].min_cgpa > 0 && (
-                            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter ${cgpa >= aiJobs[0].min_cgpa ? 'text-indigo-600 bg-indigo-50' : 'text-rose-600 bg-rose-50'}`}>
-                              Req: {aiJobs[0].min_cgpa} CGPA
+                          <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
+                            {aiJobs.filter(j => 
+                              !searchTerm || 
+                              j.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                              j.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+                            )[0].match_percentage}% Match
+                          </span>
+                          {aiJobs.filter(j => 
+                            !searchTerm || 
+                            j.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            j.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+                          )[0].min_cgpa !== undefined && aiJobs.filter(j => 
+                            !searchTerm || 
+                            j.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            j.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+                          )[0].min_cgpa > 0 && (
+                            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-tighter ${cgpa >= aiJobs.filter(j => 
+                              !searchTerm || 
+                              j.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                              j.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+                            )[0].min_cgpa ? 'text-indigo-600 bg-indigo-50' : 'text-rose-600 bg-rose-50'}`}>
+                              Req: {aiJobs.filter(j => 
+                                !searchTerm || 
+                                j.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                j.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+                              )[0].min_cgpa} CGPA
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
-                  ) : recentApplications[0] ? (
+                  ) : recentApplications.filter(a => 
+                    !searchTerm || 
+                    a.role_title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    a.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+                  )[0] ? (
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 flex items-center justify-center p-1 bg-slate-50 rounded-lg">
@@ -488,7 +536,13 @@ export default function DashboardPage() {
                             }}
                           />
                         </div>
-                        <h4 className="font-bold text-[14px] leading-tight tracking-tight">{recentApplications[0].role_title}</h4>
+                        <h4 className="font-bold text-[14px] leading-tight tracking-tight">
+                          {recentApplications.filter(a => 
+                            !searchTerm || 
+                            a.role_title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            a.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+                          )[0].role_title}
+                        </h4>
                       </div>
                       <p className="text-[12px] font-bold text-slate-400 uppercase">Latest Application</p>
                     </div>
@@ -588,7 +642,15 @@ export default function DashboardPage() {
                             Technical Inventory
                             <span className="text-[9px] font-bold text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full">{resumeAnalysis.skills?.length || 0} Detected</span>
                         </p>
-                         <div className="flex flex-wrap gap-2 opacity-90">{(resumeAnalysis.skills||[]).map((s:string)=><span key={s} className="bg-slate-50 text-slate-700 text-[10px] px-3 py-1.5 rounded-xl font-bold border border-slate-100 transition-colors hover:bg-white hover:border-slate-200">{s}</span>)}</div>
+                         <div className="max-h-[160px] overflow-y-auto pr-2 custom-scrollbar">
+                           <div className="grid grid-cols-4 gap-2 opacity-90">
+                             {(resumeAnalysis.skills||[]).map((s:string)=>(
+                               <span key={s} className="bg-slate-50 text-slate-700 text-[8px] px-1 py-2 rounded-lg font-black border border-slate-100 text-center truncate shadow-sm transition-all hover:bg-white" title={s}>
+                                 {s}
+                               </span>
+                             ))}
+                           </div>
+                         </div>
                       </div>
                       <div className="flex gap-2.5">
                          <button 
@@ -609,7 +671,15 @@ export default function DashboardPage() {
                             Critical Gaps
                             <span className="text-[8px] opacity-40">High Priority</span>
                         </p>
-                        <div className="flex flex-wrap gap-1.5 opacity-90">{(resumeAnalysis.missing||[]).map((s:string)=><span key={s} className="bg-rose-50 text-rose-600 text-[10px] px-2.5 py-1 rounded-lg font-black border border-rose-100/50">{s}</span>)}</div>
+                        <div className="max-h-[160px] overflow-y-auto pr-2 custom-scrollbar">
+                          <div className="grid grid-cols-4 gap-2 opacity-90">
+                            {(resumeAnalysis.missing||[]).map((s:string)=>(
+                              <span key={s} className="bg-rose-50 text-rose-600 text-[8px] px-1 py-2 rounded-lg font-black border border-rose-100/50 text-center truncate shadow-sm" title={s}>
+                                {s}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                       <div className="bg-amber-50/50 p-4 rounded-2xl border border-amber-100">
                          <p className="text-[10px] text-amber-700 font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
@@ -661,28 +731,63 @@ export default function DashboardPage() {
               <button onClick={() => router.push('/dashboard/learning')} className="text-[12px] font-bold text-[#575a93]">View all</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {courses.length > 0 ? courses.map(c => (
+              {(function filterCourses() {
+                if (!searchTerm) return courses;
+                return courses.filter(c => 
+                  c.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                  (c.category && c.category.toLowerCase().includes(searchTerm.toLowerCase()))
+                );
+              })().length > 0 ? (function filterCourses() {
+                if (!searchTerm) return courses;
+                return courses.filter(c => 
+                  c.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                  (c.category && c.category.toLowerCase().includes(searchTerm.toLowerCase()))
+                );
+              })().map(c => (
                 <div 
                   key={c.course_id} 
-                  onClick={() => router.push(`/dashboard/learning`)}
-                  className="bg-white/60 backdrop-blur-md p-7 rounded-[2.2rem] relative border border-white hover:border-[#575a93]/30 transition-all group cursor-pointer shadow-soft active:scale-[0.98]"
+                  onClick={() => {
+                    if (c.url && c.url.startsWith('http')) {
+                      window.open(c.url, '_blank');
+                    } else {
+                      router.push(c.url || '/dashboard/learning');
+                    }
+                  }}
+                  className="bg-white/60 backdrop-blur-md p-7 rounded-[2.2rem] relative border border-white hover:border-[#575a93]/30 transition-all group cursor-pointer shadow-soft active:scale-[0.98] overflow-hidden"
                 >
-                  <button onClick={(e) => { e.stopPropagation(); toast("Course bookmarked", { icon: "🔖" }); }} className="absolute top-6 right-6 text-slate-300 group-hover:text-[#575a93] transition-colors"><Icon name="more_vert" /></button>
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#575a93]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <button onClick={(e) => { e.stopPropagation(); toast("Course bookmarked", { icon: "🔖" }); }} className="absolute top-6 right-6 text-slate-300 group-hover:text-[#575a93] transition-colors z-10"><Icon name="more_vert" /></button>
                   <div className="w-full h-32 flex items-center justify-center mb-6 relative">
                     <div className="relative w-20 h-20">
-                      <div className="absolute top-0 right-0 w-10 h-10 bg-orange-400 rounded-full shadow-lg z-10" />
-                      <div className="absolute bottom-4 left-0 w-12 h-12 bg-purple-500 rounded-2xl rotate-12 shadow-xl" />
-                      <div className="absolute bottom-0 right-4 w-10 h-10 bg-cyan-400 rounded-full shadow-lg" />
+                      <div className={`absolute top-0 right-0 w-10 h-10 ${c.category === 'AI' ? 'bg-emerald-400' : 'bg-orange-400'} rounded-full shadow-lg z-10 animate-pulse`} />
+                      <div className={`absolute bottom-4 left-0 w-12 h-12 ${c.category === 'Development' ? 'bg-purple-500' : 'bg-[#575a93]'} rounded-2xl rotate-12 shadow-xl`} />
+                      <div className={`absolute bottom-0 right-4 w-10 h-10 ${c.category === 'Cloud' ? 'bg-cyan-400' : 'bg-blue-400'} rounded-full shadow-lg`} />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Icon name={c.icon === 'AutoAwesome' ? 'auto_awesome' : c.icon === 'Code' ? 'code' : c.icon === 'CloudSync' ? 'cloud_sync' : 'school'} className="text-white text-3xl drop-shadow-md" />
+                      </div>
                     </div>
                   </div>
-                  <h4 className="font-extrabold text-[17px] mb-2">{c.title}</h4>
-                  <p className="text-[11px] text-[#717171] mb-6 font-medium uppercase tracking-tight line-clamp-2">{c.description || 'Expert training protocols'}</p>
-                  <div className="flex items-center justify-between">
-                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{c.category || 'Tech'}</span>
-                     <Icon name="arrow_forward" className="text-[#575a93] text-sm opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                  <h4 className="font-extrabold text-[17px] mb-2 relative z-10">{c.title}</h4>
+                  <p className="text-[11px] text-[#717171] mb-6 font-medium uppercase tracking-tight line-clamp-2 relative z-10">{c.description || 'Expert training protocols'}</p>
+                  <div className="flex items-center justify-between relative z-10">
+                     <div className="flex flex-col">
+                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{c.category || 'Tech'}</span>
+                       <span className="text-[8px] font-bold text-[#575a93] uppercase tracking-[2px] mt-1 flex items-center gap-1"><Sparkles className="size-2" /> Featured Path</span>
+                     </div>
+                     <div className="w-9 h-9 bg-[#575a93]/10 rounded-full flex items-center justify-center group-hover:bg-[#575a93] group-hover:text-white transition-all">
+                       <Icon name="arrow_forward" className="text-sm" />
+                     </div>
                   </div>
                 </div>
-              )) : (
+              )) : searchTerm ? (
+                <div className="col-span-1 md:col-span-2 xl:col-span-3 py-20 text-center bg-white/30 backdrop-blur-sm rounded-[2.2rem] border border-dashed border-slate-300">
+                  <div className="size-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Icon name="search_off" className="text-3xl text-slate-400" />
+                  </div>
+                  <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest">No matching paths discovered</h4>
+                  <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-1">Try a different tactical keyword</p>
+                </div>
+              ) : (
                 [1,2,3].map(i => (
                   <div key={i} className="bg-white/30 backdrop-blur-sm p-7 rounded-[2.2rem] border border-white/50 animate-pulse h-64" />
                 ))
@@ -975,23 +1080,21 @@ export default function DashboardPage() {
 
           <div className="bg-white p-5 rounded-3xl shadow-soft flex flex-col aspect-square active:scale-95 transition-transform border border-slate-50">
             <p className="text-[10px] font-bold uppercase tracking-[0.05em] text-[#5a6062] mb-4">Skill tracker</p>
-            <div className="space-y-4">
-              {stats.skills > 0 ? (
-                // Use actual skills from API
-                skills.slice(0, 3).map((s, i) => {
+            <div className="space-y-4 max-h-[220px] overflow-y-auto pr-1">
+              {(skills.length > 0 ? skills : stats.skills > 0 ? Array(3).fill(null) : []).map((s, i) => {
                   return (
-                    <div key={i} className="space-y-1">
+                    <div key={i} className={`space-y-1 ${!s ? 'animate-pulse' : ''}`}>
                       <div className="flex justify-between text-[10px] font-bold">
-                        <span className="uppercase tracking-[0.05em] opacity-60 truncate block w-[80px]">{s.label}</span>
-                        <span className="text-[#575a93]">{s.val}%</span>
+                        <span className="uppercase tracking-[0.05em] opacity-60 truncate block w-[100px]">{s?.label || 'Indexing...'}</span>
+                        <span className="text-[#575a93]">{s?.val || 0}%</span>
                       </div>
                       <div className="h-1 bg-slate-50 rounded-full">
-                        <motion.div initial={{ width: 0 }} animate={{ width: `${s.val}%` }} className={`h-full ${s.color} rounded-full`} />
+                        <motion.div initial={{ width: 0 }} animate={{ width: `${s?.val || 0}%` }} className={`h-full ${s?.color || 'bg-slate-200'} rounded-full`} />
                       </div>
                     </div>
                   );
-                })
-              ) : (
+                })}
+              {skills.length === 0 && stats.skills === 0 && (
                 <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest mt-4">No skills indexed</p>
               )}
             </div>
@@ -1073,11 +1176,23 @@ export default function DashboardPage() {
                  </div>
                  <div>
                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Found Skills</p>
-                   <div className="flex flex-wrap gap-1">{(resumeAnalysis.skills||[]).map((s:string)=><span key={s} className="bg-slate-100 text-xs px-2 py-1 rounded font-medium">{s}</span>)}</div>
+                   <div className="max-h-[140px] overflow-y-auto pr-1">
+                      <div className="grid grid-cols-4 gap-1">
+                        {(resumeAnalysis.skills||[]).map((s:string)=>(
+                          <span key={s} className="bg-slate-100 text-[7px] px-0.5 py-1.5 rounded font-black text-center truncate">{s}</span>
+                        ))}
+                      </div>
+                    </div>
                  </div>
                  <div>
                    <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest mb-1">Missing Keywords</p>
-                   <div className="flex flex-wrap gap-1">{(resumeAnalysis.missing||[]).map((s:string)=><span key={s} className="bg-red-50 text-red-600 text-[10px] px-2 py-1 rounded font-medium">{s}</span>)}</div>
+                   <div className="max-h-[140px] overflow-y-auto pr-1">
+                      <div className="grid grid-cols-4 gap-1">
+                        {(resumeAnalysis.missing||[]).map((s:string)=>(
+                          <span key={s} className="bg-red-50 text-red-600 text-[7px] px-0.5 py-1.5 rounded font-black text-center truncate">{s}</span>
+                        ))}
+                      </div>
+                    </div>
                  </div>
                  <div className="flex flex-col gap-2 mt-4">
                     <div className="grid grid-cols-2 gap-2">

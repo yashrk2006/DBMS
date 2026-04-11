@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     // 1. Fetch Student Profile using Admin Client (bypassing RLS)
     let { data: student, error: studentError } = await supabaseAdmin
       .from('student')
-      .select('*')
+      .select('student_id, name, email, roll_no, college, branch, graduation_year, resume_url, cgpa')
       .eq('student_id', userId)
       .maybeSingle();
 

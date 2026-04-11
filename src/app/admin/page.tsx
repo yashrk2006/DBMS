@@ -29,6 +29,8 @@ export default function AdminOverview() {
   const [loading, setLoading] = useState(true);
   const [isPredicting, setIsPredicting] = useState(false);
   const [predictionData, setPredictionData] = useState<any>(null);
+  const [riskSearch, setRiskSearch] = useState('');
+  const [activitySearch, setActivitySearch] = useState('');
   
   // New Corporate Health Metrics (AI Driven)
   const healthMetrics = AI_ENGINE.analyzeCompanyHealth(recentActivity);
@@ -298,15 +300,28 @@ export default function AdminOverview() {
           <div className="absolute top-0 right-0 p-8 opacity-5 group-hover/radar:rotate-12 transition-transform">
             <TrendingDown size={100} className="text-rose-500" />
           </div>
-          <div className="flex items-center gap-3 mb-8">
-            <div className="size-8 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center border border-rose-500/20">
-              <AlertTriangle size={18} />
+          <div className="flex flex-col gap-4 mb-8">
+            <div className="flex items-center gap-3">
+              <div className="size-8 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center border border-rose-500/20">
+                <AlertTriangle size={18} />
+              </div>
+              <h3 className="text-xl font-black text-white uppercase tracking-tighter">Placement Risk Radar</h3>
             </div>
-            <h3 className="text-xl font-black text-white uppercase tracking-tighter">Placement Risk Radar</h3>
+            <div className="relative group">
+              <input 
+                type="text"
+                placeholder="FILTER BY NAME OR RISK..."
+                value={riskSearch}
+                onChange={(e) => setRiskSearch(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest text-white outline-none focus:border-rose-500/50 transition-all"
+              />
+            </div>
           </div>
           
-          <div className="space-y-4 flex-1">
-            {atRiskStudents.map((student, i) => (
+          <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            {atRiskStudents
+              .filter(s => !riskSearch || s.name.toLowerCase().includes(riskSearch.toLowerCase()) || s.reason.toLowerCase().includes(riskSearch.toLowerCase()))
+              .map((student, i) => (
               <div key={student.student_id} className="p-5 bg-white/5 rounded-2xl border border-white/10 group hover:bg-white/10 transition-all cursor-pointer">
                 <div className="flex justify-between items-start mb-2">
                   <h4 className="font-black text-white text-sm uppercase tracking-tight">{student.name}</h4>
@@ -327,21 +342,48 @@ export default function AdminOverview() {
 
       {/* Recent Activity Feed */}
       <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm p-10 overflow-hidden relative">
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
           <div className="space-y-1">
             <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Recent Intellectual Activity</h2>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Live System Audit Trace</p>
           </div>
-          <button className="text-[10px] font-black text-amber-600 uppercase tracking-widest hover:underline">View Full Logs</button>
+          <div className="flex items-center gap-6 w-full md:w-auto">
+            <div className="relative group w-full md:w-64">
+              <input 
+                type="text"
+                placeholder="SEARCH ACTIVITY LOG..."
+                value={activitySearch}
+                onChange={(e) => setActivitySearch(e.target.value)}
+                className="w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest focus:bg-white focus:border-amber-500/30 outline-none transition-all"
+              />
+            </div>
+            <button className="hidden md:block text-[10px] font-black text-amber-600 uppercase tracking-widest hover:underline whitespace-nowrap">View Full Logs</button>
+          </div>
         </div>
 
         <div className="space-y-1">
-          {recentActivity.length === 0 ? (
+          {recentActivity
+            .filter(a => {
+              const query = activitySearch.toLowerCase();
+              return !query || 
+                a.title.toLowerCase().includes(query) || 
+                a.type.toLowerCase().includes(query) || 
+                a.status.toLowerCase().includes(query);
+            })
+            .length === 0 ? (
             <div className="py-20 text-center border border-dashed rounded-[2rem] border-slate-200">
               <div className="text-slate-300 font-black uppercase tracking-widest text-xs">No Recent Activity Detected</div>
             </div>
           ) : (
-            recentActivity.map((activity, idx) => (
+            recentActivity
+              .filter(a => {
+                const query = activitySearch.toLowerCase();
+                return !query || 
+                  a.title.toLowerCase().includes(query) || 
+                  a.type.toLowerCase().includes(query) || 
+                  a.status.toLowerCase().includes(query);
+              })
+              .map((activity, idx) => (
               <div key={activity.id} className={`flex items-center justify-between p-6 rounded-2xl transition-all hover:bg-slate-50 group ${idx !== recentActivity.length - 1 ? 'border-b border-slate-50' : ''}`}>
                 <div className="flex items-center gap-6">
                   <div className="size-10 rounded-xl bg-slate-900 text-white flex items-center justify-center text-xs font-black shadow-lg shadow-slate-900/20 group-hover:bg-amber-600 group-hover:shadow-amber-600/20 transition-all shrink-0">

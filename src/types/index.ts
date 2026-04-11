@@ -139,6 +139,7 @@ export interface Course {
   thumbnail_url?: string;
   duration?: string;
   instructor?: string;
+  url?: string;
 }
 
 export interface CalendarEvent {

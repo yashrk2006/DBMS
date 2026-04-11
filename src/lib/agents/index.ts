@@ -75,28 +75,55 @@ export async function analyzeResumeAgent(resumeText: string) {
   }
 }
 
+import { supabaseAdmin } from "@/lib/supabase";
+import { AI_ENGINE } from "@/lib/ai-engine";
+
 export async function jobMatchingAgent(skills: string[]) {
   try {
-    if (!process.env.COHERE_API_KEY) throw new Error("Missing AI Key");
+    // 1. Fetch Real Internships from Database
+    const { data: internships, error } = await supabaseAdmin
+      .from('internship')
+      .select(`
+        internship_id,
+        title,
+        company_id,
+        min_cgpa,
+        company:company_id (company_name),
+        internship_skill (
+          skill:skill_id (skill_name)
+        )
+      `)
+      .limit(10);
 
-    const response = await cohere.chat({
-      message: `You are a Job Matching Agent. Student skills: ${skills.join(", ")}.
-      Suggest 5 internship roles. Match % = common skills / required skills.
-      Respond ONLY with JSON: { "internships": [ { "role": "Fullstack", "company": "SkillSync", "match_percentage": 90 } ] }`,
-      temperature: 0.3
+    if (error) throw error;
+
+    // 2. Perform Algorithmic Matching using AI Engine
+    const matches = (internships || []).map((i: any) => {
+      const requiredSkills = i.internship_skill?.map((is: any) => is.skill?.skill_name) || [];
+      const matchScore = AI_ENGINE.calculateMatchScore(skills, requiredSkills);
+      
+      return {
+        id: i.internship_id.toString(),
+        internship_id: i.internship_id,
+        company_id: i.company_id,
+        title: i.title,
+        company_name: i.company?.company_name || 'Independent',
+        match_percentage: matchScore,
+        min_cgpa: i.min_cgpa || 0,
+        required_skills: requiredSkills
+      };
     });
 
-    return parseAIScalable(response.text || "{}", { internships: [] });
-  } catch (error) {
-    console.error("Job Matcher Error:", error);
+    // 3. Sort by Match Quality and return top 5
+    const topMatches = matches
+      .sort((a, b) => b.match_percentage - a.match_percentage)
+      .slice(0, 5);
+
+    return { internships: topMatches };
+  } catch (error: any) {
+    console.error("Job Matcher Implementation Error:", error);
     return { 
-      internships: [
-        { "role": "Software Engineering Intern", "company": "Innovate AI", "match_percentage": 85 },
-        { "role": "Full Stack Developer", "company": "CloudStream", "match_percentage": 78 },
-        { "role": "Frontend Trainee", "company": "Design Hub", "match_percentage": 92 },
-        { "role": "Junior Data Analyst", "company": "InfoGains", "match_percentage": 65 },
-        { "role": "Backend Development Intern", "company": "ScaleUp Tech", "match_percentage": 80 }
-      ] 
+      internships: [] 
     };
   }
 }
