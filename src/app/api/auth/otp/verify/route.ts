@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     }
 
     const pgClient = new pg.Client({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: process.env.DATABASE_URL.includes('?') ? process.env.DATABASE_URL : `${process.env.DATABASE_URL}?sslmode=require`,
       ssl: { rejectUnauthorized: false }
     });
 
@@ -143,12 +143,12 @@ export async function POST(request: Request) {
           .from('student')
           .upsert({
             student_id: authUser.id,
-            name: directoryData.name,
-            roll_no: directoryData.roll_no,
-            email: email,
+            name: directoryData.name || 'Student',
+            roll_no: directoryData.roll_no || roll_no,
+            email: directoryData.email || email,
             college: 'Institutional Partner',
-            branch: directoryData.course,
-            graduation_year: (directoryData.batch_year || 2024) + 3,
+            branch: directoryData.course || 'General',
+            graduation_year: typeof directoryData.batch_year === 'number' ? directoryData.batch_year + 3 : 2027,
           });
 
         if (!syncErr) {

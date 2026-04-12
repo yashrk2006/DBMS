@@ -31,11 +31,11 @@ export function getFriendlyErrorMessage(error: any): string {
   if (code === 'PGRST116' || message.includes("not found")) {
     return "Record not found in the verified institutional directory.";
   }
-  if (code.startsWith('57') || message.includes("connection") || message.includes("dns")) {
-    return "Institutional service reached a connectivity limit. Please try again in a few moments.";
+  if (code.startsWith('57') || message.includes("connection") || message.includes("dns") || message.includes("econnrefused")) {
+    return "Institutional service reached a connectivity limit or database is unavailable. Please try again.";
   }
-  if (message.includes("database") || message.includes("rls") || message.includes("permission")) {
-    return "Access to this institutional resource is temporarily restricted.";
+  if (message.includes("database") || message.includes("rls") || message.includes("permission") || message.includes("auth.users")) {
+    return "Access to institutional identity records is restricted. Contact Administrator.";
   }
 
   // 3. Application & Business Logic
@@ -46,6 +46,10 @@ export function getFriendlyErrorMessage(error: any): string {
     return "Required institutional data fields are missing. Please complete your profile.";
   }
 
-  // Fallback
+  // Fallback with more context if it's a critical synchronization err
+  if (message.includes("sync") || message.includes("pg")) {
+    return "Institutional synchronization error: " + (error.message || "Data inconsistency detected.");
+  }
+
   return "Institutional synchronization encountered an inconsistency. Please contact the Placement Cell.";
 }
