@@ -32,6 +32,12 @@ export const RecruitmentPanel = ({
   onCourseClick,
   onMockInterview
 }: RecruitmentPanelProps) => {
+  const [hideApplied, setHideApplied] = React.useState(false);
+
+  const filteredJobs = React.useMemo(() => {
+    if (!aiJobs) return [];
+    return hideApplied ? aiJobs.filter(j => !j.applied) : aiJobs;
+  }, [aiJobs, hideApplied]);
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-fit">
       {/* Skill Prep Card */}
@@ -113,7 +119,54 @@ export const RecruitmentPanel = ({
          )}
       </div>
 
-      {/* Career Growth Plan */}
+      {/* AI Matched Jobs Section (Conditional) */}
+      {aiJobs && aiJobs.length > 0 && (
+        <div className="col-span-1 lg:col-span-3 bg-white/40 backdrop-blur-md rounded-3xl p-8 border border-white shadow-sm space-y-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h4 className="text-xl font-black tracking-tight uppercase flex items-center gap-2">
+                <Sparkles className="text-amber-500 size-5" />
+                Opportunities Found
+              </h4>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Matched via Career Intelligence</p>
+            </div>
+            <button 
+              onClick={() => setHideApplied(!hideApplied)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${hideApplied ? 'bg-amber-100 text-amber-700' : 'bg-slate-50 text-slate-400'}`}
+            >
+              <Icon name={hideApplied ? 'visibility_off' : 'visibility'} className="text-sm" />
+              {hideApplied ? 'Hidden Applied' : 'Hide Applied'}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+             {filteredJobs.length > 0 ? (
+               filteredJobs.slice(0, 3).map(job => (
+                 <div key={job.internship_id} className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-4 group hover:shadow-md transition-all">
+                    <div className="flex justify-between items-start">
+                       <div className="space-y-1">
+                          <h5 className="text-xs font-black uppercase tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">{job.title}</h5>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{job.company_name}</p>
+                       </div>
+                       {job.applied && <span className="bg-emerald-50 text-emerald-600 px-2 py-1 rounded text-[8px] font-black uppercase">Applied</span>}
+                    </div>
+                    <button 
+                      onClick={() => onApplyJob(job)}
+                      disabled={job.applied}
+                      className={`w-full py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${job.applied ? 'bg-slate-50 text-slate-300 cursor-not-allowed' : 'bg-[#575a93] text-white hover:bg-black active:scale-95'}`}
+                    >
+                      {job.applied ? 'Submitted' : 'One-Click Apply'}
+                    </button>
+                 </div>
+               ))
+             ) : (
+               <div className="col-span-full py-12 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No matching roles found with current filters</p>
+               </div>
+             )}
+          </div>
+        </div>
+      )}
       <section id="growth-map" className="col-span-1 lg:col-span-3 space-y-6 pt-4">
         <div className="flex justify-between items-center">
           <div className="space-y-1">

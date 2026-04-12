@@ -25,6 +25,7 @@ const headers = {
 };
 
 async function rest(method, path, body) {
+  console.log(`\x1b[90m[REST]\x1b[0m \x1b[36m${method}\x1b[0m ${path}`);
   const res = await fetch(`${URL_BASE}${path}`, {
     method,
     headers: { ...headers, 'Prefer': 'return=representation,resolution=ignore-duplicates' },
@@ -36,6 +37,7 @@ async function rest(method, path, body) {
 }
 
 async function adminAuth(method, path, body) {
+  console.log(`\x1b[90m[AUTH]\x1b[0m \x1b[35m${method}\x1b[0m /auth/v1${path}`);
   const res = await fetch(`${URL_BASE}/auth/v1${path}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
   const data = await res.json();
   return { ok: res.ok, data };

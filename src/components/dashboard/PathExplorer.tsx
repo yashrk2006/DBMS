@@ -14,20 +14,41 @@ interface PathExplorerProps {
 }
 
 export const PathExplorer = ({ courses, searchTerm, onViewAll, onCourseClick }: PathExplorerProps) => {
+  const [selectedLevel, setSelectedLevel] = React.useState('All');
+
   const filteredCourses = useMemo(() => {
-    if (!searchTerm) return courses;
+    let result = courses;
+    
+    if (selectedLevel !== 'All') {
+      result = result.filter(c => c.difficulty === selectedLevel || (selectedLevel === 'Beginner' && !c.difficulty));
+    }
+
+    if (!searchTerm) return result;
     const query = searchTerm.toLowerCase();
-    return courses.filter(c => 
+    return result.filter(c => 
       c.title.toLowerCase().includes(query) || 
       (c.category && c.category.toLowerCase().includes(query))
     );
-  }, [courses, searchTerm]);
+  }, [courses, searchTerm, selectedLevel]);
 
   return (
     <div className="pb-10">
-      <div className="flex justify-between items-center mb-8">
-        <h3 className="font-extrabold text-xl tracking-tight uppercase">SkillSync Paths</h3>
-        <button onClick={onViewAll} className="text-[12px] font-bold text-[#575a93]">View all</button>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+        <div className="space-y-1">
+          <h3 className="font-extrabold text-xl tracking-tight uppercase">SkillSync Paths</h3>
+          <div className="flex items-center gap-2">
+            {['All', 'Beginner', 'Advanced'].map(level => (
+              <button 
+                key={level}
+                onClick={() => setSelectedLevel(level)}
+                className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${selectedLevel === level ? 'bg-[#575a93] text-white shadow-lg' : 'bg-white border border-slate-100 text-slate-400 hover:border-slate-200'}`}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
+        </div>
+        <button onClick={onViewAll} className="text-[12px] font-bold text-[#575a93] hover:underline transition-all">View all catalog</button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredCourses.length > 0 ? (

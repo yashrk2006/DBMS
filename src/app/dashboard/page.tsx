@@ -38,6 +38,7 @@ export default function DashboardPage() {
   const [isReadinessModalOpen, setIsReadinessModalOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({ category: 'All', timeframe: 'All' });
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -109,6 +110,9 @@ export default function DashboardPage() {
             setNotifications(notifData.notifications || notifData.data || []);
           }
           setLoading(false);
+          
+          // Log initial data fetch for query visibility
+          console.log(`\x1b[96m[DASHBOARD]\x1b[0m State sync complete for User: ${userId}`);
         }
       } catch (e: unknown) {
         if (e instanceof Error && e.name === 'AbortError') return;
@@ -338,6 +342,18 @@ export default function DashboardPage() {
     }
   }, [supabase]);
 
+  const handleFilterChange = useCallback((newFilters: { category: string, timeframe: string }) => {
+    setFilters(newFilters);
+    // In a real scenario, this would trigger a re-fetch with query params
+    // For now, we log it to show the "Query Set" intention
+    console.log(`\x1b[90m[QUERY]\x1b[0m Refining search results | Category: \x1b[35m${newFilters.category}\x1b[0m | Time: \x1b[35m${newFilters.timeframe}\x1b[0m`);
+    
+    // Example of re-triggering logic (mocked)
+    if (newFilters.category === 'Jobs' && resumeAnalysis) {
+        handleMatchJobs();
+    }
+  }, [handleMatchJobs, resumeAnalysis]);
+
   if (loading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-black animate-pulse text-slate-300 uppercase tracking-widest">Loading...</div>;
 
   return (
@@ -352,6 +368,7 @@ export default function DashboardPage() {
           unreadCount={notifications.filter(n => !n.is_read).length}
           notifications={notifications}
           onSearchChange={setSearchTerm}
+          onFilterChange={handleFilterChange}
           onProfileClick={() => router.push('/dashboard/profile')}
           onLogout={handleLogout}
           onMarkRead={handleMarkRead}

@@ -407,42 +407,44 @@ export default function CareerAssessmentCenter() {
               {!isStarted && !isFinished && (
                 <motion.div 
                   key="intro" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-                  className="max-w-3xl mx-auto space-y-8 pt-12"
+                  className="max-w-4xl mx-auto space-y-10 pt-20 flex flex-col items-center text-center px-6"
                 >
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
+                  <div className="space-y-6 flex flex-col items-center">
+                    <div className="flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-full">
                       <Sparkles size={16} className="text-indigo-600" />
-                      <span className="text-[10px] font-black uppercase tracking-[4px] text-indigo-600">Safe Feedback Environment</span>
+                      <span className="text-[10px] font-black uppercase tracking-[4px] text-indigo-600">Unified Career Intelligence</span>
                     </div>
-                    <h2 className="text-6xl font-black text-slate-900 uppercase tracking-tighter leading-[0.9]">
-                      Start Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400">Career</span> Journey.
+                    <h2 className="text-6xl md:text-8xl font-black text-slate-900 uppercase tracking-tighter leading-[0.85]">
+                      Your <span className="text-indigo-600">Career</span> <br/>
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-500">Journey</span> Starts.
                     </h2>
-                    <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                      This is a real-time conversational assessment. You will engage with our Career Assistant to help prepare for your professional goals.
+                    <p className="text-xl text-slate-500 font-medium leading-relaxed max-w-2xl">
+                      Experience a high-fidelity, real-time conversational assessment driven by our advanced Career Assistant.
                     </p>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl">
                      {[
                        { icon: ShieldCheck, label: 'Secure Session', val: 'Private & Encrypted' },
                        { icon: Zap, label: 'Real-time Tips', val: 'Helpful Insights' }
                      ].map(i => (
-                       <div key={i.label} className="p-6 rounded-3xl bg-white border border-slate-100 shadow-sm flex items-center gap-4">
-                          <div className="size-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i.icon size={20} /></div>
-                          <div>
-                             <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{i.label}</div>
+                       <div key={i.label} className="p-8 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl flex items-center gap-6">
+                          <div className="size-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0"><i.icon size={24} /></div>
+                          <div className="text-left">
+                             <div className="text-[11px] font-black text-slate-900 uppercase tracking-widest">{i.label}</div>
                              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{i.val}</div>
                           </div>
                        </div>
                      ))}
                   </div>
 
-                  <button 
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                     onClick={startAssessment}
-                    className="px-12 py-5 rounded-[2rem] bg-[#0F172A] text-white font-black uppercase text-sm tracking-[5px] shadow-2xl hover:scale-[1.02] transition-transform flex items-center gap-4"
+                    className="px-16 py-6 rounded-[2.5rem] bg-[#0F172A] text-white font-black uppercase text-sm tracking-[6px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] hover:bg-black transition-all flex items-center gap-4"
                   >
-                    Start Now <ArrowRight size={18} />
-                  </button>
+                    Launch Session <ArrowRight size={20} />
+                  </motion.button>
                 </motion.div>
               )}
 
@@ -638,104 +640,113 @@ export default function CareerAssessmentCenter() {
               </div>
             </div>
           )}
-         {/* RIGHT HUD */}
-        <div className="w-full md:w-[420px] bg-white border-l border-slate-100 flex flex-col p-8 gap-8 relative overflow-hidden shrink-0 shadow-[-10px_0_30px_rgba(0,0,0,0.02)]">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-[11px] font-black text-indigo-600 uppercase tracking-[4px]">AI Interviewer</h3>
-              <div className="flex items-center gap-1.5">
-                  <motion.div 
-                    animate={isSpeaking ? { scale: [1, 1.5, 1] } : {}}
-                    transition={{ repeat: Infinity, duration: 0.5 }}
-                    className={`size-2 rounded-full ${isSpeaking ? 'bg-indigo-500' : 'bg-slate-300'}`} 
-                  />
-                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Live Feedback</span>
-              </div>
-            </div>
-            <AIAvatar isSpeaking={isSpeaking} isThinking={isThinking} />
-          </div>
-
-          <div className="flex-1 flex flex-col gap-6 relative">
-            <div className="text-center space-y-3 pb-4 border-b border-slate-50">
-              <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-[4px]">AI Analysis Engine</h3>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[2px] leading-relaxed">
-                Real-time architectural assessment and communication metrics
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {/* PRIMARY ANALYSIS GAUGE */}
-              <div className="p-6 rounded-[2rem] bg-[#0F172A] text-white space-y-4 shadow-xl">
-                 <div className="flex justify-between items-center">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400">Technical Mastery</span>
-                    <span className="text-xl font-black">{isFinished ? feedback?.score : (isStarted ? '88' : '0')}%</span>
-                 </div>
-                 <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: isFinished ? `${feedback?.score}%` : (isStarted ? '88%' : '0%') }}
-                      className="h-full bg-gradient-to-r from-indigo-500 to-indigo-300"
-                    />
-                 </div>
-              </div>
-
-              {/* DETAILED METRICS GRID */}
-              <div className="grid grid-cols-2 gap-3">
-                 {[
-                   { label: 'Confidence', val: 'HIGH', color: 'text-emerald-500', icon: ShieldCheck },
-                   { label: 'Clarity', val: 'OPTIMIZED', color: 'text-indigo-500', icon: Volume2 },
-                   { label: 'Sentiment', val: 'PROFESSIONAL', color: 'text-amber-500', icon: Sparkles },
-                   { label: 'Focus', val: proctorWarnings > 0 ? 'WARNING' : 'STABLE', color: proctorWarnings > 0 ? 'text-rose-500' : 'text-emerald-500', icon: AlertCircle }
-                 ].map(m => (
-                   <div key={m.label} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
-                      <div className="flex items-center gap-2 opacity-50">
-                         <m.icon size={10} />
-                         <span className="text-[8px] font-black uppercase tracking-widest">{m.label}</span>
-                      </div>
-                      <div className={`text-[9px] font-black uppercase tracking-widest ${m.color}`}>{m.val}</div>
-                   </div>
-                 ))}
-              </div>
-
-              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
-                 <div className="flex justify-between items-center">
-                    <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Session Integrity</div>
-                    <div className={`text-[8px] font-black uppercase tracking-widest ${proctorWarnings > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
-                      {proctorWarnings > 0 ? `Alert: ${proctorWarnings}/${MAX_INCIDENTS}` : 'Optimized'}
+          {/* RIGHT HUD */}
+          <AnimatePresence>
+            {(isStarted || isFinished) && (
+              <motion.div 
+                initial={{ x: 400, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 400, opacity: 0 }}
+                className="w-full md:w-[420px] bg-white border-l border-slate-100 flex flex-col p-8 gap-8 relative shrink-0 shadow-[-10px_0_30px_rgba(0,0,0,0.02)] overflow-y-auto"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[11px] font-black text-indigo-600 uppercase tracking-[4px]">AI Interviewer</h3>
+                    <div className="flex items-center gap-1.5">
+                        <motion.div 
+                          animate={isSpeaking ? { scale: [1, 1.5, 1] } : {}}
+                          transition={{ repeat: Infinity, duration: 0.5 }}
+                          className={`size-2 rounded-full ${isSpeaking ? 'bg-indigo-500' : 'bg-slate-300'}`} 
+                        />
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Live Feedback</span>
                     </div>
-                 </div>
-                 <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden flex gap-0.5 p-0.5">
-                    {[...Array(MAX_INCIDENTS)].map((_, i) => (
-                      <motion.div 
-                        key={i}
-                        initial={false}
-                        animate={{ 
-                          backgroundColor: i < proctorWarnings ? '#F43F5E' : (isStarted ? '#10B981' : '#E2E8F0'),
-                          opacity: i < proctorWarnings || (isStarted && i >= proctorWarnings) ? 1 : 0.3
-                        }}
-                        className="h-full flex-1 rounded-full shadow-inner"
-                      />
-                    ))}
-                 </div>
-              </div>
-            </div>
-
-             <div className="hidden md:flex flex-col gap-2 opacity-40 pt-4">
-                {incidentLogs.slice(-3).map((log, i) => (
-                  <div key={i} className="text-[7px] font-mono text-slate-400 p-2 border-l border-indigo-500/20 bg-slate-50/50">
-                     {`> ${log}`}
                   </div>
-                ))}
-             </div>
-             
-             <div className="mt-auto pt-6 text-center border-t border-slate-50">
-                <WebcamPreview ref={webcamRef} />
-                <div className="text-[8px] font-black text-slate-300 uppercase tracking-[4px] pt-4">
-                  SESSION // {sessionId.current}
+                  <AIAvatar isSpeaking={isSpeaking} isThinking={isThinking} />
                 </div>
-             </div>
-          </div>
-        </div>
+
+                <div className="flex-1 flex flex-col gap-6 relative">
+                  <div className="text-center space-y-3 pb-4 border-b border-slate-50">
+                    <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-[4px]">AI Analysis Engine</h3>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[2px] leading-relaxed">
+                      Real-time architectural assessment and communication metrics
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* PRIMARY ANALYSIS GAUGE */}
+                    <div className="p-6 rounded-[2rem] bg-[#0F172A] text-white space-y-4 shadow-xl">
+                       <div className="flex justify-between items-center">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400">Technical Mastery</span>
+                          <span className="text-xl font-black">{isFinished ? feedback?.score : (isStarted ? '88' : '0')}%</span>
+                       </div>
+                       <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: isFinished ? `${feedback?.score}%` : (isStarted ? '88%' : '0%') }}
+                            className="h-full bg-gradient-to-r from-indigo-500 to-indigo-300"
+                          />
+                       </div>
+                    </div>
+
+                    {/* DETAILED METRICS GRID */}
+                    <div className="grid grid-cols-2 gap-3">
+                       {[
+                         { label: 'Confidence', val: 'HIGH', color: 'text-emerald-500', icon: ShieldCheck },
+                         { label: 'Clarity', val: 'OPTIMIZED', color: 'text-indigo-500', icon: Volume2 },
+                         { label: 'Sentiment', val: 'PROFESSIONAL', color: 'text-amber-500', icon: Sparkles },
+                         { label: 'Focus', val: proctorWarnings > 0 ? 'WARNING' : 'STABLE', color: proctorWarnings > 0 ? 'text-rose-500' : 'text-emerald-500', icon: AlertCircle }
+                       ].map(m => (
+                         <div key={m.label} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
+                            <div className="flex items-center gap-2 opacity-50">
+                               <m.icon size={10} />
+                               <span className="text-[8px] font-black uppercase tracking-widest">{m.label}</span>
+                            </div>
+                            <div className={`text-[9px] font-black uppercase tracking-widest ${m.color}`}>{m.val}</div>
+                         </div>
+                       ))}
+                    </div>
+
+                    <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+                       <div className="flex justify-between items-center">
+                          <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Session Integrity</div>
+                          <div className={`text-[8px] font-black uppercase tracking-widest ${proctorWarnings > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                            {proctorWarnings > 0 ? `Alert: ${proctorWarnings}/${MAX_INCIDENTS}` : 'Optimized'}
+                          </div>
+                       </div>
+                       <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden flex gap-0.5 p-0.5">
+                          {[...Array(MAX_INCIDENTS)].map((_, i) => (
+                            <motion.div 
+                              key={i}
+                              initial={false}
+                              animate={{ 
+                                backgroundColor: i < proctorWarnings ? '#F43F5E' : (isStarted ? '#10B981' : '#E2E8F0'),
+                                opacity: i < proctorWarnings || (isStarted && i >= proctorWarnings) ? 1 : 0.3
+                              }}
+                              className="h-full flex-1 rounded-full shadow-inner"
+                            />
+                          ))}
+                       </div>
+                    </div>
+                  </div>
+
+                   <div className="hidden md:flex flex-col gap-2 opacity-40 pt-4">
+                      {incidentLogs.slice(-3).map((log, i) => (
+                        <div key={i} className="text-[7px] font-mono text-slate-400 p-2 border-l border-indigo-500/20 bg-slate-50/50">
+                           {`> ${log}`}
+                        </div>
+                      ))}
+                   </div>
+                   
+                   <div className="mt-auto pt-6 text-center border-t border-slate-50">
+                      <WebcamPreview ref={webcamRef} />
+                      <div className="text-[8px] font-black text-slate-300 uppercase tracking-[4px] pt-4 pb-4">
+                        SESSION // {sessionId.current}
+                      </div>
+                   </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </main>
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] z-[-1]" />
