@@ -63,51 +63,25 @@ export async function POST(request: Request) {
       }, { status: 404 });
     }
 
-    // 3. DIRECT SQL IDENTITY DISCOVERY
-    if (!process.env.DATABASE_URL) {
-      console.error('❌ Missing DATABASE_URL in Vercel Environment');
-      return NextResponse.json({ 
-        success: false,
-        error: 'Institutional synchronization service is unavailable.',
-        diagnostic: 'Check DATABASE_URL configuration.'
-      }, { status: 500 });
-    }
-
-    // Modernize connection string for Vercel/Supabase pooled connections
-    const connectionString = process.env.DATABASE_URL;
-    const url = new URL(connectionString);
-    if (!url.searchParams.has('sslmode')) {
-      url.searchParams.set('sslmode', 'require');
-    }
-
-    const pgClient = new pg.Client({
-      connectionString: url.toString(),
-      ssl: { rejectUnauthorized: false }
-    });
-
+    // 3. IDENTITY DISCOVERY (Resilient Vercel/Production Pattern)
     let authUser: any = null;
-    try {
-      await pgClient.connect();
-      console.log('✅ Synchronized with Institutional DB');
-      
-      const { rows } = await pgClient.query('SELECT id, email FROM auth.users WHERE email = $1', [email]);
-      if (rows.length > 0) {
-        authUser = { id: rows[0].id, email: rows[0].email };
-        console.log('✅ Identity Discovered via Postgres Bypass:', authUser.id);
-      }
-    } catch (pgErr: any) {
-      console.error('❌ Direct SQL Bypass Failed:', pgErr.message);
-      return NextResponse.json({ 
-        success: false,
-        error: getFriendlyErrorMessage(pgErr),
-        details: pgErr.message
-      }, { status: 500 });
-    } finally {
-      try {
-        await pgClient.end();
-      } catch (err) {
-        console.error('Warning: PG client close error:', err);
-      }
+    // We avoid raw 'pg' SSL handshakes which are fragile in serverless environments.
+    // Instead, we use the verified 'student' mapping table via Supabase HTTPS.
+    const { data: studentMapping, error: mappingError } = await supabaseAdmin
+      .from('student')
+      .select('student_id')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (mappingError) {
+      console.error('❌ Identity Mapping Lookup Failed:', mappingError.message);
+    }
+
+    if (studentMapping) {
+      authUser = { id: studentMapping.student_id, email };
+      console.log('✅ Identity Discovered via Mapping Table:', authUser.id);
+    } else {
+      console.log('ℹ️ No existing identity mapping found. Proceeding to User Discovery/Creation.');
     }
 
     // 4. IDENTITY HARDENING & PASS-HANDSHAKE
