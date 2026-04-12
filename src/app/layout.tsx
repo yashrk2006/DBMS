@@ -11,8 +11,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "SkillSync - Intelligent Recruitment Ecosystem",
-  description: "AI-driven professional development and hiring platform.",
+  title: "SkillSync - Your Career Partner",
+  description: "Your student-friendly career growth and hiring platform.",
 };
 
 export default function RootLayout({

@@ -152,13 +152,23 @@ export async function POST(request: Request) {
           });
 
         if (!syncErr) {
-          // Inject Welcome Notification to ensure dashboard has live data
-          await supabaseAdmin.from('notification').insert([{
-            user_id: authUser.id,
-            title: "Verification Successful 🎓",
-            message: `Confirmed as Roll No: ${directoryData.roll_no}. Your institutional profile is now active.`,
-            type: 'system'
-          }]);
+          // 4.1 Check for existing Welcome Notification (Idempotency)
+          const { data: existingNotif } = await supabaseAdmin
+            .from('notification')
+            .select('notification_id')
+            .eq('user_id', authUser.id)
+            .eq('title', "Verification Successful 🎓")
+            .maybeSingle();
+
+          if (!existingNotif) {
+            // Only inject Welcome Notification if it doesn't already exist
+            await supabaseAdmin.from('notification').insert([{
+              user_id: authUser.id,
+              title: "Verification Successful 🎓",
+              message: `Confirmed as Roll No: ${directoryData.roll_no}. Your institutional profile is now active.`,
+              type: 'system'
+            }]);
+          }
         }
       } catch (err: any) {
         console.error('❌ Profile Sync Crash (Non-Blocking):', err.message);

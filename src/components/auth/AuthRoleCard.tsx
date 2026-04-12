@@ -86,7 +86,7 @@ export default function AuthRoleCard({
                 ) : (
                   <>
                     <Zap size={16} className="text-amber-500 group-hover/btn:text-white transition-colors" />
-                    {type === 'login' ? 'Sync Identity Terminal' : 'Initialize Neural Profile'}
+                    {type === 'login' ? 'Student Login' : 'Get Started'}
                   </>
                 )}
               </button>

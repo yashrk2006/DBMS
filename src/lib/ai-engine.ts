@@ -117,18 +117,56 @@ export const AI_ENGINE = {
   },
 
   /**
-   * 7. AI Skill Assessment Generator
+   * 7. AI Skill Assessment Generator (Strategic Dialogue Patterns)
    */
   generateSkillAssessment: (candidateSkills: string[], roleSkills: string[]) => {
+    const context = roleSkills[0] || 'advanced technical architecture';
+    const stack = candidateSkills.slice(0, 2).join(' and ') || 'your core stack';
+
     return [
-      `Design a system architecture using ${roleSkills[0] || 'modern frameworks'} that handles high-concurrency requests.`,
-      `Explain how you would optimize a ${roleSkills[1] || 'database'} query that is current bottleneck in a production environment.`,
-      `Implement a secure authentication flow that aligns with ${roleSkills[2] || 'industry standards'} best practices.`
+      `Given your expertise in ${stack}, how would you architect a high-availability solution for ${context} in a distributed environment?`,
+      `Explain your methodology for optimizing latency and ensuring data consistency when integrating ${roleSkills[1] || 'modern databases'} into a ${roleSkills[2] || 'cloud-native'} pipeline.`,
+      `Describe a high-stakes scenario where you lead a technical resolution involving complex trade-offs between ${candidateSkills[0] || 'performance'} and long-term maintainability.`
     ];
   },
 
   /**
-   * 8. Corporate Intelligence Audit
+   * 8. Corporate Intelligence Diagnostic
+   */
+  generatePerformanceNotes: (score: number) => {
+    if (score > 90) return "Exceptional mastery of technical principles. The candidate demonstrates superior architectural maturity and strategic foresight in technical decision-making.";
+    if (score > 80) return "Strong technical foundations with high-fidelity articulation. Demonstrates readiness for complex industrial integration and collaborative leadership.";
+    return "Competent technical proficiency. Focus on scaling architectural depth and articulating complex trade-offs with higher precision.";
+  },
+
+  /**
+   * 9. Strategic Follow-up Patterns
+   */
+  generateFollowUp: (answer: string) => {
+    const catalysts = [
+      "I see. How does that approach impact long-term maintainability in a high-velocity team?",
+      "Interesting perspective. If you had to scale that solution 10x horizontally, what would be the primary bottleneck?",
+      "Valid strategy. From a security standpoint, what are the implicit trade-offs you are making there?",
+      "Understood. Moving forward to the next inquiry..."
+    ];
+    return catalysts[Math.floor(Math.random() * catalysts.length)];
+  },
+
+  /**
+   * 10. Strategic Communication Drafting
+   */
+  generateResponseDraft: (name: string, score: number, role: string) => {
+    if (score >= 90) {
+      return `Dear ${name},\n\nOur Strategic Assessment Engine has completed the diagnostic review of your recent interview for the ${role} position. Your Precision Index of ${score}% demonstrates exceptional technical maturity and architectural depth.\n\nWe are fast-tracking your application for a final sync with our lead engineering team. Please keep your dashboard active for the next phase of industrial deployment.`;
+    }
+    if (score >= 80) {
+      return `Dear ${name},\n\nThank you for engaging with our Strategic Assessment Hub. Our AI diagnostic indicates a strong technical foundation with a ${score}% mission alignment score.\n\nYour profile has been advanced to 'Industrial Review' status. We will reach out shortly for the next steps in our strategic integration process.`;
+    }
+    return `Dear ${name},\n\nThank you for participating in our Strategic Assessment for the ${role} position. Our diagnostic engine has captured your performance metrics and archived them for review.\n\nWhile your technical proficiency is evident, we are currently prioritizing profiles with higher alignment in specific architectural domains. We wish you success in your professional journey.`;
+  },
+
+  /**
+   * 11. Corporate Intelligence Audit
    */
   analyzeCompanyHealth: (applications: any[]) => {
     if (!applications.length) return { responsiveness: 0, accuracy: 0 };

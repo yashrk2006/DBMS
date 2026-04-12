@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# scratch and one-off scripts
+/scratch/
+*.mjs
+*.txt
+*.webp
+*.png
+*.jpg
+!/public/**/*
+!/src/assets/**/*

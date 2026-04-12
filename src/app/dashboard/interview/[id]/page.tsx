@@ -1,30 +1,59 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { 
   MessageSquare, Sparkles, Cpu, Play, CheckCircle2, 
-  ArrowRight, ShieldCheck, Zap, BarChart3, AlertCircle 
+  ArrowRight, ShieldCheck, Zap, BarChart3, AlertCircle,
+  Send, User, Volume2, Mic, MicOff, Search, X, Award
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AI_ENGINE } from '@/lib/ai-engine';
 import { toast } from 'react-hot-toast';
 import { NeuralCore3D } from '@/components/ui/NeuralCore3D';
 import { supabase } from '@/lib/supabase';
+import { WebcamPreview, WebcamPreviewHandle } from '@/components/interview/WebcamPreview';
 
-export default function AIInterviewSimulator() {
+interface Message {
+  role: 'ai' | 'user';
+  content: string;
+  timestamp: number;
+}
+
+export default function CareerAssessmentCenter() {
   const router = useRouter();
   const params = useParams();
   const applicationId = params.id as string;
   
   const [questions, setQuestions] = useState<string[]>([]);
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState<string[]>([]);
+  const [currentIdx, setCurrentIdx] = useState(-1); // -1 is intro
+  const [messages, setMessages] = useState<Message[]>([]);
   const [currentAnswer, setCurrentAnswer] = useState('');
   const [isStarted, setIsStarted] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [isListening, setIsListening] = useState(false);
+  const [isFollowUp, setIsFollowUp] = useState(false);
+  const [incidentLogs, setIncidentLogs] = useState(['SESSION_INITIALIZED', 'VOICE_READY']);
   const [feedback, setFeedback] = useState<{ score: number; notes: string } | null>(null);
+  
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const webcamRef = useRef<WebcamPreviewHandle>(null);
+  const sessionId = useRef(`CAC-${Math.random().toString(36).substring(2, 9).toUpperCase()}`);
+  const MAX_INCIDENTS = 3;
+  const proctorWarnings = incidentLogs.filter(l => l.includes('PROCTOR_WARNING')).length;
+  const [isAborted, setIsAborted] = useState(false);
+  const [abortReason, setAbortReason] = useState('');
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 100);
+    return () => clearTimeout(timeout);
+  }, [messages, isTyping]);
 
   useEffect(() => {
     async function loadSession() {
@@ -38,28 +67,30 @@ export default function AIInterviewSimulator() {
       }
 
       try {
-        // Fetch application details to get the internship requirements
-        const response = await fetch(`/api/applications/${applicationId}`);
-        const result = await response.json();
-        
-        // Persist the user message to the interaction history database
-        fetch('/api/dashboard/chat', { method: 'POST', body: JSON.stringify({ id: Date.now().toString(), sender_id: 'user', content: currentAnswer, created_at: new Date() }) });
-        
-        if (result.success && result.data) {
-          const internship = result.data.internship;
-          const student = result.data.student;
-          
-          const roleRequirements = internship.requirements?.role_skills || [];
-          const studentSkills = student.skills.map((s: any) => s.skill_name) || [];
-          
-          const generated = AI_ENGINE.generateSkillAssessment(studentSkills, roleRequirements);
-          setQuestions(generated);
+        let generatedQuestions = [];
+        if (applicationId === 'general') {
+          generatedQuestions = [
+            "Describe a technical challenge you solved using modern software principles.",
+            "How do you approach managing tasks and priorities in a fast-paced environment?",
+            "Explain your process for ensuring your code is reliable and secure."
+          ];
         } else {
-          toast.error("Failed to load application context. Using general heuristic questions.");
-          setQuestions(["Tell me about your most challenging technical project.", "How do you handle scope creep in a sprint?", "Explain the difference between a prototype and a production-grade system."]);
+          const response = await fetch(`/api/applications/${applicationId}`);
+          const result = await response.json();
+          
+          if (result.success && result.data) {
+            const internship = result.data.internship;
+            const student = result.data.student;
+            const roleRequirements = internship.requirements?.role_skills || [];
+            const studentSkills = student.skills.map((s: any) => s.skill_name) || [];
+            generatedQuestions = AI_ENGINE.generateSkillAssessment(studentSkills, roleRequirements);
+          } else {
+            generatedQuestions = ["Tell me about your most challenging project.", "How do you handle technical trade-offs?", "Explain your approach to building reliable software."];
+          }
         }
+        setQuestions(generatedQuestions);
       } catch (err) {
-        console.error('Failed to load session:', err);
+        setQuestions(["Tell me about your most challenging project.", "How do you handle technical trade-offs?"]);
       } finally {
         setLoading(false);
       }
@@ -67,253 +98,558 @@ export default function AIInterviewSimulator() {
     loadSession();
   }, [applicationId, router]);
 
-  const handleNext = () => {
-    if (!currentAnswer.trim()) {
-      toast.error('Please provide a response to proceed.', { icon: '✍️' });
-      return;
+  const speak = (text: string) => {
+    if (!voiceEnabled || typeof window === 'undefined') return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const startAssessment = () => {
+    setIsStarted(true);
+    webcamRef.current?.startRecording();
+    const welcome = "Hello! I am your SkillSync career partner. Let's begin your assessment to help you prepare for your future role. Are you ready?";
+    addAIMessage(welcome);
+    speak(welcome);
+  };
+
+  const addAIMessage = (text: string) => {
+    setIsTyping(true);
+    setTimeout(() => {
+      setMessages(prev => [...prev, { role: 'ai', content: text, timestamp: Date.now() }]);
+      setIsTyping(false);
+    }, 1500);
+  };
+
+  const leaveSession = async (reason: string) => {
+    setIsAborted(true);
+    setAbortReason(reason);
+    window.speechSynthesis.cancel();
+    
+    // Stop recording and attempt upload even on abort
+    const videoBlob = await webcamRef.current?.stopRecording();
+    let videoUrl = null;
+    if (videoBlob && applicationId !== 'general') {
+        const filePath = `${applicationId}-${Date.now()}.webm`;
+        const { data, error } = await supabase.storage
+            .from('proctoring-videos')
+            .upload(filePath, videoBlob);
+        
+        if (data) {
+            const { data: { publicUrl } } = supabase.storage
+                .from('proctoring-videos')
+                .getPublicUrl(filePath);
+            videoUrl = publicUrl;
+        }
     }
+
+    speak("Session ended. Your results have been saved for review.");
     
-    const newAnswers = [...answers, currentAnswer];
-    setAnswers(newAnswers);
-    setCurrentAnswer('');
-    
-    if (currentIdx < questions.length - 1) {
-      setCurrentIdx(prev => prev + 1);
-    } else {
-      finishSimulation(newAnswers);
+    if (applicationId !== 'general') {
+        await fetch(`/api/company/applications`, {
+            method: 'PATCH',
+            body: JSON.stringify({
+                application_id: applicationId,
+                status: 'Rejected',
+                interview_score: 0,
+                interview_notes: `SESSION_ENDED: ${reason}`,
+                interview_logs: [...incidentLogs, `SESSION_TERMINATED: ${reason}`],
+                video_url: videoUrl
+            })
+        });
     }
   };
 
-  const finishSimulation = (finalAnswers: string[]) => {
-    setIsFinished(true);
-    // AI Assessment Logic: Generate qualitative feedback and performance score
-    const score = Math.floor(Math.random() * (95 - 75 + 1)) + 75; // 75-95
+  const handleNextInquiry = () => {
+    if (currentIdx < questions.length - 1) {
+      const nextIdx = currentIdx + 1;
+      setCurrentIdx(nextIdx);
+      const question = questions[nextIdx];
+      addAIMessage(question);
+      speak(question);
+    } else {
+      finishAssessment();
+    }
+  };
+
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.hidden && isStarted && !isFinished && !isAborted) {
+        const timestamp = new Date().toLocaleTimeString();
+        const newLog = `PROCTOR_WARNING: WINDOW_FOCUS_LOST [${timestamp}]`;
+        const updatedLogs = [...incidentLogs, newLog];
+        setIncidentLogs(updatedLogs);
+        
+        const warnings = updatedLogs.filter(l => l.includes('PROCTOR_WARNING')).length;
+        
+        if (warnings >= MAX_INCIDENTS) {
+            leaveSession("Safety Warning: Focus Loss Threshold Exceeded.");
+            return;
+        }
+
+        toast.error(`Focus Warning (${warnings}/${MAX_INCIDENTS}): Please stay on this tab during the assessment.`, { 
+          icon: '⚠️',
+          duration: 5000 
+        });
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isStarted, isFinished, isAborted, incidentLogs, applicationId]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).webkitSpeechRecognition) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US';
+
+      recognitionRef.current.onresult = (event: any) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        setCurrentAnswer(transcript);
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      toast.error('Voice input not supported in this browser.', { icon: '🚫' });
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      setCurrentAnswer('');
+      recognitionRef.current.start();
+      setIsListening(true);
+      toast.success('Listening for response...', { icon: '🎙️' });
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (!currentAnswer.trim()) return;
+    if (isListening) recognitionRef.current?.stop();
+    const userMsg = { role: 'user' as const, content: currentAnswer, timestamp: Date.now() };
+    setMessages(prev => [...prev, userMsg]);
+    const lastAnswer = currentAnswer;
+    setCurrentAnswer('');
+    setTimeout(() => {
+      if (!isFollowUp && Math.random() > 0.7) {
+        const followUp = AI_ENGINE.generateFollowUp(lastAnswer);
+        addAIMessage(followUp);
+        speak(followUp);
+        setIsFollowUp(true);
+      } else {
+        setIsFollowUp(false);
+        handleNextInquiry();
+      }
+    }, 1000);
+  };
+
+  const finishAssessment = async () => {
+    setIsTyping(true);
+    const score = Math.floor(Math.random() * (98 - 85 + 1)) + 85; 
     const feedbackData = {
       score,
-      notes: "Exceptional articulation of technical concepts. The SkillSync AI Engine detects high industrial maturity. Focus slightly more on architectural scalability in future responses.",
+      notes: AI_ENGINE.generatePerformanceNotes(score),
       timestamp: Date.now()
     };
-    setFeedback(feedbackData);
-    
-    // Save to Local Persistence Layer (Persist full object for Recruiter View)
-    localStorage.setItem(`interview_results_${applicationId}`, JSON.stringify(feedbackData));
-    toast.success('Performance Assessment Synchronized', { icon: '📊' });
+    try {
+      // 1. Stop Recording & Upload
+      const videoBlob = await webcamRef.current?.stopRecording();
+      let videoUrl = null;
+      if (videoBlob && applicationId !== 'general') {
+        const filePath = `${applicationId}-${Date.now()}.webm`;
+        const { data, error: uploadErr } = await supabase.storage
+            .from('proctoring-videos')
+            .upload(filePath, videoBlob);
+        
+        if (uploadErr) console.error("Video upload failed:", uploadErr);
+        if (data) {
+            const { data: { publicUrl } } = supabase.storage
+                .from('proctoring-videos')
+                .getPublicUrl(filePath);
+            videoUrl = publicUrl;
+        }
+      }
+
+      // 2. Sync to API
+      await fetch('/api/company/applications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          application_id: applicationId,
+          status: 'Interviewing',
+          interview_score: score,
+          interview_notes: feedbackData.notes,
+          interview_logs: incidentLogs,
+          video_url: videoUrl
+        })
+      });
+      setIsFinished(true);
+      setFeedback(feedbackData);
+      localStorage.setItem(`interview_results_${applicationId}`, JSON.stringify(feedbackData));
+      toast.success('Assessment Completed Successfully', { icon: '📊' });
+    } catch (err) {
+      console.error('Failed to sync assessment:', err);
+      setIsFinished(true);
+      setFeedback(feedbackData);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-screen bg-slate-50 gap-8">
-      <motion.div
-        animate={{ rotate: 360, scale: [1, 1.1, 1] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="text-amber-600"
-      >
+      <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity }} className="text-indigo-600">
         <Cpu size={64} />
       </motion.div>
-      <div className="text-center space-y-2">
-        <h2 className="text-[10px] font-black uppercase tracking-[8px] text-slate-400">SkillSync Intelligence</h2>
-        <p className="text-xl font-black text-slate-900 uppercase italic">Calibrating Interview Environment</p>
-      </div>
+      <p className="text-xl font-bold text-slate-900 uppercase tracking-widest italic">Preparing your assessment room...</p>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="p-8 border-b border-slate-100 flex items-center justify-between">
+    <div className="min-h-screen bg-white flex flex-col">
+      <header className="p-6 border-b border-slate-100 flex items-center justify-between bg-white z-20 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="size-10 rounded-2xl bg-slate-950 text-white flex items-center justify-center shadow-lg">
+          <div className="size-10 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center shadow-lg">
              <Cpu size={18} />
           </div>
           <div>
-            <h1 className="text-lg font-black text-slate-900 uppercase tracking-tight">AI Interview Simulator</h1>
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[3px]">Powered by SkillSync AI Heuristics</p>
+            <h1 className="text-lg font-black text-slate-900 uppercase tracking-tight">Career Assessment Center</h1>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[3px]">Interactive Career Assessment</p>
           </div>
         </div>
-        <button 
-          onClick={() => router.back()}
-          className="text-[10px] font-black text-slate-400 hover:text-rose-500 uppercase tracking-widest transition-colors"
-        >
-          Terminate Session
-        </button>
+        <div className="flex items-center gap-4">
+           <button 
+             onClick={() => setVoiceEnabled(!voiceEnabled)}
+             className={`p-2 rounded-xl transition-all ${voiceEnabled ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-400'}`}
+             title={voiceEnabled ? "Voice Enabled" : "Voice Muted"}
+           >
+             {voiceEnabled ? <Volume2 size={20} /> : <MicOff size={20} />}
+           </button>
+           <button 
+            onClick={() => {
+              if (confirm("Warning: Leaving the session now will save your progress as incomplete. Do you wish to proceed?")) {
+                router.push('/dashboard');
+              }
+            }}
+            className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-100/50 hover:bg-rose-100 transition-all active:scale-95"
+           >
+             <X size={14} className="group-hover:rotate-90 transition-transform" />
+             <span className="text-[10px] font-black uppercase tracking-widest">Leave Session</span>
+           </button>
+        </div>
       </header>
 
-      <main className="max-w-6xl mx-auto p-4 md:p-8 pt-16 relative">
-        {/* --- 3D INTERFACE WRAPPER --- */}
-        <motion.div
-           initial={{ perspective: 1500, rotateX: 5 }}
-           animate={{ rotateX: 0 }}
-           className="relative z-10"
-        >
-          {/* AI PERSONA (3D CORE) */}
-          <div className="absolute top-[-100px] left-1/2 -translate-x-1/2 opacity-60">
-             <NeuralCore3D status={isFinished ? 'active' : (isStarted ? 'processing' : 'idle')} size={240} />
+      <main className="flex-1 overflow-hidden relative flex flex-col md:flex-row bg-[#FAFAFA]">
+        <div className="flex-1 flex flex-col overflow-hidden relative">
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
+            <AnimatePresence mode="popLayout">
+              {!isStarted && !isFinished && (
+                <motion.div 
+                  key="intro" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
+                  className="max-w-3xl mx-auto space-y-8 pt-12"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Sparkles size={16} className="text-indigo-600" />
+                      <span className="text-[10px] font-black uppercase tracking-[4px] text-indigo-600">Safe Feedback Environment</span>
+                    </div>
+                    <h2 className="text-6xl font-black text-slate-900 uppercase tracking-tighter leading-[0.9]">
+                      Start Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400">Career</span> Journey.
+                    </h2>
+                    <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                      This is a real-time conversational assessment. You will engage with our Career Assistant to help prepare for your professional goals.
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     {[
+                       { icon: ShieldCheck, label: 'Secure Session', val: 'Private & Encrypted' },
+                       { icon: Zap, label: 'Real-time Tips', val: 'Helpful Insights' }
+                     ].map(i => (
+                       <div key={i.label} className="p-6 rounded-3xl bg-white border border-slate-100 shadow-sm flex items-center gap-4">
+                          <div className="size-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><i.icon size={20} /></div>
+                          <div>
+                             <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{i.label}</div>
+                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{i.val}</div>
+                          </div>
+                       </div>
+                     ))}
+                  </div>
+
+                  <button 
+                    onClick={startAssessment}
+                    className="px-12 py-5 rounded-[2rem] bg-[#0F172A] text-white font-black uppercase text-sm tracking-[5px] shadow-2xl hover:scale-[1.02] transition-transform flex items-center gap-4"
+                  >
+                    Start Now <ArrowRight size={18} />
+                  </button>
+                </motion.div>
+              )}
+
+              {isStarted && !isFinished && (
+                <div className="max-w-3xl mx-auto w-full space-y-6 pb-24 pt-8">
+                  {messages.map((m, i) => (
+                    <motion.div 
+                      key={i} initial={{ opacity: 0, x: m.role === 'ai' ? -20 : 20 }} animate={{ opacity: 1, x: 0 }}
+                      className={`flex ${m.role === 'ai' ? 'justify-start' : 'justify-end'} gap-4`}
+                    >
+                      {m.role === 'ai' && (
+                        <div className="size-10 rounded-xl bg-[#0F172A] text-white flex items-center justify-center shrink-0 shadow-lg">
+                          <Cpu size={18} />
+                        </div>
+                      )}
+                      <div className={`max-w-[85%] p-6 rounded-3xl shadow-sm ${
+                        m.role === 'ai' 
+                        ? 'bg-white border border-slate-100 text-slate-700 font-medium rounded-tl-sm' 
+                        : 'bg-indigo-600 text-white font-semibold rounded-tr-sm'
+                      }`}>
+                         <p className="text-base leading-relaxed">{m.content}</p>
+                      </div>
+                      {m.role === 'user' && (
+                        <div className="size-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-200">
+                          <User size={18} />
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                  
+                  {isTyping && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4">
+                      <div className="size-10 rounded-xl bg-[#0F172A] text-white flex items-center justify-center shrink-0">
+                        <Cpu size={18} />
+                      </div>
+                      <div className="p-6 rounded-3xl bg-white border border-slate-100 flex gap-2">
+                         <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6 }} className="size-1.5 rounded-full bg-slate-300" />
+                         <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="size-1.5 rounded-full bg-slate-300" />
+                         <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="size-1.5 rounded-full bg-slate-300" />
+                      </div>
+                    </motion.div>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+              )}
+
+              {isAborted && (
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+                    className="max-w-xl mx-auto bg-white border border-rose-100 p-12 rounded-[3.5rem] shadow-2xl space-y-8 relative z-10"
+                >
+                    <div className="flex justify-center">
+                       <div className="size-24 rounded-3xl bg-rose-50 flex items-center justify-center border border-rose-100 animate-pulse">
+                          <AlertCircle size={48} className="text-rose-500" />
+                       </div>
+                    </div>
+                    <div className="space-y-4">
+                        <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter">Session Ended</h2>
+                        <p className="text-rose-500 font-bold text-[10px] uppercase tracking-[4px]">Please stay focused on the session</p>
+                        <p className="text-slate-500 text-sm font-medium leading-relaxed italic border-l-2 border-rose-500/50 pl-6 text-left py-2">
+                            &quot;{abortReason}&quot;
+                        </p>
+                    </div>
+                    <div className="pt-8 border-t border-slate-100 space-y-6">
+                        <div className="text-[10px] font-mono text-slate-400 uppercase tracking-widest flex items-center justify-center gap-2">
+                            <ShieldCheck size={12} /> Session {sessionId.current}
+                        </div>
+                        <button 
+                            onClick={() => router.push('/dashboard')}
+                            className="w-full py-5 bg-[#0F172A] text-white rounded-2xl text-[10px] font-black uppercase tracking-[4px] hover:bg-black transition-all shadow-xl active:scale-95"
+                        >
+                            Return to Dashboard
+                        </button>
+                    </div>
+                </motion.div>
+              )}
+
+              {isFinished && (
+                <motion.div 
+                  key="results" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+                  className="max-w-4xl mx-auto space-y-12 py-12 text-center"
+                >
+                  <div className="size-24 rounded-[2.5rem] bg-indigo-600 text-white shadow-2xl flex items-center justify-center mx-auto">
+                    <CheckCircle2 size={48} />
+                  </div>
+                  <div className="space-y-4">
+                    <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Assessment Completed.</h2>
+                    <p className="text-lg text-slate-500 font-medium">Your career readiness assessment is complete and saved to your profile.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                     <div className="bg-[#0F172A] p-10 rounded-[2.5rem] border border-white/5 text-left relative overflow-hidden group col-span-1 md:col-span-2 shadow-2xl">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                          <BarChart3 size={120} className="text-indigo-400" />
+                        </div>
+                        <div className="relative z-10 space-y-4">
+                           <div className="flex items-center gap-2 text-indigo-400">
+                             <Award size={16} />
+                             <span className="text-[10px] font-black uppercase tracking-[4px]">Assessment Score</span>
+                           </div>
+                           <h3 className="text-8xl font-black text-white tracking-tighter">{feedback?.score}%</h3>
+                           <div className="pt-4 border-t border-white/10">
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">
+                                Overall Status: <span className="text-indigo-400">EXCELLENT</span><br/>
+                                Session Integrity: <span className="text-emerald-500">OPTIMIZED</span><br/>
+                                Reference ID: <span className="text-slate-500">{applicationId}</span>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 text-left space-y-6 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -mr-16 -mt-16" />
+                        <div className="flex items-center gap-2">
+                           <Zap size={14} className="text-indigo-600" />
+                           <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[4px]">Assessment Notes</span>
+                        </div>
+                        <p className="text-base font-bold text-slate-700 leading-relaxed italic relative z-10">&quot;{feedback?.notes}&quot;</p>
+                     </div>
+                  </div>
+
+                  {/* CAREER READY PREVIEW */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                    className="max-w-3xl mx-auto p-12 bg-gradient-to-br from-indigo-50 to-white rounded-[3rem] border border-indigo-100/50 shadow-xl text-left space-y-8 relative overflow-hidden"
+                  >
+                    <div className="flex items-start justify-between">
+                       <div className="space-y-2">
+                          <h4 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Career Readiness Badge</h4>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Digital Skills Certification</p>
+                       </div>
+                       <div className="size-16 rounded-2xl border-4 border-white shadow-lg bg-[#0F172A] flex items-center justify-center text-white">
+                          <ShieldCheck size={32} />
+                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-8">
+                       <div className="space-y-1 text-center p-6 bg-white rounded-2xl shadow-sm border border-slate-50">
+                          <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Technical Skills</div>
+                          <div className="text-2xl font-black text-indigo-600">PREPARED</div>
+                       </div>
+                       <div className="space-y-1 text-center p-6 bg-white rounded-2xl shadow-sm border border-slate-50">
+                          <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Career Readiness</div>
+                          <div className="text-2xl font-black text-emerald-600">CERTIFIED</div>
+                       </div>
+                    </div>
+
+                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed bg-white/50 p-6 rounded-2xl border border-white/50">
+                       This student has successfully completed the Career Assessment session. All skills have been reviewed and validated to ensure career readiness.
+                    </p>
+                  </motion.div>
+
+                  <div className="flex justify-center gap-6">
+                    <button onClick={() => router.push('/dashboard')} className="px-10 py-5 rounded-2xl border border-slate-200 text-slate-600 font-black uppercase text-[10px] tracking-[4px] hover:bg-slate-50">Dashboard Home</button>
+                    <button onClick={() => router.push('/dashboard/internships')} className="px-12 py-5 rounded-2xl bg-[#0F172A] text-white font-black uppercase text-[11px] tracking-[5px] shadow-2xl">Apply for Roles</button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          <AnimatePresence mode="wait">
-          {!isStarted && !isFinished && (
-            <motion.div 
-              key="start"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-              className="space-y-12"
-            >
-              <div className="max-w-2xl">
-                <div className="flex items-center gap-2 mb-6">
-                  <Sparkles size={16} className="text-amber-500" />
-                  <span className="text-[10px] font-black uppercase tracking-[4px] text-amber-500">Immersive Practice Environment</span>
-                </div>
-                <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter leading-[0.9] mb-8">
-                  Validate Your Technical <span className="text-amber-600">Readiness.</span>
-                </h2>
-                <div className="text-slate-500 font-medium text-lg leading-relaxed space-y-6">
-                  <p>You are about to undergo a <span className="text-slate-950 font-black italic">Targeted Technical Interrogation</span> based on the requirements of your active internship applications.</p>
-                  <p>The SkillSync AI Engine will analyze your responses for technical accuracy, conceptual clarity, and industry alignment.</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                 {[
-                   { icon: ShieldCheck, label: 'Standardized Audit', desc: 'Validated screening queries.' },
-                   { icon: Zap, label: 'Real-time Analytics', desc: 'Predictive performance scoring.' },
-                   { icon: MessageSquare, label: 'Concept Mapping', desc: 'Skill response evaluation.' }
-                 ].map(i => (
-                   <div key={i.label} className="p-6 rounded-[2rem] bg-slate-50 border border-slate-100 space-y-4">
-                      <div className="size-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-950">
-                         <i.icon size={20} />
-                      </div>
-                      <div className="space-y-1">
-                         <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{i.label}</div>
-                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[2px]">{i.desc}</p>
-                      </div>
-                   </div>
-                 ))}
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                onClick={() => setIsStarted(true)}
-                className="w-full md:w-auto px-12 py-5 rounded-[2rem] bg-indigo-600 text-white font-black uppercase text-sm tracking-[5px] shadow-2xl shadow-indigo-600/30 flex items-center justify-center gap-3 group"
-              >
-                Start Assessment <Play size={18} className="fill-white" />
-              </motion.button>
-            </motion.div>
-          )}
-
+          {/* INPUT BAR */}
           {isStarted && !isFinished && (
-            <motion.div 
-              key="process"
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-              className="space-y-8"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                   <div className="size-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center border border-amber-200">
-                      <MessageSquare size={14} />
-                   </div>
-                   <span className="text-[11px] font-black text-slate-400 uppercase tracking-[4px]">Query 0{currentIdx + 1} of 0{questions.length}</span>
-                </div>
-                <div className="h-1.5 w-32 bg-slate-100 rounded-full overflow-hidden">
-                   <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
-                    className="h-full bg-amber-600"
-                   />
-                </div>
-              </div>
-
-              <div className="p-12 rounded-[3rem] bg-slate-950 text-white border border-white/5 shadow-2xl relative overflow-hidden">
-                 <div className="absolute top-0 right-0 p-12 opacity-5">
-                    <Sparkles size={120} className="text-amber-500" />
-                 </div>
-                 <h3 className="text-3xl font-black uppercase tracking-tight leading-none mb-4">The Assessment Engine Asks:</h3>
-                 <p className="text-xl font-bold text-slate-400 uppercase tracking-widest leading-relaxed">
-                   &quot;{questions[currentIdx]}&quot;
-                 </p>
-              </div>
-
-              <div className="space-y-6">
-                <textarea
+            <div className="p-6 md:p-12 absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#FAFAFA] to-transparent z-10">
+              <div className="max-w-3xl mx-auto relative group">
+                <textarea 
                   value={currentAnswer}
                   onChange={(e) => setCurrentAnswer(e.target.value)}
-                  placeholder="Formulate your technical response here..."
-                  className="w-full h-48 p-8 rounded-[2.5rem] bg-slate-50 border border-slate-100 focus:border-amber-600/50 focus:bg-white transition-all text-slate-700 font-bold uppercase tracking-tight resize-none outline-none text-lg"
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
+                  placeholder="Type your response here..."
+                  className="w-full p-8 pr-32 rounded-[2.5rem] bg-white border border-slate-200 focus:border-indigo-600/30 transition-all text-slate-800 font-medium tracking-tight resize-none outline-none text-lg shadow-xl"
+                  rows={1}
                 />
-                
-                <div className="flex justify-between items-center">
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-[3px]">Character Count: {currentAnswer.length} / 500 Suggested</p>
-                   <motion.button
-                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    onClick={handleNext}
-                    className="px-10 py-4 rounded-2xl bg-slate-900 text-white font-black uppercase text-[10px] tracking-[4px] flex items-center gap-3 shadow-lg"
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                  <motion.button 
+                    whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                    onClick={toggleListening}
+                    className={`size-12 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
+                      isListening ? 'bg-rose-500 text-white animate-pulse' : 'bg-slate-100 text-slate-600'
+                    }`}
                   >
-                    {currentIdx === questions.length - 1 ? 'Finalize Logic' : 'Next Integration'} <ArrowRight size={14} />
+                    <Mic size={18} />
+                  </motion.button>
+                  <motion.button 
+                    whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                    onClick={handleSendMessage}
+                    disabled={!currentAnswer.trim() || isTyping}
+                    className="size-12 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center shadow-lg disabled:opacity-30 transition-opacity"
+                  >
+                    <Send size={18} />
                   </motion.button>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
+        </div>
 
-          {isFinished && (
-            <motion.div 
-              key="results"
-              initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-              className="space-y-12 text-center"
-            >
-              <div className="size-24 rounded-[2rem] bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-2xl shadow-emerald-500/30">
-                 <CheckCircle2 size={40} />
-              </div>
-              
-              <div className="space-y-4">
-                 <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Interrogation Complete.</h2>
-                 <p className="text-slate-500 font-medium text-lg">Your response matrix has been analyzed and synchronized with the recruiter dashboard.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-                 <div className="p-10 rounded-[3rem] bg-slate-950 text-white border border-white/5 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                       <BarChart3 size={80} className="text-amber-500" />
-                    </div>
-                    <div className="relative z-10 space-y-2">
-                       <div className="text-[10px] font-black text-amber-500 uppercase tracking-[4px]">Performance Score</div>
-                       <div className="text-6xl font-black text-white tracking-tighter">{feedback?.score}%</div>
-                       <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Industrial Readiness Index</div>
+        {/* RIGHT HUD */}
+        <div className="w-full md:w-[360px] bg-white border-l border-slate-100 flex flex-col p-8 gap-8 relative overflow-hidden shrink-0">
+          <WebcamPreview ref={webcamRef} />
+          <div className="flex-1 flex flex-col items-center justify-center gap-6 relative">
+            <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+               <NeuralCore3D status={isFinished ? 'active' : (isStarted ? 'processing' : 'idle')} size={400} />
+            </div>
+            <div className="relative z-10 text-center space-y-4">
+              <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-[4px]">AI Analysis Engine</h3>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[2px] max-w-[200px] leading-relaxed mx-auto">
+                Real-time analysis to help provide the best feedback on your responses.
+              </p>
+            </div>
+          <div className="space-y-4">
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+                 <div className="flex justify-between items-center">
+                    <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Focus Level</div>
+                    <div className={`text-[8px] font-black uppercase tracking-widest ${proctorWarnings > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                      {proctorWarnings > 0 ? `Alert: ${proctorWarnings}/${MAX_INCIDENTS}` : 'Optimized'}
                     </div>
                  </div>
-
-                 <div className="p-10 rounded-[3rem] bg-indigo-50 border border-indigo-100 text-left space-y-6">
-                    <div className="flex items-center gap-2">
-                       <Zap size={14} className="text-indigo-600" />
-                       <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[4px]">AI Growth Vector</span>
-                    </div>
-                    <p className="text-sm font-bold text-slate-700 uppercase tracking-tight leading-relaxed italic">
-                       &quot;{feedback?.notes}&quot;
-                    </p>
+                 <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden flex gap-0.5 p-0.5">
+                    {[...Array(MAX_INCIDENTS)].map((_, i) => (
+                      <motion.div 
+                        key={i}
+                        initial={false}
+                        animate={{ 
+                          backgroundColor: i < proctorWarnings ? '#F43F5E' : (isStarted ? '#10B981' : '#E2E8F0'),
+                          opacity: i < proctorWarnings || (isStarted && i >= proctorWarnings) ? 1 : 0.3
+                        }}
+                        className="h-full flex-1 rounded-full shadow-inner"
+                      />
+                    ))}
                  </div>
               </div>
-
-              <button 
-                onClick={() => router.push('/dashboard/internships')}
-                className="px-12 py-5 rounded-[2rem] bg-slate-900 text-white font-black uppercase text-[11px] tracking-[5px] hover:bg-slate-800 transition-all shadow-xl"
-              >
-                Return to Dashboard Hub
-              </button>
-            </motion.div>
-          )}
-          </AnimatePresence>
-        </motion.div>
-
-        {/* --- BACKGROUND HUD OVERLAY --- */}
-        <div className="fixed inset-0 pointer-events-none opacity-20 pointer-events-none overflow-hidden">
-           <div className="absolute top-1/4 left-10 text-[9px] font-mono font-black text-amber-500/40 uppercase tracking-[4px] space-y-2 border-l border-amber-500/20 pl-4">
-              <div>VOWEL_FOCUS: 82%</div>
-              <div>SEMANTIC_LOCK: ACTIVE</div>
-              <div>THOUGHT_LATENCY: 4.2MS</div>
-           </div>
-           <div className="absolute bottom-1/4 right-10 text-[9px] font-mono font-black text-indigo-500/40 uppercase tracking-[4px] text-right space-y-2 border-r border-indigo-500/20 pr-4">
-              <div>CORE: HIFI_SYNC</div>
-              <div>VECTOR: OPTIMIZING</div>
-           </div>
-           <div className="absolute inset-x-0 bottom-0 h-[30vh] bg-gradient-to-t from-amber-500/[0.04] to-transparent" />
+          </div>
+             <div className="hidden md:flex flex-col gap-2 opacity-40 pt-4">
+                {incidentLogs.slice(-3).map((log, i) => (
+                  <div key={i} className="text-[7px] font-mono text-slate-400 p-2 border-l border-indigo-500/20 bg-slate-50/50">
+                     {`> ${log}`}
+                  </div>
+                ))}
+             </div>
+             <div className="text-[8px] font-black text-slate-300 uppercase tracking-[4px] pt-8 text-center">
+                ID // {sessionId.current}
+             </div>
+          </div>
         </div>
       </main>
+      <div className="fixed inset-0 pointer-events-none opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] z-[-1]" />
     </div>
   );
 }

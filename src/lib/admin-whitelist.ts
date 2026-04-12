@@ -1,5 +1,5 @@
 /**
- * Administrative Whitelist for Neural Terminal Access.
+ * Administrative Whitelist for Admin Access.
  * Only emails in this list can synthesize an Admin Identity.
  */
 export const ADMIN_EMAILS = [

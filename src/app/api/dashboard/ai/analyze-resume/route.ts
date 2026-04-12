@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       console.error("[Re-Analysis] Library Load failure:", loadErr);
       return NextResponse.json({ 
         success: false, 
-        error: `Neural Engine Offline: ${loadErr.message || "Failed to initialize native PDF components."}` 
+        error: `Analysis Service Error: ${loadErr.message || "Failed to initialize native PDF components."}` 
       }, { status: 500 });
     }
 
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
       console.error('[Re-Analysis] PDF Parse Internal Error:', parseError);
       return NextResponse.json({ 
         success: false, 
-        error: `Neural Engine Exception: ${parseError.message || 'The PDF engine encountered a system-level conflict.'}` 
+        error: `Analysis Error: ${parseError.message || 'The PDF engine encountered a system-level conflict.'}` 
       }, { status: 500 });
     }
 
@@ -97,7 +97,7 @@ export async function POST(request: Request) {
     // CRITICAL: Ensure NO HTML is ever returned here
     return new Response(JSON.stringify({ 
       success: false, 
-      error: 'The Neural Engine encountered an unexpected system-level error. Please ensure the file is a standard PDF.' 
+      error: 'The analysis system encountered an unexpected error. Please ensure the file is a standard PDF.' 
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }

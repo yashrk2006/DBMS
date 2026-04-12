@@ -73,11 +73,13 @@ export async function GET(request: Request) {
         student_skills: studentSkills,
         role_title: app.internship?.title || 'Unknown Role',
         match_score: matchScore,
-        ai_interview_guide: aiInterviewQuestions,
         resume_analysis: app.student?.ai_resume_analysis ? {
           ...app.student.ai_resume_analysis,
           resume_url: app.student.resume_url
-        } : undefined
+        } : undefined,
+        interview_score: app.interview_score,
+        interview_notes: app.interview_notes,
+        interview_logs: app.interview_logs
       };
     });
 
@@ -90,7 +92,8 @@ export async function GET(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    const { application_id, applicationId, status } = await request.json();
+    const body = await request.json();
+    const { application_id, applicationId, status, interview_score, interview_notes, interview_logs } = body;
     const id = application_id || applicationId;
 
     if (!id || !status) {
@@ -113,10 +116,17 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ success: false, error: 'Application context not found' }, { status: 404 });
     }
 
-    // 2. Update status
+    // 2. Update status and metrics
+    
     const { data: updated, error } = await supabase
       .from('application')
-      .update({ status })
+      .update({ 
+        status,
+        ...(interview_score !== undefined && { interview_score }),
+        ...(interview_notes !== undefined && { interview_notes }),
+        ...(interview_logs !== undefined && { interview_logs }),
+        ...(body.video_url !== undefined && { video_url: body.video_url })
+      })
       .eq('application_id', id)
       .select()
       .single();

@@ -29,7 +29,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         return;
       }
 
-      // Verify Administrative Privileges via metadata (sync'd by middleware/callback)
       const role = session.user.app_metadata?.role || session.user.user_metadata?.role;
 
       if (role !== 'admin') {
@@ -51,8 +50,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
            <ShieldAlert size={40} />
         </div>
         <div className="text-center space-y-2">
-            <h2 className="text-white text-xl font-black uppercase tracking-tighter">Validating Authority</h2>
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[4px]">Accessing Secure Admin Segment...</p>
+            <h2 className="text-white text-xl font-black uppercase tracking-tighter">Signing in as Admin</h2>
+            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[4px]">Opening Admin Tools...</p>
         </div>
       </div>
     );
@@ -65,7 +64,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <div className="size-9 rounded-xl bg-amber-600 flex items-center justify-center shadow-lg shadow-amber-600/10">
             <Crown size={18} className="text-white" />
           </div>
-          <span className="font-black text-lg uppercase tracking-tighter font-display text-slate-900">Admin Panel</span>
+          <span className="font-black text-lg uppercase tracking-tighter font-display text-slate-900">Admin Hub</span>
         </div>
 
         <nav className="p-4 flex flex-col gap-1 pb-8 border-b border-slate-50">
@@ -99,4 +98,3 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     </div>
   );
 }
-

@@ -1,15 +1,28 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase';
+import { createClientServer } from '@/lib/supabase-server'; 
 import { Notification } from '@/types';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    const requestedUserId = searchParams.get('userId');
 
-    if (!userId) {
-      return NextResponse.json({ success: false, error: 'User ID required' }, { status: 400 });
+    // SECURE SESSION VERIFICATION
+    const supabaseServer = await createClientServer();
+    const { data: { user }, error: authError } = await supabaseServer.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
     }
+
+    // PRIVACY ENFORCEMENT: Only allow users to fetch their own notifications
+    if (requestedUserId && requestedUserId !== user.id) {
+       console.warn(`Privacy Breach Attempt: User ${user.id} tried to fetch notifications for ${requestedUserId}`);
+       return NextResponse.json({ success: false, error: 'Unauthorized: Data Privacy Violation' }, { status: 403 });
+    }
+
+    const userId = user.id; // Use verified ID from session
 
     const { data: rawNotifs, error } = await supabase
       .from('notification')
@@ -37,15 +50,30 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { userId, title, message, type = 'system' } = await request.json();
+    const { userId: bodyUserId, title, message, type = 'system' } = await request.json();
 
-    if (!userId || !title || !message) {
+    // SECURE SESSION VERIFICATION
+    const supabaseServer = await createClientServer();
+    const { data: { user }, error: authError } = await supabaseServer.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+    }
+
+    // PRIVACY ENFORCEMENT: Only allow the user to send notifications to themselves
+    // Exceptions should go through a specialized internal utility using supabaseAdmin
+    const targetUserId = bodyUserId || user.id;
+    if (targetUserId !== user.id) {
+       return NextResponse.json({ success: false, error: 'Unauthorized: Cannot inject notifications for other students' }, { status: 403 });
+    }
+
+    if (!title || !message) {
       return NextResponse.json({ success: false, error: 'Missing notification payload' }, { status: 400 });
     }
 
     const { data, error } = await supabase
       .from('notification')
-      .insert({ user_id: userId, title, message, type })
+      .insert({ user_id: targetUserId, title, message, type })
       .select()
       .single();
 
@@ -59,25 +87,38 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    const { notificationId, userId } = await request.json();
+    const { notificationId, userId: bodyUserId } = await request.json();
+
+    // SECURE SESSION VERIFICATION
+    const supabaseServer = await createClientServer();
+    const { data: { user }, error: authError } = await supabaseServer.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+    }
+
+    // PRIVACY ENFORCEMENT
+    const targetUserId = bodyUserId || user.id;
+    if (targetUserId !== user.id) {
+       return NextResponse.json({ success: false, error: 'Forbidden: Privacy Violation' }, { status: 403 });
+    }
 
     if (notificationId) {
       // Mark single notification as read
       const { error } = await supabase
         .from('notification')
         .update({ is_read: true })
-        .eq('notification_id', notificationId);
+        .eq('notification_id', notificationId)
+        .eq('user_id', user.id); // Extra safety layer
       if (error) throw error;
-    } else if (userId) {
-      // Mark all as read for a user
+    } else {
+      // Mark all as read for the authenticated user
       const { error } = await supabase
         .from('notification')
         .update({ is_read: true })
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .eq('is_read', false);
       if (error) throw error;
-    } else {
-      return NextResponse.json({ success: false, error: 'notificationId or userId required' }, { status: 400 });
     }
 
     return NextResponse.json({ success: true });

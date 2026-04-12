@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 
 const navItems = [
-  { href: '/company', label: 'Company Overview', icon: LayoutDashboard },
+  { href: '/company', label: 'Dashboard Overview', icon: LayoutDashboard },
   { href: '/company/postings', label: 'Job Postings', icon: Briefcase },
   { href: '/company/applicants', label: 'Review Candidates', icon: Users },
   { href: '/company/profile', label: 'Company Profile', icon: Settings },
@@ -46,10 +46,10 @@ export default function CompanyLayout({ children }: { children: ReactNode }) {
         if (data.success) {
           setCompanyName(data.company.name);
         } else {
-          setCompanyName("Corporate HR");
+          setCompanyName("Hiring Partner");
         }
       } catch (e) {
-        setCompanyName("Corporate HR");
+        setCompanyName("Hiring Partner");
       }
     }
     initSession();
@@ -62,8 +62,8 @@ export default function CompanyLayout({ children }: { children: ReactNode }) {
            <Building2 size={40} />
         </div>
         <div className="text-center space-y-2">
-            <h2 className="text-slate-900 text-xl font-black uppercase tracking-tighter">Initializing Corporate Secure</h2>
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[4px]">Connecting to Business IQ Network...</p>
+            <h2 className="text-slate-900 text-xl font-black uppercase tracking-tighter">Loading Company Portal</h2>
+            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[4px]">Preparing Hiring Tools...</p>
         </div>
       </div>
     );
@@ -126,4 +126,3 @@ export default function CompanyLayout({ children }: { children: ReactNode }) {
     </div>
   );
 }
-

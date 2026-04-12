@@ -17,12 +17,12 @@ export async function POST(req: Request) {
       try {
         let prompt = '';
         if (scope === 'COMPANY_ASSESSMENT') {
-          prompt = `You are a Lead Technical Architect and Recruiter evaluating a candidate for a "${title}" role. The candidate claims proficiency in: ${Array.isArray(skills) ? skills.join(', ') : skills}. 
-          Generate exactly 5 extremely high-level, tactical screening questions designed to expose the depth of their actual production experience with these specific technologies. 
-          Focus on edge cases, architectural trade-offs, and scaling challenges.`;
+          prompt = `You are a Lead Software Engineer and Hiring Partner evaluating a student for a "${title}" internship. The candidate's skills include: ${Array.isArray(skills) ? skills.join(', ') : skills}. 
+          Generate exactly 5 challenging and insightful screening questions designed to understand the depth of their practical experience with these specific technologies. 
+          Focus on problem-solving, architectural considerations, and practical implementation details.`;
         } else {
-          prompt = `You are an expert technical interviewer for a "${title}" position. The candidate has the following core skills: ${Array.isArray(skills) ? skills.join(', ') : skills}. 
-          Generate exactly 5 highly specific, challenging technical behavioral or system-design interview questions tailored towards testing their understanding of those specific skills in the context of the requested job role.`;
+          prompt = `You are a career mentor conducting a mock interview for a "${title}" position. The candidate has the following core skills: ${Array.isArray(skills) ? skills.join(', ') : skills}. 
+          Generate exactly 5 highly specific technical behavioral or system-design interview questions tailored towards testing their understanding of those specific skills in a professional project context.`;
         }
         
         prompt += `\n\nCRITICAL RULE: Return ONLY a raw JSON array of exactly 5 strings. Do NOT wrap it in a markdown code block. No preamble. 
@@ -65,13 +65,13 @@ Example exactly like this:
       const studentSkills = Array.isArray(skills) ? skills : [];
       questions = AI_ENGINE.generateInterviewQuestions(studentSkills, title);
       
-      // Ensure we have 5 questions for a premium feel
+      // Ensure we have 5 questions for a complete feel
       const extraDefaults = [
-        "Describe a complex technical challenge you solved and the specific steps you took.",
-        "How do you ensure code quality and maintainability in a fast-paced development environment?",
-        "Explain a situation where you had to learn a new technology quickly to meet a deadline.",
+        "Describe a technical challenge you solved and the specific steps you took.",
+        "How do you ensure code quality and maintainability in a professional development environment?",
+        "Explain a situation where you had to learn a new technology quickly to meet a project goal.",
         "How do you approach collaboration and communication within a cross-functional team?",
-        "What is your strategy for optimizing performance and scalability in your applications?"
+        "What is your strategy for optimizing performance and scalability in your apps?"
       ];
       
       while (questions.length < 5) {
@@ -86,9 +86,9 @@ Example exactly like this:
     return NextResponse.json({ 
       success: true, 
       questions: [
-        "How do you handle technical debt while meeting aggressive feature deadlines?",
-        "Describe your process for architectural decision-making in a new project.",
-        "How do you ensure your technical solutions align with business objectives?",
+        "How do you handle technical debt while meeting project deadlines?",
+        "Describe your process for technical decision-making in a new project.",
+        "How do you ensure your technical solutions align with project objectives?",
         "What's your approach to mentorship and knowledge sharing within a team?",
         "Describe a time you had to pivot your technical strategy midway through a project."
       ]

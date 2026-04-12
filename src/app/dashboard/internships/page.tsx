@@ -211,8 +211,9 @@ export default function InternshipsPage() {
   );
 
   return (
-    <div className="space-y-16 pb-24">
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12 pb-12 border-b border-slate-200">
+    <div className="space-y-12 pb-24">
+      {/* 1. Header Section */}
+      <div className="pb-8 border-b border-slate-200">
         <AnimatedSection direction="up" distance={40}>
           <div className="flex items-center gap-4 mb-6">
              <div className="size-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm">
@@ -229,20 +230,59 @@ export default function InternshipsPage() {
              <span className="text-[10px] font-bold uppercase tracking-[3px]">Real-time synchronization with active career opportunities</span>
           </div>
         </AnimatedSection>
-        
-        <AnimatedSection direction="up" className="relative w-full lg:max-w-md group" delay={0.2}>
-          <div className="absolute inset-0 bg-amber-500/5 blur-2xl opacity-0 group-focus-within:opacity-100 transition-opacity" />
+      </div>
+
+      {/* 2. Predictive Analytics (Now smaller and above search) */}
+      {evolutionData.length > 0 && (
+        <AnimatedSection direction="up" delay={0.2}>
+          <div className="bg-slate-950 rounded-[2.5rem] p-6 lg:p-8 relative overflow-hidden group/evolution border border-white/5 shadow-2xl">
+            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover/evolution:scale-110 transition-transform duration-700">
+              <Activity size={80} className="text-amber-500" />
+            </div>
+            <div className="relative z-10 flex flex-col lg:flex-row gap-8 items-center justify-between">
+              <div className="max-w-md space-y-3">
+                <div className="flex items-center gap-3">
+                  <Zap size={14} className="text-amber-500 fill-amber-500" />
+                  <span className="text-[9px] font-black text-amber-500 uppercase tracking-[4px]">Predictive Analytics</span>
+                </div>
+                <h3 className="text-xl font-black text-white uppercase tracking-tight leading-none">Skill Evolution Predictor.</h3>
+                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-[1.5px] leading-relaxed">
+                  Market trend analysis: acquiring these skills will maximize your matching probability.
+                </p>
+              </div>
+              <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-3 gap-3">
+                {evolutionData.map((skill, idx) => (
+                  <div key={skill.name} className="bg-white/5 border border-white/10 p-4 rounded-2xl hover:bg-white/10 transition-all group/item">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[12px] font-black text-white uppercase tracking-tight">{skill.name}</span>
+                      <span className="text-[9px] font-black text-amber-500/60">+{skill.impact}%</span>
+                    </div>
+                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                      <motion.div initial={{ width: 0 }} whileInView={{ width: `${skill.impact}%` }} transition={{ duration: 1, delay: 0.4 + (idx * 0.1) }} className="h-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </AnimatedSection>
+      )}
+
+      {/* 3. Isolated Search Bar (Row-based to ensure clickability) */}
+      <AnimatedSection direction="up" className="relative w-full group z-20" delay={0.3}>
+        <div className="absolute inset-0 bg-amber-500/5 blur-3xl opacity-0 group-focus-within:opacity-100 transition-opacity" />
+        <div className="relative">
           <input
             id="internship-search"
             type="text"
             placeholder="SEARCH BY ROLE OR COMPANY..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-20 pl-16 pr-8 rounded-3xl border border-slate-200 bg-white text-[12px] font-black uppercase tracking-[3px] text-slate-900 placeholder:text-slate-300 transition-all focus:border-amber-500/30 focus:shadow-lg focus:shadow-amber-500/5 shadow-sm"
+            className="w-full h-20 pl-16 pr-8 rounded-[2rem] border border-slate-200 bg-white text-[12px] font-black uppercase tracking-[3px] text-slate-900 placeholder:text-slate-300 transition-all focus:border-amber-500/30 focus:shadow-2xl focus:shadow-amber-500/5 shadow-sm active:scale-[0.99] relative z-20"
           />
-          <Search size={22} className="absolute left-6 top-7 text-slate-300 group-focus-within:text-amber-500 transition-colors" />
-        </AnimatedSection>
-      </div>
+          <Search size={22} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors z-30" />
+        </div>
+      </AnimatedSection>
 
       {filtered.length === 0 ? (
         <AnimatedSection direction="up" className="flex flex-col items-center justify-center py-24 gap-8">
@@ -251,7 +291,7 @@ export default function InternshipsPage() {
            </div>
            <div className="text-center space-y-2">
               <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">No Opportunities Found</h3>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[3px]">The Neural Engine could not locate matches for &quot;{search}&quot;</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[3px]">We couldn't find matches for &quot;{search}&quot;</p>
            </div>
            <button 
              onClick={() => { setSearch(''); load(); }}
@@ -261,46 +301,6 @@ export default function InternshipsPage() {
            </button>
         </AnimatedSection>
       ) : (
-        <div className="space-y-24">
-          {evolutionData.length > 0 && (
-            <AnimatedSection direction="up" delay={0.3}>
-              <div className="bg-slate-950 rounded-[3rem] p-10 relative overflow-hidden group/evolution border border-white/5">
-                <div className="absolute top-0 right-0 p-12 opacity-10 group-hover/evolution:scale-110 transition-transform duration-700">
-                  <Activity size={120} className="text-amber-500" />
-                </div>
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                  <div className="lg:col-span-5 space-y-6">
-                    <div className="flex items-center gap-3">
-                      <div className="size-8 rounded-xl bg-amber-500 text-black flex items-center justify-center">
-                        <Zap size={16} fill="currentColor" />
-                      </div>
-                      <span className="text-[10px] font-black text-amber-500 uppercase tracking-[5px]">Predictive Analytics</span>
-                    </div>
-                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">Skill Evolution<br />Predictor.</h3>
-                    <p className="text-[11px] font-medium text-slate-400 uppercase tracking-[2px] leading-relaxed">
-                      Our AI has analyzed the current market. Acquiring these top missing skills will maximize your matching probability across all active listings.
-                    </p>
-                  </div>
-                  <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {evolutionData.map((skill, idx) => (
-                      <div key={skill.name} className="bg-white/5 border border-white/10 p-6 rounded-[2rem] hover:bg-white/10 transition-all group/item">
-                        <div className="flex justify-between items-start mb-4">
-                          <span className="text-[9px] font-black text-amber-500 uppercase tracking-[2px]">High Impact</span>
-                          <span className="text-[10px] font-black text-white/20">0{idx+1}</span>
-                        </div>
-                        <div className="text-lg font-black text-white uppercase tracking-tighter mb-1">{skill.name}</div>
-                        <div className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-6">+{skill.impact}% Market Reach</div>
-                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                          <motion.div initial={{ width: 0 }} whileInView={{ width: `${skill.impact}%` }} transition={{ duration: 1, delay: 0.5 + (idx * 0.1) }} className="h-full bg-amber-500" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </AnimatedSection>
-          )}
-
           <div className="space-y-12">
             <AnimatePresence mode="popLayout">
               {filtered.map((i, index) => (
@@ -456,7 +456,6 @@ export default function InternshipsPage() {
               ))}
             </AnimatePresence>
           </div>
-        </div>
       )}
 
       {/* Interview Prep Modal */}
@@ -478,7 +477,7 @@ export default function InternshipsPage() {
                               <span className="text-[10px] font-black uppercase tracking-[5px] text-emerald-500">AI Interview Simulator</span>
                           </div>
                           <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">{aiInterviewModal.title}</h2>
-                          <p className="text-xs font-medium text-slate-400 uppercase tracking-[2px]">Synthesizing technical evaluation vectors based on your neural profile.</p>
+                          <p className="text-xs font-medium text-slate-400 uppercase tracking-[2px]">Analyzing opportunities based on your professional profile.</p>
                       </div>
                       <button 
                         onClick={() => setAiInterviewModal(prev => ({ ...prev, open: false }))}

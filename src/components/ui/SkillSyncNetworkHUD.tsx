@@ -8,7 +8,7 @@ interface HUDProps {
   range?: [number, number];
 }
 
-export function NeuralArchitectureHUD({ progress, range = [0.2, 0.4] }: HUDProps) {
+export function SkillSyncNetworkHUD({ progress, range = [0.2, 0.4] }: HUDProps) {
   // Descent from top with perspective tilt
   const midRange = (range[0] + range[1]) / 2;
   const y = useTransform(progress, range, [-200, 100]);
@@ -27,7 +27,7 @@ export function NeuralArchitectureHUD({ progress, range = [0.2, 0.4] }: HUDProps
       className="pointer-events-none fixed inset-x-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-20"
     >
       <div className="relative size-[600px] flex items-center justify-center">
-        {/* --- HOLOGRAPHIC RINGS (SVG) --- */}
+        {/* --- VISUAL RINGS (SVG) --- */}
         <svg className="absolute inset-0 size-full overflow-visible drop-shadow-[0_0_30px_rgba(245,158,11,0.3)]">
           {/* Main Outer Ring */}
           <motion.circle
@@ -62,7 +62,6 @@ export function NeuralArchitectureHUD({ progress, range = [0.2, 0.4] }: HUDProps
             transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
           />
 
-          {/* Definitions */}
           <defs>
             <linearGradient id="amber-grad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#f59e0b" stopOpacity="0" />
@@ -79,10 +78,10 @@ export function NeuralArchitectureHUD({ progress, range = [0.2, 0.4] }: HUDProps
             transition={{ duration: 2, repeat: Infinity }}
             className="mb-4 text-amber-500"
           >
-            <Cpu size={48} strokeWidth={1} />
+            <Zap size={48} strokeWidth={1} />
           </motion.div>
           
-          <div className="text-[10px] font-black tracking-[0.4em] text-amber-500 uppercase mb-2">NEURAL_LOCK</div>
+          <div className="text-[10px] font-black tracking-[0.4em] text-amber-500 uppercase mb-2">SkillSync Active</div>
           <div className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none mb-4">Skill <br /> Sync</div>
           
           <div className="flex gap-2">
@@ -106,7 +105,7 @@ export function NeuralArchitectureHUD({ progress, range = [0.2, 0.4] }: HUDProps
              className="absolute top-10 left-10 flex items-center gap-2 border-l border-amber-500/30 pl-3"
            >
               <Activity size={10} />
-              <span>SIGNAL::HIFI_CRYSTAL</span>
+              <span>STATUS::ACTIVE</span>
            </motion.div>
 
            {/* Top Right */}
@@ -116,32 +115,32 @@ export function NeuralArchitectureHUD({ progress, range = [0.2, 0.4] }: HUDProps
              className="absolute top-10 right-10 flex flex-col items-end gap-1 border-r border-amber-500/30 pr-3"
            >
               <div className="flex items-center gap-2">
-                 <span>LATENCY::4.2MS</span>
+                 <span>OPTIMIZED::ON</span>
                  <Radio size={10} className="text-emerald-500" />
               </div>
-              <span className="text-[7px] text-white/40">BUFFER_OVERREAD_0%</span>
+              <span className="text-[7px] text-white/40">DATA_VERIFIED</span>
            </motion.div>
 
            {/* Bottom Left */}
            <motion.div className="absolute bottom-20 left-0 space-y-2">
               <div className="flex items-center gap-3">
                  <div className="size-2 bg-amber-500 animate-ping" />
-                 <span>MATRIX_DEPLOYED</span>
+                 <span>PLATFORM_ONLINE</span>
               </div>
               <div className="w-32 h-[1px] bg-gradient-to-r from-amber-500/50 to-transparent" />
            </motion.div>
 
            {/* Bottom Right */}
            <motion.div className="absolute bottom-20 right-0 text-right">
-              <div className="mb-2 text-white font-black italic text-sm">#SYNC_ACTIVE</div>
+              <div className="mb-2 text-white font-black italic text-sm">#CAREER_HUB</div>
               <div className="flex gap-1 justify-end">
                 {[...Array(10)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    animate={{ height: [4, 12, 4] }}
-                    transition={{ delay: i * 0.1, duration: 0.5, repeat: Infinity }}
-                    className="w-0.5 bg-amber-500"
-                  />
+                   <motion.div
+                     key={i}
+                     animate={{ height: [4, 12, 4] }}
+                     transition={{ delay: i * 0.1, duration: 0.5, repeat: Infinity }}
+                     className="w-0.5 bg-amber-500"
+                   />
                 ))}
               </div>
            </motion.div>

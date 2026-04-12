@@ -81,6 +81,9 @@ export async function GET(request: Request) {
         status,
         applied_date,
         ai_match_score,
+        interview_score,
+        interview_notes,
+        interview_logs,
         internship:internship_id (
           title,
           company:company_id (company_name)
@@ -97,15 +100,18 @@ export async function GET(request: Request) {
       applied_date: a.applied_date,
       ai_match_score: a.ai_match_score || 0,
       role_title: a.internship?.title,
-      company_name: a.internship?.company?.company_name
+      company_name: a.internship?.company?.company_name,
+      interview_score: a.interview_score,
+      interview_notes: a.interview_notes,
+      interview_logs: a.interview_logs
     }));
 
-    // AI Features: Skill Evolution Predictor
-    const skillList = studentSkills.map(s => s.skill_name);
+    // Platform Features: Skill Growth Analysis
+    const skillList = studentSkills.map((s: any) => s.skill_name);
     const marketReach = AI_ENGINE.calculateMarketReach(skillList, allInternships);
     const highImpactSkill = AI_ENGINE.getHighImpactSkill(skillList, allInternships);
 
-    // Update student's market reach in DB (Proactive Intelligence)
+    // Update student's profile performance in DB (Automated Profile Update)
     try {
       await supabase
         .from('student')

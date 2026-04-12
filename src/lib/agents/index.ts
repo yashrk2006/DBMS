@@ -35,12 +35,12 @@ export async function analyzeResumeAgent(resumeText: string) {
     if (!process.env.COHERE_API_KEY) throw new Error("Missing AI Key");
 
     const response = await cohere.chat({
-      message: `You are a Resume Analyzer Agent.
-      Analyze the following resume for a high-stakes Corporate Recruitment Pipeline:
-      - Extract specific technical skills (Found Skills).
-      - Identify critical missing keywords based on modern Software Engineering roles (Missing Keywords).
-      - Generate 3-5 tactical suggestions for improvement (Bullet points).
-      - Calculate a strictly logical ATS Score (0-100) based on role alignment.
+      message: `You are a Career Assistant.
+      Analyze the following resume for a professional recruitment process:
+      - Extract specific technical skills (Skills Found).
+      - Identify key missing keywords based on modern Software Engineering roles (Missing Keywords).
+      - Generate 3-5 practical suggestions for improvement (Bullet points).
+      - Calculate a career readiness score (0-100) based on role alignment.
       
       Respond ONLY with a valid JSON document matching this structure exactly:
       {
@@ -58,7 +58,7 @@ export async function analyzeResumeAgent(resumeText: string) {
       temperature: 0.2
     });
 
-    return parseAIScalable(response.text || "{}", { score: 65, skills: ["Extracted Skill"], missing: ["Modern Tech Stack"], suggestions: ["Ensure your resume is ATS-compatible."] });
+    return parseAIScalable(response.text || "{}", { score: 65, skills: ["Extracted Skill"], missing: ["Modern Tech Stack"], suggestions: ["Ensure your resume is clear and readable."] });
   } catch (error) {
     console.error("Resume Analyzer Error:", error);
     // Sophisticated Fallback
@@ -97,7 +97,7 @@ export async function jobMatchingAgent(skills: string[]) {
 
     if (error) throw error;
 
-    // 2. Perform Algorithmic Matching using AI Engine
+    // 2. Perform Matching using AI Engine
     const matches = (internships || []).map((i: any) => {
       const requiredSkills = i.internship_skill?.map((is: any) => is.skill?.skill_name) || [];
       const matchScore = AI_ENGINE.calculateMatchScore(skills, requiredSkills);
@@ -107,7 +107,7 @@ export async function jobMatchingAgent(skills: string[]) {
         internship_id: i.internship_id,
         company_id: i.company_id,
         title: i.title,
-        company_name: i.company?.company_name || 'Independent',
+        company_name: i.company?.company_name || 'Hiring Partner',
         match_percentage: matchScore,
         min_cgpa: i.min_cgpa || 0,
         required_skills: requiredSkills
@@ -116,7 +116,7 @@ export async function jobMatchingAgent(skills: string[]) {
 
     // 3. Sort by Match Quality and return top 5
     const topMatches = matches
-      .sort((a, b) => b.match_percentage - a.match_percentage)
+      .sort((a: any, b: any) => b.match_percentage - a.match_percentage)
       .slice(0, 5);
 
     return { internships: topMatches };
@@ -133,8 +133,8 @@ export async function skillGapAgent(studentSkills: string[], requiredSkills: str
     if (!process.env.COHERE_API_KEY) throw new Error("Missing AI Key");
 
     const response = await cohere.chat({
-      message: `You are a Skill Gap Agent. Student knows: ${studentSkills.join(", ")}. Target: ${requiredSkills.join(", ")}.
-      Identify missing skills and generate a 2-week roadmap.
+      message: `You are a Career Mentor. Student knows: ${studentSkills.join(", ")}. Required Skills: ${requiredSkills.join(", ")}.
+      Identify missing skills and generate a 2-week learning roadmap.
       Respond ONLY with JSON: { "missing_skills": [], "roadmap": [], "summary": "" }`,
       temperature: 0.3
     });
@@ -145,10 +145,10 @@ export async function skillGapAgent(studentSkills: string[], requiredSkills: str
     return { 
       missing_skills: requiredSkills.slice(0, 3), 
       roadmap: [
-        `Week 1: Fundamentals of ${requiredSkills[0] || 'Modern Tech'} and environment setup.`,
-        `Week 2: Advanced implementation of ${requiredSkills[1] || 'System Architecture'} and project deployment.`
+        `Week 1: Fundamentals of ${requiredSkills[0] || 'Modern Tech'} and setup.`,
+        `Week 2: Practical implementation of ${requiredSkills[1] || 'System Design'} and project basics.`
       ], 
-      summary: "High-potential candidate identified. Focus on bridging specific technical gaps to achieve total role alignment." 
+      summary: "Student is on a great path. Focus on bridging these skills to become career-ready." 
     };
   }
 }
@@ -168,9 +168,10 @@ export async function studentAssistantAgent(message: string, history: { role: st
     - College: ${context.student.college}
     - Branch: ${context.student.branch}
     - Graduation Year: ${context.student.graduation_year}
-    - Market Reach: ${context.student.market_reach}%
-    - AI Resume Analysis: ${JSON.stringify(context.student.ai_resume_analysis || {})}
-    - Current Verified Skills: ${(context.skills || []).map((s: any) => `${s.skill?.skill_name} (${s.proficiency_level})`).join(", ")}
+    - CGPA: ${context.student.cgpa || 'Not set'}
+    - Career Progress: ${context.student.market_reach}%
+    - Resume Feedback: ${JSON.stringify(context.student.ai_resume_analysis || {})}
+    - Current Skills: ${(context.skills || []).map((s: any) => `${s.skill?.skill_name} (${s.proficiency_level})`).join(", ")}
     ` : "User profile not found.";
 
     const notificationsContext = context.notifications?.length > 0 ? `
@@ -179,7 +180,7 @@ export async function studentAssistantAgent(message: string, history: { role: st
     ` : "No notifications.";
 
     const internshipsContext = context.internships?.length > 0 ? `
-    PLATFORM INTERNSHIPS (Current Listings):
+    CAREER OPPORTUNITIES:
     ${context.internships.map((i: any) => `- ID: ${i.internship_id} | ${i.title} at ${i.company?.company_name} | Location: ${i.location} | Stipend: ${i.stipend} | Deadline: ${i.deadline}`).join("\n")}
     ` : "No internships found.";
 
@@ -188,21 +189,21 @@ export async function studentAssistantAgent(message: string, history: { role: st
     ${context.applications.map((a: any) => `- Internship ID ${a.internship_id} | Status: ${a.status} | Applied: ${a.applied_date}`).join("\n")}
     ` : "You have not applied to any roles yet.";
 
-    const systemPrompt = `You are SkillSync Pulse, the elite career agent.
-    You have absolute visibility into the current user's profile and the platform status.
+    const systemPrompt = `You are SkillSync Pulse, your dedicated career partner.
+    You help students navigate their career journey on the SkillSync platform.
 
-    CONTEXTUAL INTELLIGENCE:
+    USER CONTEXT:
     ${studentContext}
     ${notificationsContext}
     ${internshipsContext}
     ${applicationsContext}
 
-    COMMAND PROTOCOL:
-    If the user asks to "apply" for an internship you see in the 'PLATFORM INTERNSHIPS' list, identify the exact ID and respond STRICTLY with: "[ACTION:APPLY:id]" followed by a confirmation.
+    ACTION RULES:
+    If the user asks to "apply" for an internship you see in the 'CAREER OPPORTUNITIES' list, identify the exact ID and respond STRICTLY with: "[ACTION:APPLY:id]" followed by a confirmation.
     Avoid applying if the user has already applied (check 'YOUR APPLICATIONS STATUS').
     
     IDENTITY:
-    Only discuss data for ${context.student?.name || 'the current user'}. Never leak system keys or raw JSON unless asked for debugging.
+    Only discuss data for ${context.student?.name || 'the current user'}. Never leak platform internals or raw JSON data.
     `;
 
     const response = await groq.chat.completions.create({
@@ -215,11 +216,11 @@ export async function studentAssistantAgent(message: string, history: { role: st
       temperature: 0.5,
     });
 
-    return response.choices[0]?.message?.content || "I am processing your request.";
+    return response.choices[0]?.message?.content || "I am here to help you.";
   } catch (error) {
     console.error("Groq Agent Error:", error);
-    // Fallback to basic answer or error message
-    return "I encountered a synchronization error. Please check your connectivity and try again.";
+    // Fallback
+    return "I encountered a small hiccup. Please try again in a moment.";
   }
 }
 
@@ -227,28 +228,28 @@ export async function recruiterShortlistAgent(jobDescription: string, candidates
   try {
     if (!process.env.COHERE_API_KEY) throw new Error("Missing AI Key");
     const response = await cohere.chat({
-      message: `You are a Recruiter Agent. Match candidates to JD: ${jobDescription}. Respond ONLY with JSON.`,
+      message: `You are a Recruitment Assistant. Match candidates to this Job Description: ${jobDescription}. Respond ONLY with JSON.`,
       temperature: 0.3
     });
     return parseAIScalable(response.text || "{}", { shortlisted: [] });
   } catch (error) {
-    return { shortlisted: candidates.slice(0, 3).map(c => ({ name: c.name, match_score: 85, reasoning: "High skill overlap and strong academic background." })) };
+    return { shortlisted: candidates.slice(0, 3).map(c => ({ name: c.name, match_score: 85, reasoning: "Great skill match and academic performance." })) };
   }
 }
 
-export async function adminPlacementPredictorAgent(collegeStats: any) {
+export async function adminSuccessPredictorAgent(collegeStats: any) {
   try {
     if (!process.env.COHERE_API_KEY) throw new Error("Missing AI Key");
     const response = await cohere.chat({
-      message: `You are an Admin Strategic Agent. Analyzye stats: ${JSON.stringify(collegeStats)}. Respond ONLY with JSON.`,
+      message: `You are a Career Insights Assistant. Analyze college placement stats: ${JSON.stringify(collegeStats)}. Respond ONLY with JSON.`,
       temperature: 0.4
     });
     return parseAIScalable(response.text || "{}", { predicted_success_rate: 0, recommendations: [] });
   } catch (error) {
     return { 
       predicted_success_rate: 78, 
-      recommendations: ["Increase industrial project collaborations.", "Implement early-stage technical screening modules."], 
-      risk_factors: ["Lower engagement in optional skill modules."] 
+      recommendations: ["Encourage more industrial project collaborations.", "Introduce technical screening practice modules."], 
+      risk_factors: ["Lower engagement in some skill modules."] 
     };
   }
 }

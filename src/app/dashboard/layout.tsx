@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Toaster, toast } from 'react-hot-toast';
 
 import { motion, AnimatePresence } from 'framer-motion';
 import PulseAgent from '@/components/dashboard/PulseAgent';
+import Link from 'next/link';
 
 // Helper component for Material Symbols Icons
 const Icon = ({ name, className = "", style = {} }: { name: string, className?: string, style?: any }) => (
@@ -37,14 +37,13 @@ export default function DashboardLayout({
   }, [router]);
 
   const handleLogout = async () => {
-    toast.loading("Deauthenticating session...", { id: "logout-toast" });
+    toast.loading("Signing you out...", { id: "logout-toast" });
     try {
       await supabase.auth.signOut();
-      // Clear any local storage caches (e.g. from dashboard)
       if (typeof window !== 'undefined') {
         localStorage.clear();
       }
-      toast.success("Session Terminated", { id: "logout-toast" });
+      toast.success("Goodbye!", { id: "logout-toast" });
       router.push('/auth/login');
     } catch (error) {
       toast.error("Logout failed", { id: "logout-toast" });
@@ -56,7 +55,7 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen text-[#2d3335] bg-[#F4F7FF] selection:bg-primary/20">
       
-      {/* --- DESKTOP SIDEBAR (LUMINESCENT AUDIT) --- */}
+      {/* --- DESKTOP SIDEBAR --- */}
       <aside className="hidden lg:flex w-[260px] bg-white flex-col p-6 fixed h-full z-50 overflow-y-auto overflow-x-hidden">
         <div className="flex items-center gap-3 mb-10 px-4 shrink-0">
           <Icon name="menu_book" className="text-2xl font-bold" />
@@ -116,18 +115,18 @@ export default function DashboardLayout({
           <div className="flex flex-col gap-1 pb-4">
             <button onClick={() => router.push('/dashboard/profile')} className="flex items-center gap-4 px-4 py-3 text-[#717171] hover:text-[#2d3335] transition-colors w-full text-left font-sans">
               <Icon name="support" className="text-xl" />
-              <span className="text-[15px] font-bold tracking-tight">Support Center</span>
+              <span className="text-[15px] font-bold tracking-tight">Help & Support</span>
             </button>
             <button onClick={() => router.push('/dashboard/profile')} className="flex items-center gap-4 px-4 py-3 text-[#717171] hover:text-[#2d3335] transition-colors w-full text-left font-sans">
               <Icon name="settings" className="text-xl" />
-              <span className="text-[15px] font-bold tracking-tight">System Settings</span>
+              <span className="text-[15px] font-bold tracking-tight">Profile Settings</span>
             </button>
             <button 
               onClick={handleLogout} 
               className="flex items-center gap-4 px-4 py-3 text-rose-500 hover:text-rose-600 transition-colors w-full text-left group"
             >
               <Icon name="logout" className="text-xl group-hover:translate-x-1 transition-transform" />
-              <span className="text-[15px] font-bold tracking-tight">System Logout</span>
+              <span className="text-[15px] font-bold tracking-tight">Logout</span>
             </button>
           </div>
         </div>
@@ -219,7 +218,7 @@ export default function DashboardLayout({
                   className="flex items-center gap-4 px-4 py-4 text-rose-500 font-bold tracking-tight rounded-2xl hover:bg-rose-50 transition-colors"
                 >
                   <Icon name="logout" className="text-xl" />
-                  <span>System Logout</span>
+                  <span>Logout</span>
                 </button>
               </div>
             </motion.aside>
@@ -227,7 +226,7 @@ export default function DashboardLayout({
         )}
       </AnimatePresence>
 
-      {/* --- MOBILE BOTTOM NAV (1:1 PORT) --- */}
+      {/* --- MOBILE BOTTOM NAV --- */}
       <nav className="lg:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 backdrop-blur-xl rounded-t-[2rem] z-50 shadow-[0px_-10px_40px_rgba(45,51,53,0.06)] border-none">
         {[
           { name: 'Dashboard', icon: 'dashboard', path: '/dashboard' },
@@ -266,7 +265,7 @@ export default function DashboardLayout({
         </div>
       </main>
 
-      {/* Global Pulse Agent Companion */}
+      {/* Global Career Assistant Companion */}
       <PulseAgent />
     </div>
   );

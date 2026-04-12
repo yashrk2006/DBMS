@@ -38,7 +38,7 @@ export async function GET(request: Request) {
 
     const { data: coursesRaw, error } = await query
       .order('created_at', { ascending: false })
-      .limit(6);
+      .limit(12);
 
     if (error) {
        console.error("Database query failed:", error.message);
@@ -48,17 +48,21 @@ export async function GET(request: Request) {
     let courses: Course[] = coursesRaw || [];
 
     // If filtered results are empty, return all courses as fallback
-    if (courses.length === 0) {
+    if (courses.length < 6) {
       const { data: fallbackRaw } = await supabase
         .from('course')
         .select(targetedSelect)
         .order('created_at', { ascending: false })
-        .limit(6);
-      courses = fallbackRaw || [];
+        .limit(12);
+      
+      // Merge unique courses
+      const existingIds = new Set(courses.map((c: Course) => c.course_id));
+      const fallback = (fallbackRaw || []).filter((c: Course) => !existingIds.has(c.course_id));
+      courses = [...courses, ...fallback].slice(0, 12);
     }
 
-    // FINAL FAIL-SAFE: If still empty, provide high-fidelity hardcoded paths
-    if (courses.length === 0) {
+    // FINAL FAIL-SAFE: If still low, provide high-fidelity hardcoded paths
+    if (courses.length < 3) {
       courses = [
         {
           course_id: 101,
@@ -93,10 +97,10 @@ export async function GET(request: Request) {
       'Fullstack Foundry': 'https://fullstackopen.com/en/',
       'Cloud Architecture Mastery': 'https://aws.amazon.com/training/digital/sa-learning-plan/',
       'Figma Pro': 'https://www.youtube.com/playlist?list=PLB-8T2r3YVvF4V6OqZpxHEni34fF2B9D-',
-      'Neural Networks': 'https://www.deeplearning.ai/courses/neural-networks-deep-learning/'
+      'Deep Learning Foundations': 'https://www.deeplearning.ai/courses/neural-networks-deep-learning/'
     };
 
-    courses = courses.map(c => ({
+    courses = courses.map((c: Course) => ({
       ...c,
       url: urlMap[c.title] || '/dashboard/learning'
     }));

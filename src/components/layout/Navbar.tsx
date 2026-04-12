@@ -105,7 +105,7 @@ export default function Navbar() {
               <div className="flex items-center gap-1.5 mt-0.5">
                  <div className="size-1 rounded-full bg-amber-600" />
                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-[0.3em]">
-                   Professional Portal
+                   Career Hub
                  </span>
               </div>
             </div>
@@ -129,16 +129,16 @@ export default function Navbar() {
             </button>
           ))}
           <div className="w-px h-4 bg-slate-200 mx-2" />
-          <Link
-            href={mounted && session?.user?.role === 'company' ? '/company' : mounted && session?.user?.role === 'admin' ? '/admin' : '/dashboard'}
-            className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[3px] transition-all group ${
-              pathname.startsWith('/dashboard') || pathname.startsWith('/company') || pathname.startsWith('/admin') ? "text-amber-600" : "text-slate-500 hover:text-amber-600"
-            }`}
-            suppressHydrationWarning
-          >
-            <ShieldCheck size={14} className={pathname.startsWith('/dashboard') || pathname.startsWith('/company') || pathname.startsWith('/admin') ? "" : "group-hover:scale-110 transition-transform"} />
-            Dashboard
-          </Link>
+            <Link
+              href={mounted && session?.user?.role === 'company' ? '/company' : mounted && session?.user?.role === 'admin' ? '/admin' : '/dashboard'}
+              className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-[3px] transition-all group ${
+                pathname.startsWith('/dashboard') || pathname.startsWith('/company') || pathname.startsWith('/admin') ? "text-amber-600" : "text-slate-500 hover:text-amber-600"
+              }`}
+              suppressHydrationWarning
+            >
+              <ShieldCheck size={14} className={pathname.startsWith('/dashboard') || pathname.startsWith('/company') || pathname.startsWith('/admin') ? "" : "group-hover:scale-110 transition-transform"} />
+              Review Hub
+            </Link>
         </div>
 
         {/* Right Actions */}
@@ -159,7 +159,7 @@ export default function Navbar() {
                 className="hidden md:block text-[10px] font-black uppercase tracking-[3px] text-slate-600 hover:text-amber-600 transition-colors"
                 suppressHydrationWarning
               >
-                Portal Login
+                Sign In
               </Link>
               
               <Link
@@ -168,7 +168,7 @@ export default function Navbar() {
                 suppressHydrationWarning
               >
                 <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="relative z-10 font-bold">Initialize</span>
+                <span className="relative z-10 font-bold">Get Started</span>
               </Link>
             </>
           )}

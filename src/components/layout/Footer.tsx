@@ -12,52 +12,52 @@ export default function Footer() {
       title: "Solutions", 
       links: [
         { label: "Skill Matching", href: "#" }, 
-        { label: "Predictive Analytics", href: "/dashboard" }, 
-        { label: "Professional Profiles", href: "/dashboard" }, 
-        { label: "Data Security", href: "#" }
+        { label: "Career Progress", href: "/dashboard" }, 
+        { label: "Student Profiles", href: "/dashboard" }, 
+        { label: "Privacy First", href: "#" }
       ] 
     },
     { 
-      title: "Company", 
+      title: "Community", 
       links: [
-        { label: "About Us", href: "#" }, 
-        { label: "Careers", href: "#" }, 
-        { label: "Our Team", href: "#" }, 
-        { label: "Contact Us", href: "#" }
+        { label: "About SkillSync", href: "#" }, 
+        { label: "Campus Jobs", href: "#" }, 
+        { label: "Our Story", href: "#" }, 
+        { label: "Support Team", href: "#" }
       ] 
     },
     { 
       title: "Resources", 
       links: [
-        { label: "Help Center", href: "#" }, 
-        { label: "API Reference", href: "#" }, 
-        { label: "Terms of Service", href: "#" }, 
-        { label: "Privacy Policy", href: "#" }
+        { label: "Student Help", href: "#" }, 
+        { label: "API Access", href: "#" }, 
+        { label: "Terms", href: "#" }, 
+        { label: "Privacy", href: "#" }
       ] 
     },
   ];
 
   return (
-    <footer className="bg-slate-50 pt-24 pb-12 border-t border-slate-200 relative overflow-hidden" suppressHydrationWarning>
-      {/* Immersive Background Elements */}
-      <div className="absolute inset-0 bg-mesh-gradient opacity-10 pointer-events-none" suppressHydrationWarning />
-      <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none" suppressHydrationWarning />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-linear-to-r from-transparent via-primary/20 to-transparent" suppressHydrationWarning />
+    <footer className="bg-slate-50 pt-24 pb-12 border-t border-slate-200 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0 bg-mesh-gradient opacity-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-linear-to-r from-transparent via-primary/20 to-transparent" />
       
       <div className="max-w-7xl mx-auto px-8 grid grid-cols-2 md:grid-cols-5 gap-16 mb-20 relative z-10">
-        {/* Brand / Identity Section */}
+        {/* Brand Section */}
         <div className="col-span-2">
           <Link href="/" className="flex items-center gap-4 mb-8 group cursor-pointer inline-flex">
             <div className="size-12 rounded-2xl bg-amber-100 text-amber-600 border border-amber-200 flex items-center justify-center shadow-md group-hover:bg-amber-600 group-hover:text-white transition-all duration-500">
               <Zap size={24} className="group-hover:scale-110 transition-transform" />
             </div>
             <div className="flex flex-col">
-              <h2 className="text-slate-950 text-3xl font-black leading-none tracking-tighter uppercase font-display">SkillSync</h2>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em] mt-1">Professional Portal</span>
+              <h2 className="text-slate-950 text-3xl font-black leading-none tracking-tighter uppercase">SkillSync</h2>
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em] mt-1">Career Hub</span>
             </div>
           </Link>
           <p className="text-slate-600 text-sm max-w-sm mb-8 font-medium leading-relaxed">
-            The global standard in professional skill synchronization. Utilizing advanced matching algorithms to connect experts with high-impact opportunities.
+            Helping students find their dream jobs through smart skill matching. Connecting campus talent with the best tech opportunities worldwide.
           </p>
           <div className="flex gap-5">
             {[Globe, Network, Cpu, ShieldCheck].map((IconComp, idx) => (
@@ -94,14 +94,14 @@ export default function Footer() {
         ))}
       </div>
 
-      {/* Terminal Footer / Metadata */}
+      {/* Footer Metadata */}
       <div className="max-w-7xl mx-auto px-8 pt-10 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
         <div className="flex flex-col gap-1">
           <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em]">
-            &copy; {currentYear} SkillSync Professional // ALL RIGHTS RESERVED
+            &copy; {currentYear} SkillSync // ALL RIGHTS RESERVED
           </p>
           <p className="text-slate-400 text-[8px] font-mono tracking-widest uppercase">
-            Version: 1.0.4-STABLE // Status: ONLINE
+            Edition: 2025 // Status: ACTIVE
           </p>
         </div>
         
@@ -112,12 +112,12 @@ export default function Footer() {
               <span className="relative inline-flex rounded-full size-2.5 bg-amber-500" />
             </span>
             <span className="text-[10px] text-amber-600 uppercase font-black tracking-[0.5em] antialiased">
-              System Online
+              System Live
             </span>
           </div>
           <div className="w-px h-4 bg-slate-200" />
           <span className="text-[10px] text-slate-500 uppercase font-black tracking-[0.4em]">
-            Server: GLOBAL-NODE-01
+            Network: SkillSync Cloud
           </span>
         </div>
       </div>

@@ -24,16 +24,16 @@ import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AnimatedSection from "@/components/ui/AnimatedSection";
-import PremiumCard from "@/components/ui/PremiumCard";
-import { ThreeDCard } from "@/components/ui/ThreeDCard";
-import { NeuralArchitectureHUD } from "@/components/ui/NeuralArchitectureHUD";
+import { SkillSyncNetworkHUD } from "@/components/ui/SkillSyncNetworkHUD";
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const scrollRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
+    setIsClient(true);
   }, []);
 
   const { scrollYProgress } = useScroll({
@@ -52,74 +52,74 @@ export default function LandingPage() {
 
   const features = [
     {
-      title: "React 19 Core",
-      description: "Harness the power of the React compiler and server actions for 0ms latency interactions.",
+      title: "Modern Tech",
+      description: "Built on the latest React and server action patterns for lightning fast user experiences.",
       icon: <Cpu className="size-6" />,
-      subtitle: "MASTER_01"
+      subtitle: "FEATURE_01"
     },
     {
-      title: "Next.js 15 Arch",
-      description: "Advanced Partial Prerendering (PPR) and streaming for high-performance scale.",
+      title: "Seamless Experience",
+      description: "Advanced streaming and performance optimization for a seamless student dashboard.",
       icon: <Layers className="size-6" />,
-      subtitle: "MASTER_02"
+      subtitle: "FEATURE_02"
     },
     {
-      title: "3D Visual Engines",
-      description: "Immersive Web interfaces powered by Three.js and high-frequency motion logic.",
+      title: "Interactive UI",
+      description: "Beautiful, responsive interfaces designed for the modern day college student.",
       icon: <Box className="size-6" />,
-      subtitle: "MASTER_03"
+      subtitle: "FEATURE_03"
     },
     {
-      title: "Global Intelligence",
-      description: "AI-driven skill synchronization across borderless professional networks.",
+      title: "Global Reach",
+      description: "Our platform helps you sync your skills with job openings from top companies worldwide.",
       icon: <Globe className="size-6" />,
-      subtitle: "MASTER_04"
+      subtitle: "FEATURE_04"
     }
   ];
 
   const steps = [
     {
       number: "01",
-      title: "Industrial Audit",
-      description: "Initialize your professional vector and verify 2025 core competencies.",
+      title: "Career Assessment",
+      description: "Build your student profile and highlight your core technical skills.",
       status: "COMPLETED"
     },
     {
       number: "02",
-      title: "High-Freq Matching",
-      description: "Predictive algorithms identify $1M+ opportunity paths in our network.",
+      title: "Smart Job Matching",
+      description: "Our platform identifies the best internship and job opportunities for you.",
       status: "ACTIVE"
     },
     {
       number: "03",
-      title: "Global Deployment",
-      description: "Seamless integration into high-impact engineering squads worldwide.",
+      title: "Direct Applications",
+      description: "Apply with a single click and land a role at your dream tech team.",
       status: "PENDING"
     }
   ];
 
   const stats = [
-    { label: "Active Nodes", value: "854", icon: <Globe className="size-4" /> },
+    { label: "Active Students", value: "854", icon: <Globe className="size-4" /> },
     { label: "Skill Syncs", value: "12,450", icon: <Activity className="size-4" /> },
     { label: "Placements", value: "480", icon: <Zap className="size-4" /> },
     { label: "Success Rate", value: "99.9%", icon: <CheckCircle2 className="size-4" /> },
   ];
 
   return (
-    <div className="flex flex-col min-h-screen selection:bg-amber-500/30 text-slate-900 bg-white selection:text-white" suppressHydrationWarning>
+    <div className="flex flex-col min-h-screen selection:bg-amber-500/30 text-slate-900 bg-white selection:text-white">
       <Navbar />
       
-      {/* 3D NEURAL OVERLAY (HUD) - Refined Range & Z-Index Focus */}
-      {mounted && <NeuralArchitectureHUD progress={scrollYProgress} range={[0.15, 0.4]} />}
+      {/* SkillSync Background Overlay */}
+      {mounted && <SkillSyncNetworkHUD progress={scrollYProgress} range={[0.15, 0.4]} />}
 
-      <main className="flex-grow pt-32" suppressHydrationWarning>
-        {/* --- 3D HERO SECTION --- */}
+      <main className="flex-grow pt-32">
+        {/* --- HERO SECTION --- */}
         <section className="relative min-h-[110vh] flex flex-col items-center justify-center px-6 overflow-hidden perspective-[2000px]">
           <div className="absolute inset-0 pointer-events-none">
              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_rgba(245,158,11,0.08),_transparent_70%)] blur-[120px]" />
              <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
              
-             {/* Floating 3D Tech Orbs for Depth */}
+             {/* Floating Orbs for Depth */}
              <div className="absolute inset-0 z-0">
                 {[...Array(6)].map((_, i) => (
                   <motion.div
@@ -158,41 +158,40 @@ export default function LandingPage() {
               <div className="inline-flex items-center gap-3 px-6 py-2 rounded-2xl bg-slate-950 border border-white/10 mb-10 shadow-2xl backdrop-blur-xl">
                 <Sparkles size={14} className="text-amber-500 animate-pulse" />
                 <span className="text-[10px] text-white font-black uppercase tracking-[0.6em]">
-                  Universal Intelligence: VERSION 1.15.5
+                  Now Live: SkillSync Platform v2.0
                 </span>
               </div>
 
               <h1 className="text-[clamp(4rem,12vw,12rem)] font-black text-slate-950 uppercase tracking-tighter mb-10 leading-[0.75] italic">
-                Accelerate <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-400 to-amber-700 drop-shadow-2xl not-italic">Placement.</span>
+                Sync Skills. <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-400 to-amber-700 drop-shadow-2xl not-italic">Get Hired.</span>
               </h1>
 
               <p className="text-slate-500 text-xl md:text-3xl font-bold max-w-4xl mx-auto mb-16 leading-[1.1] tracking-tighter">
-                The world&apos;s first <span className="text-slate-900 border-b-8 border-amber-500/30">High-Fidelity Deployment Hub</span>. 
-                Synchronize your <span className="italic text-amber-600 font-black">Skill Vector</span> with 1,200+ borderless engineering squads.
+                The ultimate <span className="text-slate-900 border-b-8 border-amber-500/30">Career Hub</span> for students. 
+                Seamlessly match your <span className="italic text-amber-600 font-black">Skills</span> with placements from 100+ top tech companies.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
                 <Link
                   href="/auth/login"
                   className="w-full sm:w-auto px-20 py-8 rounded-[2.5rem] bg-slate-950 text-white text-[11px] font-black uppercase tracking-[0.6em] shadow-[0_45px_90px_-20px_rgba(0,0,0,0.4)] hover:scale-110 active:scale-95 transition-all flex items-center justify-center gap-6 group"
-                  suppressHydrationWarning
                 >
-                  Join the Network
+                  Get Started
                   <Zap size={22} className="fill-amber-500 text-amber-500 group-hover:rotate-45 transition-transform duration-500" />
                 </Link>
                 <button
                   onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
                   className="w-full sm:w-auto px-20 py-8 rounded-[2.5rem] bg-white border border-slate-200 text-slate-950 text-[11px] font-black uppercase tracking-[0.6em] hover:bg-slate-50 hover:border-amber-500 transition-all flex items-center justify-center gap-6 group shadow-2xl"
                 >
-                  3D Engine Audit
+                  Explore Features
                   <BoxIcon size={22} className="group-hover:translate-x-3 transition-transform duration-500" />
                 </button>
               </div>
             </AnimatedSection>
           </motion.div>
 
-          {/* 3D Dashboard Preview (Extreme Perspective) */}
+          {/* Platform Preview */}
           <motion.div 
             initial={{ opacity: 0, y: 100, rotateX: 45 }}
             whileInView={{ opacity: 1, y: 0, rotateX: 10 }}
@@ -200,28 +199,28 @@ export default function LandingPage() {
             className="mt-32 relative w-full max-w-7xl px-10 group"
           >
              <div className="absolute inset-0 bg-amber-500/20 blur-[150px] opacity-0 group-hover:opacity-100 transition-opacity" />
-             <ThreeDCard className="w-full aspect-[21/9] rounded-[4rem] bg-slate-950 border border-white/5 shadow-[0_150px_150px_-70px_rgba(0,0,0,0.2)] p-1 overflow-hidden relative">
+             <div className="w-full aspect-[21/9] rounded-[4rem] bg-slate-950 border border-white/5 shadow-[0_150px_150px_-70px_rgba(0,0,0,0.2)] p-1 overflow-hidden relative">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2574&auto=format&fit=crop')] bg-cover opacity-20 pointer-events-none group-hover:scale-105 transition-transform duration-[2000ms]" />
                 <div className="relative h-full w-full bg-slate-950/80 backdrop-blur-3xl rounded-[3.8rem] border border-white/10 p-16 flex flex-col justify-between overflow-hidden">
-                   <div className="flex justify-between items-start">
-                      <div className="space-y-4">
-                         <div className="flex items-center gap-2">
-                            <div className="size-2 rounded-full bg-emerald-500 animate-ping" />
-                            <span className="text-[10px] font-black text-amber-500 tracking-[0.6em] uppercase">SYSTEM_CORE::OPERATIONAL</span>
-                         </div>
-                         <div className="text-6xl font-black text-white tracking-tighter uppercase leading-none italic">Neural Skill <br /> Mapping Matrix</div>
-                      </div>
-                      <div className="size-24 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center text-white backdrop-blur-xl group-hover:bg-amber-600 transition-colors">
-                         <Command size={40} />
-                      </div>
-                   </div>
+                    <div className="flex justify-between items-start">
+                       <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                             <div className="size-2 rounded-full bg-emerald-500 animate-ping" />
+                             <span className="text-[10px] font-black text-amber-500 tracking-[0.6em] uppercase">SkillSync Active</span>
+                          </div>
+                          <div className="text-6xl font-black text-white tracking-tighter uppercase leading-none italic">Student Match <br /> Center.</div>
+                       </div>
+                       <div className="size-24 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center text-white backdrop-blur-xl group-hover:bg-amber-600 transition-colors">
+                          <Command size={40} />
+                       </div>
+                    </div>
                    
                    <div className="grid grid-cols-4 gap-8">
                        {[
                          { label: 'Latency', value: '4ms', color: 'text-amber-500' },
-                         { label: 'Throughput', value: '1.2PB/s', color: 'text-white' },
+                         { label: 'Accuracy', value: '98.5%', color: 'text-white' },
                          { label: 'Uptime', value: '99.99%', color: 'text-white' },
-                         { label: 'Active Sync', value: '12,042', color: 'text-emerald-500' }
+                         { label: 'Active Students', value: '12,042', color: 'text-emerald-500' }
                        ].map((stat, i) => (
                          <div key={stat.label} className="h-48 rounded-[2.5rem] bg-white/5 border border-white/5 p-8 flex flex-col justify-end group/item hover:bg-white/10 transition-colors">
                             <div className={`text-4xl font-black ${stat.color} mb-2 tracking-tighter`}>{stat.value}</div>
@@ -230,11 +229,11 @@ export default function LandingPage() {
                        ))}
                    </div>
                 </div>
-             </ThreeDCard>
+             </div>
           </motion.div>
         </section>
 
-        {/* --- 3D SKILL BELT (INFINITE MARQUEE) --- */}
+        {/* --- TECHNOLOGY BELT --- */}
         <section className="py-24 border-y border-slate-100 bg-slate-50 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
             <motion.div 
@@ -272,7 +271,7 @@ export default function LandingPage() {
             </div>
         </section>
 
-        {/* --- 3D SLIDING FEATURES --- */}
+        {/* --- FEATURES --- */}
         <section id="features" ref={scrollRef} className="py-40 px-6 relative overflow-hidden bg-slate-950">
           <div className="absolute inset-0 opacity-10">
              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,_rgba(217,119,6,0.2),_transparent_50%)]" />
@@ -281,10 +280,10 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto relative z-10">
             <AnimatedSection className="text-center mb-32" direction="up">
               <h2 className="text-[10px] font-black uppercase tracking-[0.8em] text-amber-500 mb-8">
-                Visual Engineering
+                Career Discovery
               </h2>
               <h3 className="text-5xl md:text-[7rem] font-black text-white uppercase tracking-tighter leading-[0.8] mb-12">
-                The 2025 Master <br /><span className="text-amber-500 italic">Frontend Stack</span>
+                Designed for <br /><span className="text-amber-500 italic">Today's Students</span>
               </h3>
             </AnimatedSection>
 
@@ -313,7 +312,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* --- AI NEURAL CORE VISUALIZATION --- */}
+        {/* --- SKILL VISUALIZATION --- */}
         <section className="py-40 bg-white relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
                 <div className="relative aspect-square scale-110">
@@ -330,7 +329,7 @@ export default function LandingPage() {
                           className="absolute inset-20 border-[0.5px] border-slate-200 rounded-full border-dashed"
                         />
                         
-                        {/* Neural Nodes */}
+                        {/* Profile Nodes */}
                         <div className="relative z-10 grid grid-cols-3 gap-8">
                             {[...Array(9)].map((_, i) => (
                               <motion.div
@@ -354,20 +353,20 @@ export default function LandingPage() {
 
                 <div className="space-y-12">
                    <div>
-                      <h2 className="text-[11px] font-black uppercase tracking-[0.8em] text-amber-600 mb-8">Neural Engine</h2>
+                      <h2 className="text-[11px] font-black uppercase tracking-[0.8em] text-amber-600 mb-8">SkillSync Center</h2>
                       <h3 className="text-5xl md:text-8xl font-black text-slate-900 uppercase tracking-tighter leading-[0.8] mb-12">
-                         The Skill <br />
-                         <span className="italic text-amber-600">Synapse.</span>
+                         The Smart <br />
+                         <span className="italic text-amber-600">Network.</span>
                       </h3>
                       <p className="text-slate-500 text-xl font-bold leading-relaxed max-w-xl italic">
-                         Our proprietary engine decomposes your professional history into a 768-dimensional vector, 
-                         matching you with roles that share your <span className="text-slate-900 border-b-4 border-amber-500/20">Operational DNA</span>.
+                         Our platform analyzes your skills and helps you connect with top companies worldwide. 
+                         Get matched with roles that fit your <span className="text-slate-900 border-b-4 border-amber-500/20">Professional Profile</span>.
                       </p>
                    </div>
                    <div className="flex gap-12">
                       <div>
-                         <div className="text-5xl font-black text-slate-900 mb-2 tracking-tighter">12M+</div>
-                         <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Decision Nodes</div>
+                         <div className="text-5xl font-black text-slate-900 mb-2 tracking-tighter">12K+</div>
+                         <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Job Data Points</div>
                       </div>
                       <div className="h-16 w-px bg-slate-100" />
                       <div>
@@ -386,14 +385,14 @@ export default function LandingPage() {
               <div className="space-y-12">
                 <div>
                    <h2 className="text-[11px] font-black uppercase tracking-[0.6em] text-amber-600 mb-8">
-                      Deployment Logic
+                      Simple Workflow
                    </h2>
                    <h3 className="text-5xl md:text-8xl font-black text-slate-900 uppercase tracking-tighter leading-[0.85] mb-12">
-                      The High-Freq <br /> Placement
+                      Your Career, <br /> Simplified.
                    </h3>
                    <p className="text-slate-500 text-xl font-bold mb-16 leading-relaxed max-w-xl">
-                      We've automated the career vector calculation. Sync your profile to the network and deploy into 
-                      high-impact squads within <span className="text-slate-950 font-black italic underline decoration-amber-500">72 hours</span>.
+                      We've simplified the job hunt process. Just upload your resume, sync your skills, and get matched with  
+                      your dream roles within <span className="text-slate-950 font-black italic underline decoration-amber-500">72 hours</span>.
                    </p>
                 </div>
                 <div className="space-y-10">
@@ -411,7 +410,7 @@ export default function LandingPage() {
 
               <div className="relative aspect-square">
                  <div className="absolute inset-0 bg-amber-600/5 blur-[150px] animate-pulse rounded-full" />
-                 <ThreeDCard className="w-full h-full glass-panel rounded-[4rem] p-1 shadow-2xl relative overflow-hidden group">
+                 <div className="w-full h-full rounded-[4rem] p-1 shadow-2xl relative overflow-hidden group bg-slate-950">
                     <div className="h-full w-full bg-slate-950 rounded-[3.8rem] border border-white/5 p-16 flex flex-col justify-center gap-10 font-mono text-xs overflow-hidden">
                         <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:scale-150 transition-transform duration-1000 rotate-12">
                            <Activity size={300} className="text-amber-500" />
@@ -419,46 +418,46 @@ export default function LandingPage() {
                         
                         <div className="space-y-6 relative z-10">
                            <div className="flex gap-4">
-                              <span className="text-amber-500 font-black">LOGIN::SUCCESS</span>
-                              <span className="text-white/40">VECTOR_MATCHED_100%</span>
+                              <span className="text-amber-500 font-black">USERCONNECTED</span>
+                              <span className="text-white/40">MATCHFOUND_100%</span>
                            </div>
                            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                               <motion.div initial={{ width: 0 }} whileInView={{ width: '100%' }} transition={{ duration: 2 }} className="h-full bg-amber-500" />
                            </div>
                            <div className="grid grid-cols-2 gap-4 mt-12">
                               <div className="p-8 rounded-3xl bg-white/5 border border-white/10 space-y-4">
-                                 <div className="text-[10px] text-white/50 font-black uppercase">Role Alignment</div>
+                                 <div className="text-[10px] text-white/50 font-black uppercase">Job Match</div>
                                  <div className="text-4xl font-black text-white italic">AA+</div>
                               </div>
                               <div className="p-8 rounded-3xl bg-white/5 border border-white/10 space-y-4">
-                                 <div className="text-[10px] text-white/50 font-black uppercase">Market Value</div>
-                                 <div className="text-4xl font-black text-amber-500 italic">$165K</div>
+                                 <div className="text-[10px] text-white/50 font-black uppercase">Role Value</div>
+                                 <div className="text-4xl font-black text-amber-500 italic">High</div>
                               </div>
                            </div>
                         </div>
                     </div>
-                 </ThreeDCard>
+                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* --- INDUSTRIAL IMPACT (TESTIMONIALS) --- */}
+        {/* --- STUDENT IMPACT --- */}
         <section className="py-60 px-6 bg-slate-950 relative overflow-hidden">
            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_rgba(217,119,6,0.1),_transparent_50%)]" />
            <div className="max-w-7xl mx-auto relative z-10">
               <AnimatedSection className="text-center mb-32">
-                 <h2 className="text-[11px] font-black uppercase tracking-[0.8em] text-amber-500 mb-8">Industrial Impact</h2>
+                 <h2 className="text-[11px] font-black uppercase tracking-[0.8em] text-amber-500 mb-8">What Students Say</h2>
                  <h3 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter leading-[0.8]">
-                    The Feedback <br /> <span className="italic text-amber-500">Loop.</span>
+                    Real Stories, <br /> <span className="italic text-amber-500">Real Success.</span>
                  </h3>
               </AnimatedSection>
 
               <div className="flex flex-col md:flex-row gap-12 perspective-[2000px] py-10 relative">
                  {[
-                   { name: "Marcus Chen", role: "Senior Architect @ Vercel", quote: "SkillSync has fundamentally redefined how we audit frontend talent. The 2025 roadmap is spot on.", rating: 5 },
-                   { name: "Sarah Jenkins", role: "Lead Engineer @ Stripe", quote: "The most high-fidelity recruitment experience I've ever encountered. The AI matching is eerily accurate.", rating: 5 },
-                   { name: "Alex Rivera", role: "Product Manager @ OpenAI", quote: "Deployment latency for new hires dropped by 70% after we integrated with the SkillSync Neural Core.", rating: 5 }
+                   { name: "Yash", role: "Software Developer", quote: "SkillSync made my transition from college to my career so much easier. The tools were amazing.", rating: 5 },
+                   { name: "Student A", role: "Junior Analyst", quote: "I found my internship within 2 days of setting up my profile. Very efficient platform.", rating: 5 },
+                   { name: "Student B", role: "Tech Lead", quote: "A must-have for every student. The interface is stunning and very intuitive.", rating: 5 }
                  ].map((t, i) => (
                    <motion.div 
                      key={i}
@@ -468,7 +467,6 @@ export default function LandingPage() {
                      transition={{ duration: 0.8, ease: "easeOut" }}
                      className="flex-1 min-w-[320px] group"
                    >
-                     <ThreeDCard className="h-full">
                         <div className="h-full p-10 rounded-[3rem] bg-white/5 border border-white/10 backdrop-blur-xl flex flex-col justify-between hover:border-amber-500/50 transition-all duration-500 group-hover:bg-white/[0.08]">
                            <div className="space-y-6">
                               <div className="flex gap-1 text-amber-500">
@@ -483,7 +481,6 @@ export default function LandingPage() {
                               <div className="text-amber-500 font-black uppercase text-[9px] tracking-widest">{t.role}</div>
                            </div>
                         </div>
-                     </ThreeDCard>
                    </motion.div>
                  ))}
               </div>
@@ -498,18 +495,17 @@ export default function LandingPage() {
 
           <AnimatedSection className="max-w-5xl mx-auto relative z-10" direction="up">
             <h2 className="text-[clamp(3rem,8vw,9rem)] font-black text-slate-950 uppercase tracking-tighter leading-[0.8] mb-16">
-                Redefine Your <br /> <span className="text-amber-600">Trajectory.</span>
+                Start Your <br /> <span className="text-amber-600">Career.</span>
             </h2>
             <p className="text-slate-500 text-2xl md:text-3xl font-bold max-w-3xl mx-auto mb-20 leading-tight italic">
-              Don't just code. Join the elite network of <span className="text-slate-900 underline decoration-amber-500 decoration-8">Industrial Visual Engineers</span>.
+              Don't just code. Build your future with <span className="text-slate-900 underline decoration-amber-500 decoration-8">SkillSync</span>.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
                <Link
                  href="/auth/login"
                  className="px-20 py-8 rounded-[2.5rem] bg-slate-950 text-white text-xs font-black uppercase tracking-[0.6em] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)] hover:scale-110 active:scale-95 transition-all inline-flex items-center gap-6 group"
-                 suppressHydrationWarning
                >
-                 Initialize Sync
+                 Get Started
                  <Zap size={24} className="fill-amber-500 text-amber-500 group-hover:rotate-45 transition-transform" />
                </Link>
             </div>

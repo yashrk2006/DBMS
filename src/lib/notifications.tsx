@@ -61,7 +61,7 @@ export async function sendEmail({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'SkillSync <recruitment@booth-iq.com>', 
+      from: 'SkillSync <recruitment@skillsync.com>', 
       to,
       subject,
       react: react as any,
@@ -86,7 +86,7 @@ export async function notifyApplicationReceived(studentId: string, studentEmail:
   await persistNotification({
     userId: studentId,
     title: 'Application Received',
-    message: `Your application for "${internshipTitle}" has been logged in the intelligence pipeline.`,
+    message: `Your application for "${internshipTitle}" has been logged in the Career Hub.`,
     type: 'application'
   });
 
@@ -106,9 +106,9 @@ export async function notifyCompanyNewApplicant(companyEmail: string, studentNam
     subject: `[New Applicant] ${studentName} applied for ${internshipTitle}`,
     react: (
       <div style={{ fontFamily: 'Inter, sans-serif' }}>
-        <h3>New Talent Discovery</h3>
+        <h3>New Applicant Found</h3>
         <p>Candidate <strong>{studentName}</strong> has just applied for <strong>{internshipTitle}</strong>.</p>
-        <p>Visit your dashboard to view their AI Match Score and recruitment profile.</p>
+        <p>Visit your dashboard to view their profile and match details.</p>
       </div>
     ),
   });
@@ -148,7 +148,7 @@ export async function notifyInvitation(studentId: string, studentEmail: string, 
     subject: `[Exclusive] ${companyName} Invitation: ${internshipTitle}`,
     react: (
       <div style={{ fontFamily: 'Inter, sans-serif' }}>
-        <h1>Talent Discovery Invitation</h1>
+        <h1>Application Invitation</h1>
         <p>Hello {studentName},</p>
         <p>You have been identified as a high-potential candidate by <strong>{companyName}</strong>.</p>
         <p>They would like to invite you to apply for their <strong>{internshipTitle}</strong> program.</p>

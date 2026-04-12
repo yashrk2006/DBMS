@@ -93,7 +93,7 @@ function CompleteProfileContent() {
           data: { role: 'student', full_name: fullName }
         });
 
-        toast.success('Student ID Synthesized');
+        toast.success('Profile Created');
         router.push('/dashboard');
       } else if (role === 'company') {
         // 1. Insert into Company table

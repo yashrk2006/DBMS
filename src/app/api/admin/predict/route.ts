@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminPlacementPredictorAgent } from '@/lib/agents';
+import { adminSuccessPredictorAgent } from '@/lib/agents';
 
 export async function POST(request: Request) {
   try {
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'College statistics are required.' }, { status: 400 });
     }
 
-    const result = await adminPlacementPredictorAgent(stats);
+    const result = await adminSuccessPredictorAgent(stats);
 
     return NextResponse.json({ success: true, data: result });
   } catch (error: any) {

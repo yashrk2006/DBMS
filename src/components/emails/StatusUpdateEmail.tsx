@@ -70,8 +70,8 @@ export const StatusUpdateEmail = ({
           </Section>
 
           <Text style={footer}>
-            SkillSync — Advanced Career Intelligence Platform.<br />
-            Securing your future with intelligent matches.
+            SkillSync — Your Student Career Hub.<br />
+            Securing your future with professional matches.
           </Text>
         </Container>
       </Body>

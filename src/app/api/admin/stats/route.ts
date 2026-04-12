@@ -46,7 +46,7 @@ export async function GET() {
         skills: s.student_skill?.map((sk: any) => ({ skill_name: sk.skill.skill_name })) || []
     }));
 
-    // 3. AI Intelligence: Placement Risk Radar
+    // Placement Support: At-Risk Students
     const atRisk = students.map((s: any) => {
         const studentAppsCount = (applicationsRaw || []).filter((a: any) => a.student_id === s.id).length;
         const studentSkillsNames = s.skills.map((sk: any) => sk.skill_name);
@@ -64,13 +64,13 @@ export async function GET() {
         };
     })
     .filter((s: any) => s.reason !== '')
-    .sort((a, b) => a.marketReach - b.marketReach)
+    .sort((a: any, b: any) => a.marketReach - b.marketReach)
     .slice(0, 4);
 
-    // AI Intelligence: Market Equilibrium Predictor
+    // Platform Insights: Skill Alignment
     const marketEquilibrium = AI_ENGINE.getMarketEquilibrium(students as any, internships as any);
 
-    // 4. Recent Intelligence Feed (Latest 10 Applications)
+    // 4. Recent Platform Activity (Latest 10 Applications)
     const { data: recentAppsRaw } = await supabaseAdmin
       .from('application')
       .select(`

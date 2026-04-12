@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       console.error("[Resume Pipeline] Primary Engine Initialization failure:", loadErr);
       return NextResponse.json({ 
         success: false, 
-        error: `Neural Engine Offline: ${loadErr.message || "Failed to initialize native PDF components."}` 
+        error: `Analysis Service Error: ${loadErr.message || "Failed to initialize native PDF components."}` 
       }, { status: 500 });
     }
 
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
       console.error("[Resume Pipeline] PDF Engine Crash:", parseErr);
       return NextResponse.json({ 
         success: false, 
-        error: `Neural Engine Exception: ${parseErr.message || "The PDF parser encountered a system-level conflict."}` 
+        error: `System Error: ${parseErr.message || "The PDF parser encountered a system-level conflict."}` 
       }, { status: 500 });
     }
 

@@ -18,9 +18,9 @@ import {
 import { toast } from 'react-hot-toast';
 import { Message } from '@/types';
 
-type MessageSender = 'user' | 'pulse-agent' | 'system';
+type MessageSender = 'user' | 'career-assistant' | 'system';
 
-export default function PulseAgent() {
+export default function CareerHubAgent() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -50,7 +50,7 @@ export default function PulseAgent() {
         }
       } catch (err: any) {
         if (err.name !== 'AbortError') {
-          console.error("Pulse History Error:", err);
+          console.error("Chat History Error:", err);
         }
       }
     }
@@ -108,17 +108,17 @@ export default function PulseAgent() {
       if (data.success) {
         setMessages(prev => [...prev, {
           id: Date.now() + 1,
-          sender_id: 'pulse-agent',
+          sender_id: 'career-assistant',
           content: data.response,
           created_at: new Date().toISOString()
         }]);
       } else {
-        toast.error("Pulse Synchronization Failed");
+        toast.error("Assistant Connection Failed");
       }
     } catch (err: any) {
       if (err.name !== 'AbortError') {
         console.error(err);
-        toast.error("Pulse Link Interrupted");
+        toast.error("Connection Interrupted");
       }
     } finally {
       setIsAiThinking(false);
@@ -127,9 +127,9 @@ export default function PulseAgent() {
   }
 
   const suggestions = [
-    { label: "Analyze my Profile", icon: <Cpu size={14}/> },
+    { label: "Review my Profile", icon: <Cpu size={14}/> },
     { label: "Find Internship Matches", icon: <Briefcase size={14}/> },
-    { label: "Critique my Skills", icon: <Layers size={14}/> }
+    { label: "Analyze my Skills", icon: <Layers size={14}/> }
   ];
 
   return (
@@ -152,7 +152,7 @@ export default function PulseAgent() {
               className="absolute inset-0 bg-amber-400 rounded-full"
             />
           </div>
-          <span className="font-black text-xs uppercase tracking-[0.2em] hidden md:block">Pulse Agent</span>
+          <span className="font-black text-xs uppercase tracking-[0.2em] hidden md:block">Career Assistant</span>
         </motion.button>
       )}
 
@@ -175,10 +175,10 @@ export default function PulseAgent() {
                     <Zap className="text-amber-400 fill-amber-400" size={24} />
                   </div>
                   <div>
-                    <h2 className="text-xl font-black tracking-tighter text-slate-900 uppercase">Pulse <span className="text-amber-600">Agent.</span></h2>
+                    <h2 className="text-xl font-black tracking-tighter text-slate-900 uppercase">Career <span className="text-amber-600">Assistant.</span></h2>
                     <div className="flex items-center gap-2">
                        <div className="size-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Synchronization Active</p>
+                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Status: Online</p>
                     </div>
                   </div>
                 </div>
@@ -201,8 +201,8 @@ export default function PulseAgent() {
                       <Sparkles className="text-slate-300" size={32} />
                     </div>
                     <div className="text-center">
-                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Workspace Intelligence</p>
-                      <p className="text-xs font-bold text-slate-400">Ask Pulse about your career path</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Student Support</p>
+                      <p className="text-xs font-bold text-slate-400">Ask me about your career path</p>
                     </div>
                   </div>
                 ) : (
@@ -270,7 +270,7 @@ export default function PulseAgent() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                    placeholder="Ask Pulses..."
+                    placeholder="Ask me anything..."
                     className="flex-1 bg-transparent border-none focus:ring-0 text-[13px] font-bold placeholder:text-slate-300"
                   />
                   <button 

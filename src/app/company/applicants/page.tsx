@@ -498,7 +498,7 @@ export default function ReviewCandidates() {
                                      <div className="size-8 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm">
                                         <MessageSquare size={14} />
                                      </div>
-                                     <h4 className="text-[11px] font-black uppercase tracking-[3px] text-slate-900">Targeted Technical Interrogation</h4>
+                                     <h4 className="text-[11px] font-black uppercase tracking-[3px] text-slate-900">Technical Interview Review</h4>
                                   </div>
                                   <button 
                                     onClick={() => handleGenerateAssessment(c)}

@@ -74,7 +74,7 @@ export function NeuralCore3D({ status = 'active', size = 300 }: NeuralCoreProps)
 
       {/* --- TELEMETRY LABELS --- */}
       <div className="absolute inset-0 font-mono text-[8px] font-black uppercase tracking-widest text-amber-500/40">
-         <div className="absolute top-0 left-0 border-l border-t border-amber-500/20 p-2">NEURAL_V:1.0.4</div>
+         <div className="absolute top-0 left-0 border-l border-t border-amber-500/20 p-2">SYSTEM_V:1.0.4</div>
          <div className="absolute bottom-0 right-0 border-r border-b border-amber-500/20 p-2 text-right">SYNC:ACTIVE</div>
       </div>
     </div>

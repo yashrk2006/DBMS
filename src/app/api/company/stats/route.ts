@@ -169,8 +169,8 @@ export async function GET(request: Request) {
           } : null
         };
       })
-      .filter((s) => s.top_match && s.top_match.score > 60)
-      .sort((a, b) => (b.top_match?.score || 0) - (a.top_match?.score || 0))
+      .filter((s: TalentDiscoveryProfile) => s.top_match !== null && s.top_match.score > 60)
+      .sort((a: TalentDiscoveryProfile, b: TalentDiscoveryProfile) => (b.top_match?.score || 0) - (a.top_match?.score || 0))
       .slice(0, 5);
 
     const stats: CompanyStats = {

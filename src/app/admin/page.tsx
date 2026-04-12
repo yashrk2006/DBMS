@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   AlertTriangle, Users, Building2, Briefcase, ClipboardList, 
-  TrendingDown, BarChart3, Target, ArrowUpRight, Cpu 
+  TrendingDown, BarChart3, Trophy, ArrowUpRight, Cpu, ShieldCheck 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MarketEquilibriumItem, Skill } from '@/types';
@@ -32,7 +32,7 @@ export default function AdminOverview() {
   const [riskSearch, setRiskSearch] = useState('');
   const [activitySearch, setActivitySearch] = useState('');
   
-  // New Corporate Health Metrics (AI Driven)
+  // New Platform Health Metrics
   const healthMetrics = AI_ENGINE.analyzeCompanyHealth(recentActivity);
 
   const handleAiPrediction = async () => {
@@ -46,7 +46,7 @@ export default function AdminOverview() {
       const data = await res.json();
       if (data.success) {
         setPredictionData(data.data);
-        toast.success("Strategic Prediction Generated", { icon: "🧠" });
+        toast.success("Platform Analysis Complete", { icon: "📊" });
       }
     } catch (e) { console.error(e); }
     setIsPredicting(false);
@@ -61,14 +61,14 @@ export default function AdminOverview() {
       });
       const result = await res.json();
       if (result.success) {
-        toast.success(`AI Mentor Assigned to ${studentName}`, { icon: '🤖' });
+        toast.success(`Counselor Assigned to ${studentName}`, { icon: '🎓' });
         setAtRiskStudents(prev => prev.filter(s => s.student_id !== studentId));
       } else {
-        toast.error("Intervention failed to persist.");
+        toast.error("Support update failed.");
       }
     } catch (e) {
       console.error(e);
-      toast.error("Network error during intervention.");
+      toast.error("Error during assignment.");
     }
   };
 
@@ -101,7 +101,7 @@ export default function AdminOverview() {
       }
     }
     load();
-  }, []);
+  }, [router]);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-[70vh] gap-8">
@@ -113,40 +113,40 @@ export default function AdminOverview() {
         <BarChart3 size={64} fill="currentColor" />
       </motion.div>
       <div className="text-center">
-        <h2 className="text-[10px] font-black uppercase tracking-[10px] text-amber-600 mb-2">Syncing Admin Console</h2>
-        <p className="text-slate-500 text-[9px] font-bold uppercase tracking-[5px] animate-pulse">Aggregating System Intelligence & Records</p>
+        <h2 className="text-[10px] font-black uppercase tracking-[10px] text-amber-600 mb-2">Loading Admin Hub</h2>
+        <p className="text-slate-500 text-[9px] font-bold uppercase tracking-[5px] animate-pulse">Platform Overview Hub</p>
       </div>
     </div>
   );
 
-  const kpiCards = [
-    { label: 'Total Students', value: stats.students, icon: Users, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
-    { label: 'Partner Companies', value: stats.companies, icon: Building2, color: 'text-slate-700', bg: 'bg-slate-300', border: 'border-slate-100' },
-    { label: 'Active Internships', value: stats.internships, icon: Briefcase, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
-    { label: 'Total Applications', value: stats.applications, icon: ClipboardList, color: 'text-slate-700', bg: 'bg-slate-300', border: 'border-slate-100' },
+  const impactCards = [
+    { label: 'Total Enrolled', value: stats.students, icon: Users, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+    { label: 'Corporate Partners', value: stats.companies, icon: Building2, color: 'text-slate-700', bg: 'bg-slate-300', border: 'border-slate-100' },
+    { label: 'Active Opportunities', value: stats.internships, icon: Briefcase, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+    { label: 'Total Submissions', value: stats.applications, icon: ClipboardList, color: 'text-slate-700', bg: 'bg-slate-300', border: 'border-slate-100' },
   ];
 
   return (
     <div className="space-y-12">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Intelligence Dashboard</h1>
-          <p className="text-slate-500 font-medium tracking-tight">SkillSync Intelligence Ecosystem • Professional Governance Environment.</p>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Platform Hub</h1>
+          <p className="text-slate-500 font-medium tracking-tight">Overview of SkillSync student progress and employment trends.</p>
         </div>
         <button 
           onClick={handleAiPrediction}
           disabled={isPredicting}
-          className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl flex items-center gap-3 active:scale-95 disabled:opacity-50"
+          className="px-8 py-4 bg-slate-950 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl flex items-center gap-3 active:scale-95 disabled:opacity-50"
         >
-          <Cpu size={18} className={isPredicting ? "animate-spin" : ""} />
-          {isPredicting ? "Synthesizing..." : "Admin Strategic Predictor"}
+          <BarChart3 size={18} className={isPredicting ? "animate-spin" : ""} />
+          {isPredicting ? "Analyzing..." : "Trend Analysis"}
         </button>
       </header>
 
       {predictionData && (
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
-          className="p-12 rounded-[3.5rem] bg-slate-900 text-white border border-white/5 shadow-2xl relative overflow-hidden group"
+          className="p-12 rounded-[3.5rem] bg-slate-950 text-white border border-white/5 shadow-2xl relative overflow-hidden group"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-amber-600/10 via-transparent to-indigo-600/10 opacity-50 transition-opacity group-hover:opacity-100" />
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -158,12 +158,12 @@ export default function AdminOverview() {
               <div className="text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20">
                 {predictionData.predicted_success_rate}%
               </div>
-              <p className="text-[10px] font-bold opacity-40 leading-relaxed uppercase tracking-[3px]">Cross-referenced against industrial growth benchmarks & skill saturation indices.</p>
+              <p className="text-[10px] font-bold opacity-40 leading-relaxed uppercase tracking-[3px]">Matched against industry benchmarks & skill requirements.</p>
             </div>
             
             <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-10">
               <div className="space-y-6">
-                <span className="text-[10px] font-black uppercase tracking-[5px] text-amber-500">Strategic Vectors</span>
+                <span className="text-[10px] font-black uppercase tracking-[5px] text-amber-500">Key Focus Areas</span>
                 <ul className="space-y-4">
                   {(predictionData.recommendations || []).map((r: string, i: number) => (
                     <li key={i} className="flex gap-4 text-[11px] font-medium leading-relaxed text-white/70 group/item">
@@ -174,7 +174,7 @@ export default function AdminOverview() {
                 </ul>
               </div>
               <div className="space-y-6">
-                <span className="text-[10px] font-black uppercase tracking-[5px] text-rose-500">Stability Risks</span>
+                <span className="text-[10px] font-black uppercase tracking-[5px] text-rose-500">Support Priority</span>
                 <ul className="space-y-4">
                   {(predictionData.risk_factors || []).map((rk: string, i: number) => (
                     <li key={i} className="flex gap-3 text-[11px] font-medium leading-relaxed text-rose-200/60 group/risk">
@@ -189,12 +189,12 @@ export default function AdminOverview() {
         </motion.div>
       )}
 
-      {/* KPI Cards with 3D Perspective */}
+      {/* Impact Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        {kpiCards.map(stat => (
+        {impactCards.map(stat => (
           <ThreeDCard key={stat.label} className="h-full">
             <div 
-              onClick={() => stat.label === 'Partner Companies' ? router.push('/admin/companies') : null}
+              onClick={() => stat.label === 'Corporate Partners' ? router.push('/admin/companies') : null}
               className={`bg-white h-full p-8 rounded-[2rem] border ${stat.border} shadow-sm group hover:shadow-md transition-all cursor-pointer`}
             >
               <div className="flex items-center justify-between mb-6">
@@ -214,7 +214,7 @@ export default function AdminOverview() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* Market Intelligence Panel - AI Driven */}
+        {/* Career Trends Panel */}
         <div className="lg:col-span-8 bg-slate-950 rounded-[3rem] p-10 border border-white/5 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-transform duration-700">
                 <BarChart3 size={120} className="text-emerald-500" />
@@ -225,11 +225,11 @@ export default function AdminOverview() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-3">
                             <div className="size-6 rounded-lg bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
-                                <Target size={14} />
+                                <Trophy size={14} />
                             </div>
-                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[4px]">Market Equilibrium Analytics</span>
+                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[4px]">Career Analytics</span>
                         </div>
-                        <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Skill Supply vs. Industrial Demand</h2>
+                        <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Skill Adoption Growth</h2>
                     </div>
                 </div>
 
@@ -240,7 +240,7 @@ export default function AdminOverview() {
                                 <div className="flex justify-between items-end">
                                     <span className="text-xs font-black text-white uppercase tracking-widest">{item.name}</span>
                                     <span className="text-[9px] font-bold text-slate-500 uppercase tracking-[2px]">
-                                        Match Gap: {item.gap > 0 ? `-${item.gap} Supply` : `+${Math.abs(item.gap)} Surplus`}
+                                        Market Gap: {item.gap > 0 ? `${item.gap} Roles Available` : `Balance Achieved`}
                                     </span>
                                 </div>
                                 <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden flex">
@@ -259,17 +259,17 @@ export default function AdminOverview() {
                         ))}
                     </div>
 
-                    {/* Corporate Health Diagnostic Card */}
+                    {/* Engagement Overview */}
                     <div className="bg-white/[0.03] border border-white/5 rounded-[2rem] p-8 space-y-6">
                          <div className="flex items-center gap-2">
                              <Cpu size={14} className="text-amber-500" />
-                             <span className="text-[10px] font-black text-amber-500 uppercase tracking-[3px]">Corporate Health Diagnostic</span>
+                             <span className="text-[10px] font-black text-amber-500 uppercase tracking-[3px]">Activity Summary</span>
                          </div>
                          
                          <div className="space-y-4">
                              <div>
                                  <div className="flex justify-between mb-2">
-                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Platform Responsiveness</span>
+                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Industry Engagement</span>
                                      <span className="text-xs font-black text-white">{healthMetrics.responsiveness}%</span>
                                  </div>
                                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
@@ -278,7 +278,7 @@ export default function AdminOverview() {
                              </div>
                              <div>
                                  <div className="flex justify-between mb-2">
-                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Decision Accuracy</span>
+                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Successful Connections</span>
                                      <span className="text-xs font-black text-white">{healthMetrics.accuracy}%</span>
                                  </div>
                                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
@@ -288,14 +288,14 @@ export default function AdminOverview() {
                          </div>
                          
                          <p className="text-[9px] font-medium text-slate-500 leading-relaxed uppercase tracking-widest italic">
-                            System status: <span className="text-emerald-500 font-black">Optimal</span>. AI Engine detecting high placement velocity within technical sectors.
+                            Status: <span className="text-emerald-500 font-black">Optimal</span>. High recruitment activity detected in technology sectors.
                          </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        {/* Placement Intervention Radar */}
+        {/* Support Alerts Panel */}
         <div className="lg:col-span-4 bg-slate-900 rounded-[3rem] p-10 border border-white/5 flex flex-col relative overflow-hidden group/radar">
           <div className="absolute top-0 right-0 p-8 opacity-5 group-hover/radar:rotate-12 transition-transform">
             <TrendingDown size={100} className="text-rose-500" />
@@ -305,12 +305,12 @@ export default function AdminOverview() {
               <div className="size-8 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center border border-rose-500/20">
                 <AlertTriangle size={18} />
               </div>
-              <h3 className="text-xl font-black text-white uppercase tracking-tighter">Placement Risk Radar</h3>
+              <h3 className="text-xl font-black text-white uppercase tracking-tighter">Support Pipeline</h3>
             </div>
             <div className="relative group">
               <input 
                 type="text"
-                placeholder="FILTER BY NAME OR RISK..."
+                placeholder="SEARCH NEEDS AND STATUS..."
                 value={riskSearch}
                 onChange={(e) => setRiskSearch(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest text-white outline-none focus:border-rose-500/50 transition-all"
@@ -325,14 +325,14 @@ export default function AdminOverview() {
               <div key={student.student_id} className="p-5 bg-white/5 rounded-2xl border border-white/10 group hover:bg-white/10 transition-all cursor-pointer">
                 <div className="flex justify-between items-start mb-2">
                   <h4 className="font-black text-white text-sm uppercase tracking-tight">{student.name}</h4>
-                  <span className="text-[8px] font-black bg-rose-500/20 text-rose-500 px-2 py-1 rounded-md border border-rose-500/20 uppercase tracking-widest">At Risk</span>
+                  <span className="text-[8px] font-black bg-rose-500/20 text-rose-500 px-2 py-1 rounded-md border border-rose-500/20 uppercase tracking-widest">Needs Focus</span>
                 </div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 italic">&quot;{student.reason}&quot;</p>
                 <button 
                   onClick={() => handleMentorAssignment(student.student_id, student.name)}
                   className="w-full py-2.5 rounded-xl bg-white text-black text-[9px] font-black uppercase tracking-[2px] opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2"
                 >
-                  Assign AI Mentor <ArrowUpRight size={14} />
+                  Assign Counselor <ArrowUpRight size={14} />
                 </button>
               </div>
             ))}
@@ -340,18 +340,18 @@ export default function AdminOverview() {
         </div>
       </div>
 
-      {/* Recent Activity Feed */}
+      {/* Activity Feed */}
       <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm p-10 overflow-hidden relative">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
           <div className="space-y-1">
-            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Recent Intellectual Activity</h2>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Live System Audit Trace</p>
+            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Live Updates Feed</h2>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Platform Event Log</p>
           </div>
           <div className="flex items-center gap-6 w-full md:w-auto">
             <div className="relative group w-full md:w-64">
               <input 
                 type="text"
-                placeholder="SEARCH ACTIVITY LOG..."
+                placeholder="SEARCH ACTIVITY..."
                 value={activitySearch}
                 onChange={(e) => setActivitySearch(e.target.value)}
                 className="w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest focus:bg-white focus:border-amber-500/30 outline-none transition-all"
@@ -372,7 +372,7 @@ export default function AdminOverview() {
             })
             .length === 0 ? (
             <div className="py-20 text-center border border-dashed rounded-[2rem] border-slate-200">
-              <div className="text-slate-300 font-black uppercase tracking-widest text-xs">No Recent Activity Detected</div>
+              <div className="text-slate-300 font-black uppercase tracking-widest text-xs">No Recent Updates</div>
             </div>
           ) : (
             recentActivity
@@ -407,9 +407,9 @@ export default function AdminOverview() {
         </div>
       </div>
 
-      {/* Dynamic Skill Inventory */}
+      {/* Skill Inventory */}
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-8">
-        <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-8">Role-Based Skill Taxonomy</h2>
+        <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-8">Career Skill Tracking</h2>
         <div className="flex flex-wrap gap-2">
           {skills.map(s => (
             <span key={s.skill_name} className="px-5 py-2 rounded-xl bg-slate-50 border border-slate-100 text-xs font-black text-slate-600 uppercase tracking-wider hover:border-amber-600/30 hover:bg-amber-50/30 transition-colors cursor-default">
@@ -421,4 +421,3 @@ export default function AdminOverview() {
     </div>
   );
 }
-

@@ -21,7 +21,7 @@ export default function AuthCodeError() {
           <AlertTriangle size={40} />
         </div>
         
-        <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase mb-4">Neural Link <span className="text-red-600">Failed</span></h2>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase mb-4">Login <span className="text-red-600">Failed</span></h2>
         
         <p className="text-slate-500 text-sm font-bold uppercase tracking-wider mb-8 leading-relaxed">
           The authentication code could not be verified by the core engine. This usually happens if the session expired or the redirect URL was misconfigured.
@@ -41,7 +41,7 @@ export default function AuthCodeError() {
             className="w-full py-5 rounded-2xl bg-white text-slate-400 font-black uppercase tracking-[3px] text-[10px] border border-slate-100 hover:text-slate-600 hover:bg-slate-50 transition-all flex items-center justify-center gap-3"
           >
             <ArrowLeft size={16} />
-            Back to Command Center
+            Back to Review Hub
           </button>
         </div>
 

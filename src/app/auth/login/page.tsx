@@ -140,7 +140,7 @@ export default function LoginPage() {
         if (signInError) throw signInError;
       }
 
-      toast.success(authMode === 'login' ? 'Access Granted • Synchronizing Dashboard' : 'Identity Created • Initializing Terminal');
+      toast.success(authMode === 'login' ? 'Access Granted • Opening Dashboard' : 'Account Created • Opening Dashboard');
       setStep('success');
       
       const redirectMap: Record<string, string> = {
@@ -153,7 +153,7 @@ export default function LoginPage() {
       }, 1500);
 
     } catch (error: any) {
-      const displayError = error.message || 'Institutional Authentication Failed. Please contact the Placement Cell.';
+      const displayError = error.message || 'Authentication Failed. Please contact the Placement Cell.';
       toast.error(displayError);
     } finally {
       setLoading(false);
@@ -179,7 +179,7 @@ export default function LoginPage() {
         toast.error(data.error || 'Student record not found in verified institutional batch.');
       }
     } catch (e) {
-      toast.error('Institutional identity server reached a connectivity limit.');
+      toast.error('Identity server reached a connectivity limit.');
     } finally {
       setLoading(false);
     }
@@ -200,15 +200,15 @@ export default function LoginPage() {
 
           const data = await res.json();
           if (data.success) {
-              // Auto-fill OTP from response (Institutional Auth Mode)
+              // Auto-fill OTP from response (Auth Mode)
               if (data.otp_code) {
                   setOtp(data.otp_code);
                   setDevOtp(data.otp_code);
               }
               setStep('otp');
-              toast.success('Institutional verification code generated successfully.');
+              toast.success('Verification code generated successfully.');
           } else {
-              toast.error(data.error || 'Failed to generate institutional verification session.');
+              toast.error(data.error || 'Failed to generate verification session.');
           }
       } catch (e) {
           toast.error('Failed to dispatch verification code. Please check your connection.');
@@ -230,7 +230,7 @@ export default function LoginPage() {
 
           const data = await res.json();
           if (data.success) {
-              // Permanent Handshake: Sign in with the forced institutional credential
+              // Permanent Handshake: Sign in with the forced credential
               const { error: signInError } = await supabase.auth.signInWithPassword({
                   email: data.email,
                   password: data.sync_password
@@ -238,7 +238,7 @@ export default function LoginPage() {
 
               if (signInError) throw signInError;
 
-              toast.success('Institutional Identity Synchronized Successfully');
+              toast.success('Identity Verified Successfully');
               setStep('success');
               
               // Force hard redirect to clear middleware cache
@@ -249,7 +249,7 @@ export default function LoginPage() {
               toast.error(data.error || 'Verification encountered an inconsistency.');
           }
       } catch (e: any) {
-          toast.error(e.message || 'Identity synchronization failed.');
+          toast.error(e.message || 'Identity verification failed.');
       } finally {
           setLoading(false);
       }
@@ -265,7 +265,7 @@ export default function LoginPage() {
       {loading && step === 'role' ? (
         <div className="flex flex-col items-center gap-4 animate-pulse relative z-10">
           <div className="w-16 h-16 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Synchronizing Identity...</p>
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Authenticating Identity...</p>
         </div>
       ) : (
         <motion.div 
@@ -283,10 +283,10 @@ export default function LoginPage() {
           </GsapMagnetic>
           
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4 uppercase">
-            {step === 'role' ? 'Sync Terminal' : 'Institutional Access'}
+            {step === 'role' ? 'Login Hub' : 'SkillSync Access'}
           </h1>
           <p className="text-slate-400 font-black uppercase tracking-[5px] text-[10px]">
-             {step === 'role' ? 'Secure Neural Authentication • Select Identity Path' : 'Verified Onboarding Protocol Active'}
+             {step === 'role' ? 'Secure Login • Select your Role' : 'Verified Access Protocol'}
           </p>
         </div>
 
@@ -327,11 +327,11 @@ export default function LoginPage() {
                   </div>
                </div>
                <h2 className="text-2xl font-black text-slate-900 text-center mb-2">Identify Yourself</h2>
-               <p className="text-slate-500 text-center text-sm mb-10 uppercase tracking-widest font-bold">Step 01: Batch Entry</p>
+               <p className="text-slate-500 text-center text-sm mb-10 uppercase tracking-widest font-bold">Step 01: Identification</p>
                
                <div className="space-y-6">
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Institutional Roll Number</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Student Roll Number</label>
                     <input 
                       type="text" 
                       placeholder="e.g. 24/70001"
@@ -346,7 +346,7 @@ export default function LoginPage() {
                     onClick={handleIdentityLookup}
                     className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-amber-600 transition-all disabled:opacity-50"
                   >
-                    {loading ? <Loader2 className="animate-spin" /> : <>Verify Credentials <ArrowRight size={18} /></>}
+                    {loading ? <Loader2 className="animate-spin" /> : <>Verify Profile <ArrowRight size={18} /></>}
                   </button>
                   
                   <button onClick={() => setStep('role')} className="w-full text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600">
@@ -373,7 +373,7 @@ export default function LoginPage() {
 
                <div className="space-y-6">
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Link your Personal Email</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Link your Email</label>
                     <div className="relative">
                       <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                       <input 
@@ -411,16 +411,16 @@ export default function LoginPage() {
                   </div>
                   <div className="flex bg-slate-100/50 p-1.5 rounded-2xl">
                     <div className="px-8 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-white text-slate-900 shadow-sm border border-slate-100">
-                      Authorized Entry Only
+                      Authorized Access
                     </div>
                   </div>
                </div>
                
                <h2 className="text-2xl font-black text-slate-900 text-center mb-2 uppercase tracking-tighter">
-                 {authMode === 'login' ? 'Secure Terminal Access' : 'Neural Profile Creation'}
+                 {authMode === 'login' ? 'Secure Login' : 'Create Account'}
                </h2>
                <p className="text-slate-500 text-center text-[10px] mb-10 uppercase tracking-[3px] font-bold">
-                 {authMode === 'login' ? `Authorized ${selectedRole} Entry Only` : `Institutional ${selectedRole} Onboarding`}
+                 {authMode === 'login' ? `Authorized ${selectedRole} Access Only` : `${selectedRole} Registration`}
                </p>
                
                <div className="space-y-6">
@@ -441,7 +441,7 @@ export default function LoginPage() {
                   )}
 
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Institutional Email</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Email Address</label>
                     <input 
                       type="email" 
                       placeholder={selectedRole === 'admin' ? 'admin@institution.edu' : 'hiring@company.com'}
@@ -451,7 +451,7 @@ export default function LoginPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Access Password</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Password</label>
                     <input 
                       type="password" 
                       placeholder="••••••••"
@@ -465,12 +465,12 @@ export default function LoginPage() {
                     onClick={handleCredentialsAuth}
                     className="w-full h-14 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-amber-600 transition-all disabled:opacity-50"
                   >
-                    {loading ? <Loader2 className="animate-spin" /> : <>{authMode === 'login' ? 'Sync Credentials' : 'Initialize Profile'} <ArrowRight size={18} /></>}
+                    {loading ? <Loader2 className="animate-spin" /> : <>{authMode === 'login' ? 'Sign In' : 'Create Profile'} <ArrowRight size={18} /></>}
                   </button>
                   
                   {selectedRole === 'company' && authMode === 'login' && companies.length > 0 && (
                     <div className="pt-8 mt-8 border-t border-slate-100">
-                      <p className="text-[10px] font-black uppercase tracking-[3px] text-slate-400 mb-6 text-center">Registered Neural Partners</p>
+                      <p className="text-[10px] font-black uppercase tracking-[3px] text-slate-400 mb-6 text-center">Corporate Partners</p>
                       <div className="grid grid-cols-2 gap-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                         {companies.map((corp) => (
                            <button
@@ -501,13 +501,13 @@ export default function LoginPage() {
                            onClick={() => {
                              setEmail('admin@skillsync.com');
                              setPassword('admin123456');
-                             toast.success('Admin Credentials Synchronized');
+                             toast.success('Admin Profile Selected');
                            }}
                            className="group p-5 rounded-3xl border border-slate-900 bg-slate-900 text-white hover:bg-amber-600 hover:border-amber-600 transition-all text-left flex items-center justify-between shadow-xl"
                          >
                            <div>
                               <p className="text-[11px] font-black uppercase tracking-[4px] mb-1">TNP Placement Officer</p>
-                              <p className="text-[9px] font-bold opacity-50 uppercase tracking-widest">Master Authority Account</p>
+                              <p className="text-[9px] font-bold opacity-50 uppercase tracking-widest">Master Admin Account</p>
                            </div>
                            <ShieldCheck size={20} className="text-white/40 group-hover:text-white transition-opacity text-amber-500" />
                          </button>
@@ -516,7 +516,7 @@ export default function LoginPage() {
                   )}
 
                   <button onClick={() => setStep('role')} className="w-full text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600">
-                    Switch Access Node
+                    Switch Access Role
                   </button>
                </div>
             </motion.div>
@@ -528,14 +528,14 @@ export default function LoginPage() {
               className="max-w-md mx-auto bg-white rounded-3xl p-10 shadow-xl shadow-slate-200 border border-slate-100"
             >
                <h2 className="text-2xl font-black text-slate-900 text-center mb-2">Enter Verification Code</h2>
-               <p className="text-slate-500 text-center text-xs mb-6">Your one-time code has been generated and auto-filled below.</p>
+               <p className="text-slate-500 text-center text-xs mb-6">Your verification code has been generated and auto-filled below.</p>
                
-               {/* Institutional Verification Code Banner */}
+               {/* Verification Code Banner */}
                {devOtp && (
                  <div className="mb-6 p-6 bg-slate-900 border border-slate-800 rounded-3xl text-center shadow-2xl relative overflow-hidden group">
                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-emerald-500/10 opacity-50" />
                    <div className="relative z-10">
-                    <p className="text-[9px] font-black uppercase tracking-[5px] text-white/40 mb-3">Institutional Verification Sync Code</p>
+                    <p className="text-[9px] font-black uppercase tracking-[5px] text-white/40 mb-3">Verification Code</p>
                     <p className="text-4xl font-black tracking-[10px] text-white group-hover:scale-110 transition-transform duration-500">{devOtp}</p>
                    </div>
                  </div>
@@ -558,7 +558,7 @@ export default function LoginPage() {
                     onClick={handleVerifyOTP}
                     className="w-full h-14 bg-amber-600 text-white rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-900 transition-all disabled:opacity-50"
                   >
-                    {loading ? <Loader2 className="animate-spin" /> : 'Synchronize Identity'}
+                    {loading ? <Loader2 className="animate-spin" /> : 'Complete Login'}
                   </button>
                </div>
             </motion.div>
@@ -574,15 +574,15 @@ export default function LoginPage() {
                <div className="size-24 rounded-full bg-green-500 text-white mx-auto mb-8 flex items-center justify-center shadow-lg shadow-green-200">
                   <Zap size={40} />
                </div>
-               <h2 className="text-4xl font-black text-slate-900 mb-4 uppercase">Sync Success</h2>
-               <p className="text-slate-400 font-bold tracking-widest uppercase text-xs">Redirecting to Your Neural Dashboard...</p>
+               <h2 className="text-4xl font-black text-slate-900 mb-4 uppercase">Success</h2>
+               <p className="text-slate-400 font-bold tracking-widest uppercase text-xs">Opening Your Dashboard...</p>
             </motion.div>
           )}
         </AnimatePresence>
 
         <div className="mt-20 pt-10 border-t border-slate-100 text-center">
           <p className="text-slate-300 text-[9px] font-black uppercase tracking-[4px]">
-             SkillSync Federated Auth Protocol • Institutional Grade
+             SkillSync Auth Protocol • Secured Access
           </p>
         </div>
       </motion.div>

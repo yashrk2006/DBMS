@@ -74,7 +74,7 @@ export default function SkillsPage() {
 
   const addSkill = async () => {
     // Use either the selected skill from dropdown OR whatever is typed in the search box
-    const skillToAdd = selectedSkillName || searchQuery.trim();
+    const skillToAdd = selectedSkillName || searchTerm.trim();
     if (!skillToAdd) { toast.error('Please type or select a skill first.'); return; }
     setAdding(true);
     const { data: { session } } = await supabase.auth.getSession();
@@ -91,7 +91,7 @@ export default function SkillsPage() {
       if (result.success) {
         setMySkills(result.data);
         setSelectedSkillName('');
-        setSearchQuery('');
+        setSearchTerm('');
         setAiSkillSuggestions(prev => prev.filter(s => s !== skillToAdd));
         toast.success(`${skillToAdd} added to your matrix!`);
       } else {
@@ -136,11 +136,11 @@ export default function SkillsPage() {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">Skill Matrix</h1>
-          <p className="text-slate-500 font-bold uppercase tracking-[4px] text-[10px]">SkillSync Recruitment Ecosystem • Technical Inventory Control</p>
+          <p className="text-slate-500 font-bold uppercase tracking-[4px] text-[10px]">SkillSync Platform • Personal Skill Inventory</p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-100 shadow-sm text-slate-400 font-black text-[9px] uppercase tracking-[3px]">
           <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Active Intelligence
+          Skill Sync Active
         </div>
       </header>
 
@@ -149,13 +149,13 @@ export default function SkillsPage() {
             <AnimatedSection direction="up" className="space-y-8">
                 <div className="flex items-center gap-4">
                     <div className="size-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-lg shadow-slate-900/20"><Plus size={20} /></div>
-                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Inventory Management</h2>
+                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Skill Management</h2>
                 </div>
                 
                 <div className="p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-premium space-y-8">
                     <div className="space-y-6">
                         <div className="space-y-2 relative">
-                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[3px] ml-1">Search Identifier</label>
+                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[3px] ml-1">Skill Name</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-5 flex items-center text-slate-400 group-focus-within:text-amber-600 transition-colors">
                                     <Search size={16} />
@@ -185,7 +185,7 @@ export default function SkillsPage() {
                                                     key={s.skill_id}
                                                     onClick={() => {
                                                         setSelectedSkillName(s.skill_name);
-                                                        setSearchQuery('');
+                                                        setSearchTerm('');
                                                     }}
                                                     className="w-full px-6 py-4 text-left hover:bg-slate-50 transition-colors flex items-center justify-between group/item"
                                                 >
@@ -225,11 +225,11 @@ export default function SkillsPage() {
 
                         <button 
                             onClick={addSkill}
-                            disabled={adding || (!selectedSkillName && !searchQuery.trim())}
+                            disabled={adding || (!selectedSkillName && !searchTerm.trim())}
                             className="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-black uppercase tracking-[3px] text-[10px] hover:bg-amber-600 shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale flex items-center justify-center gap-3"
                         >
                             {adding ? <Activity size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
-                            {adding ? 'SYNCHRONIZING...' : 'INJECT INTO MATRIX'}
+                            {adding ? 'ADDING...' : 'ADD TO PROFILE'}
                         </button>
                     </div>
                 </div>
@@ -240,7 +240,7 @@ export default function SkillsPage() {
                     <AnimatedSection direction="up" delay={0.1} className="space-y-8">
                         <div className="flex items-center gap-4">
                             <div className="size-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-sm"><Sparkles size={20} /></div>
-                            <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Skill Extractions</h2>
+                            <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Skill Recommendations</h2>
                         </div>
                         <div className="p-8 bg-white rounded-[2.5rem] border border-indigo-100 shadow-xl shadow-indigo-600/5 space-y-6 relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-4 opacity-[0.03] scale-150"><Cpu size={100} /></div>
@@ -272,7 +272,7 @@ export default function SkillsPage() {
                 <div className="p-8 bg-slate-950 rounded-[2.5rem] border border-white/5 space-y-6">
                     <div className="flex items-center gap-2 mb-2">
                         <Sparkles size={14} className="text-amber-500" />
-                        <span className="text-[10px] font-black uppercase tracking-[3px] text-amber-500">Gap Intelligence</span>
+                        <span className="text-[10px] font-black uppercase tracking-[3px] text-amber-500">Skill Analysis</span>
                     </div>
                     <div className="space-y-4">
                         {aiInsights?.nextBestSkill ? (
@@ -300,7 +300,7 @@ export default function SkillsPage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-8">
                 <div className="flex items-center gap-4">
                     <div className="size-10 rounded-xl bg-slate-50 text-slate-700 border border-slate-100 flex items-center justify-center shadow-sm"><Layers size={18} /></div>
-                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Active Skill Matrix</h2>
+                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">My Skills</h2>
                 </div>
                 <div className="flex items-center gap-6">
                     <div className="relative group w-48">
@@ -323,7 +323,7 @@ export default function SkillsPage() {
             {mySkills.length === 0 ? (
                 <div className="p-32 text-center bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200">
                     <Database size={48} className="text-slate-200 mx-auto mb-8 animate-pulse" />
-                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-4 text-slate-950 font-black">Empty Repository</h3>
+                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-4 text-slate-950 font-black">No Skills Added</h3>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -346,7 +346,7 @@ export default function SkillsPage() {
                                     </div>
                                     <div className="space-y-3 mb-10">
                                         <div className="flex justify-between text-[8px] font-black uppercase tracking-[2px] text-slate-400">
-                                            <span>Proficiency Index</span>
+                                            <span>Skill level</span>
                                             <span>{config.progress}%</span>
                                         </div>
                                         <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">

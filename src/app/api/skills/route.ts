@@ -31,7 +31,7 @@ export async function GET(request: Request) {
       skill_id: s.skill?.skill_id,
       skill_name: s.skill?.skill_name || 'Legacy Skill',
       proficiency_level: s.proficiency_level
-    })).filter(s => s.skill_id);
+    })).filter((s: any) => s.skill_id);
 
     // 2. Fetch All Internships for AI Insights
     const { data: allInternshipsRaw } = await supabase
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
       .from('skill')
       .select('*');
 
-    // AI Intelligence: Skill Evolution Predictor
+    // Platform Insights: Skill Alignment Analyzer
     const studentSkillsNames = studentSkills.map((s: any) => s.skill_name);
     const marketReach = AI_ENGINE.calculateMarketReach(studentSkillsNames, allInternships as any);
     const nextBestSkill = AI_ENGINE.getHighImpactSkill(studentSkillsNames, allInternships as any);
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
       studentSkills,
       allSkills: allAvailableSkills || [],
       aiResumeAnalysis: studentData?.ai_resume_analysis,
-      aiInsights: {
+      careerInsights: {
         marketReach,
         nextBestSkill
       }
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
       skill_id: s.skill?.skill_id,
       skill_name: s.skill?.skill_name || 'Legacy Skill',
       proficiency_level: s.proficiency_level
-    })).filter(s => s.skill_id);
+    })).filter((s: any) => s.skill_id);
 
     return NextResponse.json({ 
       success: true, 

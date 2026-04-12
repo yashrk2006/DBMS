@@ -18,7 +18,7 @@ export function LogoutButton({ className, showText = true }: LogoutButtonProps) 
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
-      toast.success('Neural Session Terminated');
+      toast.success('Logged out successfully');
       // Force a full refresh to clear any cached states/cookies
       window.location.href = '/';
     } catch (err: any) {

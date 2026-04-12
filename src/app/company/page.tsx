@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { 
   Building2, Users, Briefcase, Plus, Search, Filter, 
   CheckCircle2, XCircle, Clock, ChevronRight, MessageSquare, 
-  MoreVertical, Calendar, TrendingUp, Target, Sparkles, Brain, Award, Star, Download
+  MoreVertical, Calendar, TrendingUp, Target, Sparkles, Brain, Award, Star, Download, ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -16,6 +16,12 @@ import {
 import { exportToCSV } from '@/lib/utils/export';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
+
+const HiringAnalytics = {
+  generateResponseDraft: (name: string, score: number, role: string) => {
+    return `Hi ${name},\n\nThank you for applying for the ${role} position. We were impressed by your profile and your match score of ${score}%. We would like to move forward with your application.\n\nBest regards,\nSkillSync Recruitment Team`;
+  }
+};
 
 const statusColors: Record<string, { color: string; bg: string; border: string }> = {
   'Pending':      { color: 'text-slate-500',  bg: 'bg-slate-50',   border: 'border-slate-100'  },
@@ -37,9 +43,22 @@ export default function CompanyDashboard() {
   const [applications, setApplications] = useState<EnrichedCompanyApplication[]>([]);
   const [talentDiscovery, setTalentDiscovery] = useState<TalentDiscoveryProfile[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<EnrichedCompanyApplication | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isShortlisting, setIsShortlisting] = useState(false);
-  const [aiShortlist, setAiShortlist] = useState<any>(null); // Shortlist UI is polymorphic
+  const [aiShortlist, setAiShortlist] = useState<any>(null); 
+  const [activeDraft, setActiveDraft] = useState<string | null>(null);
+  const [isDrafting, setIsDrafting] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const generateDraft = (app: EnrichedCompanyApplication) => {
+    setIsDrafting(true);
+    setTimeout(() => {
+        const score = (app as any).interview_score || 0;
+        const draft = HiringAnalytics.generateResponseDraft(app.student_name, score, app.role_title);
+        setActiveDraft(draft);
+        setIsDrafting(false);
+        toast.success("Response Draft Ready", { icon: "✍️" });
+    }, 1000);
+  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -90,14 +109,14 @@ export default function CompanyDashboard() {
         if (selectedApplication?.application_id === appId) {
           setSelectedApplication(prev => prev ? { ...prev, status: newStatus as any } : null);
         }
-        toast.success(`Application marked as ${newStatus}`, { icon: "✅" });
+        toast.success(`Marked as ${newStatus}`, { icon: "✅" });
       } else {
         toast.error(result.error || "Failed to update status");
       }
     } catch (err: unknown) {
       const error = err as Error;
       console.error(error);
-      toast.error("Network error updating status");
+      toast.error("Error updating status");
     }
   };
 
@@ -111,7 +130,7 @@ export default function CompanyDashboard() {
       }));
 
       const jobContext = applications[0]?.role_title || "Technical Position";
-      const jd = `Looking for top candidates for the ${jobContext} role. Focus on technical maturity, skill alignment, and architectural depth.`;
+      const jd = `Looking for top candidates for the ${jobContext} role. Focus on technical maturity and skill alignment.`;
 
       const res = await fetch('/api/recruiter/shortlist', {
         method: 'POST',
@@ -144,7 +163,7 @@ export default function CompanyDashboard() {
   if (loading) return (
     <div className="flex items-center justify-center p-20 text-slate-400 gap-3">
       <div className="size-4 rounded-full border-2 border-emerald-600/30 border-t-emerald-600 animate-spin" />
-      <span className="text-sm font-bold uppercase tracking-widest">Syndicating Company Intelligence...</span>
+      <span className="text-sm font-bold uppercase tracking-widest">Loading Dashboard...</span>
     </div>
   );
 
@@ -154,10 +173,10 @@ export default function CompanyDashboard() {
         <div className="space-y-1">
           <div className="flex items-center gap-2 mb-2">
             <div className="size-2 rounded-full bg-emerald-500" />
-            <span className="text-[9px] font-black uppercase tracking-[5px] text-slate-400">Recruitment Console • Live</span>
+            <span className="text-[9px] font-black uppercase tracking-[5px] text-slate-400">Hiring Dashboard • Active</span>
           </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Talent Pipeline</h1>
-          <p className="text-slate-500 font-medium tracking-tight">Manage role matchings and AI-driven candidate assessments.</p>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Applicant Review</h1>
+          <p className="text-slate-500 font-medium tracking-tight">Review applicants and identify top talent for your team.</p>
         </div>
         <div className="relative group shrink-0">
           <button 
@@ -180,13 +199,67 @@ export default function CompanyDashboard() {
         </div>
       </header>
 
+      {/* Recommended Candidates */}
+      <AnimatePresence>
+        {applications.filter(a => (a as any).interview_score).length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-2">
+               <Star size={16} className="text-amber-500 fill-amber-500" />
+               <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[4px]">Top Recommendations</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               {applications
+                 .filter(a => (a as any).interview_score)
+                 .sort((a, b) => ((b as any).interview_score || 0) - ((a as any).interview_score || 0))
+                 .slice(0, 3)
+                 .map((app, idx) => (
+                   <motion.div 
+                     key={app.application_id}
+                     whileHover={{ y: -5 }}
+                     onClick={() => setSelectedApplication(app)}
+                     className="p-6 bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-[2rem] text-white shadow-xl shadow-indigo-600/20 cursor-pointer relative overflow-hidden"
+                   >
+                     <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Award size={64} />
+                     </div>
+                     <div className="relative z-10 space-y-4">
+                        <div className="flex items-center gap-3">
+                           <div className="size-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center font-black text-sm">
+                              {app.student_name.charAt(0)}
+                           </div>
+                           <div>
+                              <div className="text-sm font-black uppercase tracking-tight">{app.student_name}</div>
+                              <div className="text-[8px] font-bold text-white/60 uppercase tracking-widest">{app.role_title}</div>
+                           </div>
+                        </div>
+                        <div className="flex items-end justify-between">
+                           <div>
+                              <div className="text-[7px] font-black text-indigo-200 uppercase tracking-[3px]">Match Score</div>
+                              <div className="text-3xl font-black">{(app as any).interview_score}%</div>
+                           </div>
+                           <div className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-[8px] font-black uppercase tracking-widest">
+                              Member #{idx + 1}
+                           </div>
+                        </div>
+                     </div>
+                   </motion.div>
+                 ))
+               }
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Stats Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { label: 'Active Roles', value: stats.activeRoles, icon: Briefcase, color: 'text-emerald-600', bg: 'bg-emerald-50' },
           { label: 'Total Applicants', value: stats.totalApplicants, icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50' },
           { label: 'Pending Review', value: stats.pendingReview, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
-          { label: 'Interviews Scheduled', value: stats.interviewsScheduled, icon: Calendar, color: 'text-slate-700', bg: 'bg-slate-50' },
+          { label: 'Schedule Set', value: stats.interviewsScheduled, icon: Calendar, color: 'text-slate-700', bg: 'bg-slate-50' },
         ].map(stat => (
           <div key={stat.label} className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
             <div className="flex items-center justify-between mb-6">
@@ -205,19 +278,35 @@ export default function CompanyDashboard() {
         {/* Applicant Feed */}
         <div className="xl:col-span-8 space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Active Candidates</h3>
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Candidate Feed</h3>
             <div className="flex items-center gap-3">
               <button 
                 onClick={handleAiShortlist} 
                 disabled={isShortlisting}
                 className="px-4 py-2 rounded-xl bg-indigo-600 text-white flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg active:scale-95 disabled:opacity-50"
               >
-                <Sparkles size={14} className={isShortlisting ? "animate-spin" : ""} /> {isShortlisting ? "Analyzing..." : "AI Shortlist"}
+                <Sparkles size={14} className={isShortlisting ? "animate-spin" : ""} /> {isShortlisting ? "Analyzing..." : "Quick Match"}
               </button>
               <button onClick={handleExport} className="px-4 py-2 rounded-xl border border-slate-100 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 transition-all shadow-sm">
                 <Download size={14} /> Export CSV
               </button>
             </div>
+          </div>
+
+          {/* Performance Summary Chips */}
+          <div className="flex flex-wrap gap-4">
+             {[
+               { icon: Target, label: 'Highest Match', val: applications.length > 0 ? `${Math.max(...applications.map(a => a.match_score))}%` : '0%', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+               { icon: Brain, label: 'Priority List', val: aiShortlist?.length || 0, color: 'text-indigo-600', bg: 'bg-indigo-50' }
+             ].map(chip => (
+               <div key={chip.label} className="px-6 py-4 rounded-[1.5rem] bg-white border border-slate-100 shadow-sm flex items-center gap-4">
+                  <div className={`size-8 rounded-xl ${chip.bg} ${chip.color} flex items-center justify-center shadow-inner`}><chip.icon size={14} /></div>
+                  <div>
+                    <div className="text-[7px] font-black text-slate-400 uppercase tracking-widest">{chip.label}</div>
+                    <div className="text-sm font-black text-slate-900 tracking-tighter">{chip.val}</div>
+                  </div>
+               </div>
+             ))}
           </div>
 
           <div className="space-y-4">
@@ -250,7 +339,7 @@ export default function CompanyDashboard() {
                     <div className="text-right">
                         <div className="flex items-center gap-2 justify-end">
                             <Brain size={12} className="text-indigo-500" />
-                            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">AI Match</span>
+                            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Fit Score</span>
                         </div>
                         <div className="text-2xl font-black text-slate-900 tracking-tighter">{app.match_score}%</div>
                     </div>
@@ -272,9 +361,9 @@ export default function CompanyDashboard() {
                   <Users size={40} />
                 </div>
                 <div className="text-center space-y-2">
-                  <h3 className="text-xl font-black text-slate-700 uppercase tracking-tighter">No Applicants Yet</h3>
+                  <h3 className="text-xl font-black text-slate-700 uppercase tracking-tighter">No Applicants</h3>
                   <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[3px] max-w-xs">
-                    Post your first role to start receiving AI-matched candidate profiles.
+                    Post your first role to start receiving matched candidates.
                   </p>
                 </div>
                 <button
@@ -289,7 +378,7 @@ export default function CompanyDashboard() {
         </div>
 
 
-        {/* AI Workspace Panel */}
+        {/* Profile Decision Panel */}
         <div className="xl:col-span-4 space-y-8">
             <AnimatePresence mode="wait">
                 {selectedApplication ? (
@@ -297,37 +386,126 @@ export default function CompanyDashboard() {
                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
                         className="bg-slate-950 rounded-[3rem] p-10 text-white border border-white/5 relative overflow-hidden h-fit shadow-2xl"
                     >
+                        {/* Suggested Reply */}
+                        <AnimatePresence>
+                            {activeDraft && (
+                                <motion.div 
+                                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                                    className="absolute inset-4 z-20 bg-slate-900/90 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/10 flex flex-col gap-6"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Sparkles size={14} className="text-indigo-400" />
+                                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[4px]">Suggested Reply</span>
+                                        </div>
+                                        <button onClick={() => setActiveDraft(null)} className="text-slate-500 hover:text-white"><XCircle size={18} /></button>
+                                    </div>
+                                    <textarea 
+                                        readOnly
+                                        value={activeDraft}
+                                        className="flex-1 bg-white/5 rounded-2xl p-6 text-[11px] font-medium text-slate-300 border border-white/5 resize-none font-mono leading-relaxed"
+                                    />
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(activeDraft);
+                                                toast.success("Saved to clipboard");
+                                            }}
+                                            className="flex-1 py-3 bg-indigo-600 rounded-xl font-black text-[9px] uppercase tracking-[3px] hover:bg-indigo-700 active:scale-95 transition-all"
+                                        >
+                                            Copy to clipboard
+                                        </button>
+                                        <button 
+                                            onClick={() => setActiveDraft(null)}
+                                            className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl font-black text-[9px] uppercase tracking-[3px] hover:bg-white/10"
+                                        >
+                                            Discard
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
                         <div className="relative z-10 space-y-10">
                            <div className="flex items-center justify-between">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-3">
                                         <Sparkles size={14} className="text-emerald-500" />
-                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[4px]">AI Guide</span>
+                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[4px]">Review Center</span>
                                     </div>
-                                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Candidate Assessment</h3>
+                                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Candidate Evaluation</h3>
                                 </div>
                                 <button onClick={() => setSelectedApplication(null)} className="size-8 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-white"><XCircle size={18} /></button>
                            </div>
 
                            <div className="space-y-6">
-                                <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
-                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-4">Technical Evaluation Questions</span>
-                                    <div className="space-y-5">
-                                        {(selectedApplication.ai_interview_guide || ["Describe your React experience.", "How do you optimize API calls?", "Explain your CSS strategy."]).map((q: string, i: number) => (
-                                            <div key={i} className="flex gap-4 group">
-                                                <span className="text-emerald-500 font-black text-xs leading-none">0{i+1}.</span>
-                                                <p className="text-[11px] font-medium text-slate-400 group-hover:text-white transition-colors">{q}</p>
+                                <div className="p-6 bg-white/5 rounded-2xl border border-white/10 space-y-6">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Growth Metrics</span>
+                                        {(selectedApplication as any).interview_score && (
+                                            <div className="flex items-center gap-2">
+                                                <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Review Complete</span>
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
+
+                                    {(selectedApplication as any).interview_score ? (
+                                        <div className="space-y-6">
+                                            <div className="flex items-end gap-3">
+                                                <h4 className="text-5xl font-black text-white tracking-tighter">{(selectedApplication as any).interview_score}%</h4>
+                                                <div className="pb-1">
+                                                    <div className="text-[8px] font-black text-indigo-400 uppercase tracking-[3px]">Compatibility Score</div>
+                                                    <div className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Status: Highly Recommended</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2">
+                                                    <Brain size={12} className="text-indigo-400" />
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recruitment Notes</span>
+                                                </div>
+                                                <p className="text-[11px] font-medium text-slate-300 leading-relaxed italic">&quot;{(selectedApplication as any).interview_notes}&quot;</p>
+                                            </div>
+
+                                            {(selectedApplication as any).interview_logs && (selectedApplication as any).interview_logs.length > 0 && (
+                                                <div className="pt-4 border-t border-white/5 space-y-3">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                                                            <ShieldCheck size={12} /> Verification Log
+                                                        </span>
+                                                        <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">{(selectedApplication as any).interview_logs.length} Note(s)</span>
+                                                    </div>
+                                                    <div className="max-h-24 overflow-y-auto space-y-2 pr-2 scrollbar-hide">
+                                                        {(selectedApplication as any).interview_logs.map((log: string, i: number) => (
+                                                            <div key={i} className="text-[8px] font-mono text-slate-500 p-2 bg-white/5 rounded-lg border-l border-emerald-500/30">
+                                                                {`> ${log}`}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-5">
+                                            {(selectedApplication.ai_interview_guide || ["Describe your experience.", "How do you solve problems?", "Technical expertise summary."]).map((q: string, i: number) => (
+                                                <div key={i} className="flex gap-4 group">
+                                                    <span className="text-indigo-500 font-black text-xs leading-none">0{i+1}.</span>
+                                                    <p className="text-[11px] font-medium text-slate-400 group-hover:text-white transition-colors">{q}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
+                            </div>
+
 
                                 <div className="flex gap-2">
                                     <button 
-                                      onClick={() => (selectedApplication as any).resume_analysis?.resume_url ? window.open((selectedApplication as any).resume_analysis.resume_url, '_blank') : toast.error("Resume document not found")}
+                                      onClick={() => (selectedApplication as any).resume_analysis?.resume_url ? window.open((selectedApplication as any).resume_analysis.resume_url, '_blank') : toast.error("Document not found")}
                                       className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-[3px] text-white/70 hover:bg-white/10 transition-all flex items-center justify-center gap-2"
                                     >
-                                      <Download size={14} /> View Resume
+                                      <Download size={14} /> Resume
                                     </button>
                                 </div>
 
@@ -336,7 +514,7 @@ export default function CompanyDashboard() {
                                       onClick={() => handleStatusUpdate(selectedApplication.application_id, 'Interviewing')}
                                       className="flex-1 py-4 bg-emerald-600 rounded-2xl font-black text-[10px] uppercase tracking-[3px] shadow-lg shadow-emerald-900/40 hover:bg-emerald-700 transition-all active:scale-95"
                                     >
-                                      Approve
+                                      Accept
                                     </button>
                                     <button 
                                       onClick={() => handleStatusUpdate(selectedApplication.application_id, 'Rejected')}
@@ -346,7 +524,6 @@ export default function CompanyDashboard() {
                                     </button>
                                 </div>
                            </div>
-                        </div>
                     </motion.div>
                 ) : (
                     <motion.div 
@@ -355,11 +532,11 @@ export default function CompanyDashboard() {
                     >
                          <div className="flex items-center gap-3 mb-10">
                             <div className="size-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                <TrendingUp size={20} />
+                                <Search size={20} />
                             </div>
                             <div className="space-y-0.5">
-                                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Discovery</h3>
-                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[2px]">AI Recommended</p>
+                                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Talent Search</h3>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[2px]">SkillSync Discovery</p>
                             </div>
                          </div>
 
@@ -383,11 +560,11 @@ export default function CompanyDashboard() {
                                             method: 'POST',
                                             body: JSON.stringify({ 
                                               userId: talent.id, 
-                                              title: "Internship Invitation", 
+                                              title: "Career Invitation", 
                                               message: `You have been invited to apply for ${talent.top_match?.role || 'a position'}` 
                                             })
                                           }),
-                                          { loading: 'Sending invite...', success: 'Candidate Invited!', error: 'Service Unavailable' }
+                                          { loading: 'Sending...', success: 'Invited!', error: 'Error' }
                                         );
                                       }}
                                       className="w-full mt-4 py-2 rounded-xl bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:bg-black"

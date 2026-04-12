@@ -59,6 +59,7 @@ export interface Application {
   match_score?: number;
   ai_match_score?: number;
   ai_interview_guide?: string[];
+  video_url?: string;
 }
 
 export interface Student {
@@ -131,7 +132,7 @@ export interface CompanyStats {
   isVerified: boolean;
 }
 export interface Course {
-  course_id: string;
+  course_id: string | number;
   id?: string;
   title: string;
   description: string;
@@ -140,6 +141,8 @@ export interface Course {
   duration?: string;
   instructor?: string;
   url?: string;
+  icon?: string;
+  color?: string;
 }
 
 export interface CalendarEvent {

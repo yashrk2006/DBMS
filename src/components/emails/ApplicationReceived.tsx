@@ -37,10 +37,10 @@ export const ApplicationReceivedEmail = ({
             Exciting news! We've successfully received your application for the <strong>{internshipTitle}</strong> position.
           </Text>
           <Text style={text}>
-            Our team (and the company's hiring managers) are currently reviewing your profile and AI-matched skill compatibility. 
+            Our team (and the company's hiring managers) are currently reviewing your profile and skill match. 
           </Text>
           <Text style={text}>
-            You can track the progress of your application and view your AI match score at any time in your student dashboard.
+            You can track the progress of your application and view your match details at any time in your student dashboard.
           </Text>
         </Section>
         <Section style={buttonContainer}>
@@ -49,7 +49,7 @@ export const ApplicationReceivedEmail = ({
            </Link>
         </Section>
         <Text style={footer}>
-          SkillSync — Advanced Career Intelligence Platform.<br />
+          SkillSync — Your Student Career Hub.<br />
           If you didn't apply for this role, please ignore this email.
         </Text>
       </Container>

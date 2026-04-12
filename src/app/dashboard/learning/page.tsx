@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
-import { BookOpen, Star, Target, Zap, Clock, ChevronRight, Sparkles } from 'lucide-react';
+import { BookOpen, Star, Trophy, Zap, Clock, ChevronRight, Sparkles } from 'lucide-react';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { toast } from 'react-hot-toast';
 
@@ -24,24 +24,24 @@ export default function LearningPage() {
             setCourses([
               { 
                 course_id: 'c1', 
-                title: 'Core System Architecture', 
-                description: 'Mastering high-fidelity 3D UI performance and system scalability.',
-                level: 'Advanced',
-                tags: ['UI/UX', 'Architecture']
+                title: 'Web Development Fundamentals', 
+                description: 'Learn the basics of building modern web applications with React and Node.js.',
+                level: 'Beginner',
+                tags: ['Frontend', 'Backend']
               },
               { 
                 course_id: 'c2', 
-                title: 'Enterprise Platform Architecture', 
-                description: 'Designing intelligent recruitment pipelines with scalable platform matching.',
-                level: 'Expert',
-                tags: ['AI', 'Product']
+                title: 'Data Structures & Algorithms', 
+                description: 'Master the core concepts for technical interviews and competitive programming.',
+                level: 'Intermediate',
+                tags: ['Logic', 'Interviews']
               },
               { 
                 course_id: 'c3', 
-                title: 'Cloud Infrastructure Node', 
-                description: 'Deploying robust ecosystem backends on global serverless matrices.',
-                level: 'Master',
-                tags: ['Cloud', 'DevOps']
+                title: 'Cloud Computing Basics', 
+                description: 'Introduction to AWS, GCP, and deploying scalable web applications.',
+                level: 'Advanced',
+                tags: ['DevOps', 'Cloud']
               }
             ]);
           } else {
@@ -65,7 +65,7 @@ export default function LearningPage() {
               <BookOpen size={22} className="opacity-80" />
            </div>
            <div>
-             <h2 className="text-[11px] font-black uppercase tracking-[6px] text-slate-400 mb-0.5">Knowledge Matrix</h2>
+             <h2 className="text-[11px] font-black uppercase tracking-[6px] text-slate-400 mb-0.5">Learning Hub</h2>
              <div className="flex items-center gap-2">
                <div className="size-1.5 rounded-full bg-purple-500 animate-pulse" />
                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">SkillSync Curated</p>
@@ -75,14 +75,12 @@ export default function LearningPage() {
         
         <div className="relative">
           <h1 className="text-4xl md:text-7xl lg:text-8xl font-black text-slate-900 tracking-tighter uppercase leading-[0.85]">
-            Skill<br /><span className="text-purple-600 opacity-90 inline-flex items-center gap-4">Catalysts.<Sparkles className="text-amber-400 size-10 md:size-16" /></span>
+            Skill<br /><span className="text-purple-600 opacity-90 inline-flex items-center gap-4">Academy.<Sparkles className="text-amber-400 size-10 md:size-16" /></span>
           </h1>
           <div className="absolute -left-10 top-1/2 -translate-y-1/2 w-40 h-40 bg-purple-500/5 blur-[120px] rounded-full pointer-events-none" />
         </div>
         
-        <p className="max-w-2xl text-slate-500 font-medium text-xl leading-relaxed mt-10 tracking-tight">
-          Accelerating <span className="text-black font-black">competency</span> through high-fidelity learning vectors and AI-driven growth maps.
-        </p>
+          Enhance your <span className="text-black font-black">skills</span> with expert-led courses and personalized learning paths.
       </AnimatedSection>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
@@ -95,7 +93,7 @@ export default function LearningPage() {
               
               <div className="flex justify-between items-start mb-16 relative z-10">
                  <div className="size-16 rounded-[2rem] bg-purple-500/5 flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform duration-500 shadow-inner border border-purple-500/10">
-                    <Target size={28} className="opacity-80" />
+                    <Trophy size={28} className="opacity-80" />
                  </div>
                  <span className="text-[10px] font-black uppercase tracking-[3px] bg-slate-950 text-white px-4 py-2 rounded-full shadow-lg group-hover:bg-purple-600 transition-colors">
                    {course.level || 'Expert'}
