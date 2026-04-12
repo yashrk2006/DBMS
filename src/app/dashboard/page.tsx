@@ -358,7 +358,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <div className="flex flex-col gap-10 p-6 lg:p-12 font-sans bg-slate-50/10 min-h-screen max-w-[1400px] mx-auto">
+      <div className="flex flex-col gap-6 md:gap-10 p-4 md:p-8 lg:p-12 font-sans bg-slate-50/10 min-h-screen max-w-[1400px] mx-auto">
         
         {/* Header Section */}
         <DashboardHeader 
@@ -375,10 +375,10 @@ export default function DashboardPage() {
         />
 
         {/* Dashboard Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-10 items-start">
           
           {/* Main Content Column */}
-          <div className="lg:col-span-3 space-y-10">
+          <div className="lg:col-span-3 space-y-6 md:space-y-10">
             {/* Stats Row */}
             <StatGrid 
               stats={stats}
@@ -436,7 +436,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Sidebar Area */}
-          <div className="lg:col-span-1 h-full sticky top-12">
+          <div className="lg:col-span-1 h-full lg:sticky lg:top-12">
             <CalendarProfile 
               currentMonth={currentMonth}
               selectedDate={selectedDate}

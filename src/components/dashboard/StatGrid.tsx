@@ -21,8 +21,8 @@ interface StatGridProps {
 
 export const StatGrid = ({ stats, skills, onCatalogClick }: StatGridProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="bg-white/70 backdrop-blur-xl p-8 rounded-[2rem] shadow-premium border border-white/50 relative hover:-translate-y-2 transition-all duration-500 group overflow-hidden">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="bg-white/70 backdrop-blur-xl p-6 md:p-8 rounded-[2rem] shadow-premium border border-white/50 relative hover:-translate-y-2 transition-all duration-500 group overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-orange-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         <div className="flex justify-between items-center mb-6 relative z-10">
           <h3 className="font-black text-[13px] uppercase tracking-[4px] text-slate-400">Career Lessons</h3>
@@ -36,7 +36,7 @@ export const StatGrid = ({ stats, skills, onCatalogClick }: StatGridProps) => {
         <div className="flex items-end justify-between relative z-10">
           <div>
             <div className="flex items-baseline gap-3">
-              <span className="text-5xl md:text-6xl font-black tracking-tighter leading-none text-slate-950">
+              <span className="text-4xl md:text-6xl font-black tracking-tighter leading-none text-slate-950">
                 {stats.accepted > 0 ? (stats.accepted * 12) + 4 : (stats.skills * 4) + 2}
               </span>
               <div className="flex items-center text-xs font-black text-orange-500 bg-orange-50 px-2 py-0.5 rounded-md mb-2">
@@ -53,7 +53,7 @@ export const StatGrid = ({ stats, skills, onCatalogClick }: StatGridProps) => {
         </div>
       </div>
 
-      <div className="bg-white/70 backdrop-blur-xl p-8 rounded-[2rem] shadow-premium border border-white/50 hover:-translate-y-2 transition-all duration-500 relative overflow-hidden group">
+      <div className="bg-white/70 backdrop-blur-xl p-6 md:p-8 rounded-[2rem] shadow-premium border border-white/50 hover:-translate-y-2 transition-all duration-500 relative overflow-hidden group">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         <div className="flex justify-between items-center mb-6 relative z-10">
           <h3 className="font-black text-[13px] uppercase tracking-[4px] text-slate-400">Skill Progress</h3>
@@ -61,7 +61,7 @@ export const StatGrid = ({ stats, skills, onCatalogClick }: StatGridProps) => {
         <div className="flex gap-12 relative z-10">
           <div className="flex flex-col justify-end">
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl md:text-5xl font-black text-slate-950 leading-none tracking-tighter">
+              <span className="text-3xl md:text-5xl font-black text-slate-950 leading-none tracking-tighter">
                 {Math.floor(stats.skills * 14.5)}h
               </span>
               <div className="text-xs font-black text-emerald-500 flex items-center bg-emerald-50 px-2 py-0.5 rounded-md mb-1">

@@ -41,7 +41,7 @@ export function CareerSummaryWidget({
       initial={{ opacity: 0, scale: 0.95 }}
       whileHover={{ y: -5 }} animate={{ opacity: 1, scale: 1 }}
       onClick={onViewDetail}
-      className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-xl shadow-slate-200/40 relative overflow-hidden group h-full cursor-pointer transition-all active:scale-[0.98]"
+      className="bg-white rounded-[2.5rem] border border-slate-100 p-5 md:p-8 shadow-xl shadow-slate-200/40 relative overflow-hidden group h-full cursor-pointer transition-all active:scale-[0.98]"
     >
       {/* Background patterns */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.02] bg-[radial-gradient(#575a93_1px,transparent_1px)] [background-size:16px_16px]" />
@@ -67,8 +67,8 @@ export function CareerSummaryWidget({
         </div>
 
         {/* Middle Layout for Application Status & Latest Job */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 mt-2">
-            <div className="flex flex-col justify-center bg-slate-50 p-6 rounded-[2rem] border border-slate-100 group/item hover:border-indigo-200 transition-colors">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 mt-2">
+            <div className="flex flex-col justify-center bg-slate-50 p-5 md:p-6 rounded-[2rem] border border-slate-100 group/item hover:border-indigo-200 transition-colors">
                 <div className="flex items-center gap-4 mb-4">
                     <div className="size-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg">
                         <Rocket size={20} />
@@ -111,33 +111,33 @@ export function CareerSummaryWidget({
         </div>
 
         {/* Central Progress Gauge & Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center pt-4 border-t border-slate-50">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-center pt-4 border-t border-slate-50">
            {/* Gauge */}
            <div className="flex flex-col items-center">
               <div className="relative">
-                 <svg className="size-36 transform -rotate-90 relative z-10">
+                 <svg className="size-28 md:size-36 transform -rotate-90 relative z-10">
                    <circle
-                      cx="72" cy="72" r="64"
+                      cx="56" cy="56" r="48"
+                      className="md:cx-[72] md:cy-[72] md:r-[64] text-slate-50"
                       stroke="currentColor"
                       strokeWidth="8"
                       fill="transparent"
-                      className="text-slate-50"
                    />
                    <motion.circle
-                      cx="72" cy="72" r="64"
+                      cx="56" cy="56" r="48"
+                      className={`md:cx-[72] md:cy-[72] md:r-[64] ${getStatusColor(score)}`}
                       stroke="currentColor"
                       strokeWidth="8"
                       fill="transparent"
-                      strokeDasharray="402.12"
-                      initial={{ strokeDashoffset: 402 }}
-                      animate={{ strokeDashoffset: 402 - (402 * score) / 100 }}
+                      strokeDasharray="301.59"
+                      initial={{ strokeDashoffset: 301 }}
+                      animate={{ strokeDashoffset: 301 - (301 * score) / 100 }}
                       transition={{ duration: 1.5, ease: "easeOut" }}
-                      className={getStatusColor(score)}
                       strokeLinecap="round"
                    />
                  </svg>
                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
-                    <motion.span className="text-2xl font-black text-slate-900 tracking-tighter">{score}%</motion.span>
+                    <motion.span className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter">{score}%</motion.span>
                     <span className="text-[7px] font-black text-slate-400 uppercase tracking-[2px]">Readiness</span>
                  </div>
               </div>

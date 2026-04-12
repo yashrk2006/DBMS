@@ -45,7 +45,7 @@ export function AIAvatar({ isSpeaking = false, isThinking = false }: AIAvatarPro
   }, [isSpeaking, mouthControls]);
 
   return (
-    <div className="relative w-full max-w-[400px] aspect-[4/5] mx-auto rounded-[3rem] overflow-hidden bg-slate-100 shadow-2xl border-4 border-white">
+    <div className="relative w-full max-w-[280px] md:max-w-[400px] aspect-[4/5] mx-auto rounded-[2.5rem] md:rounded-[3rem] overflow-hidden bg-slate-100 shadow-2xl border-2 md:border-4 border-white">
       {/* Background Image (Realistic Portrait) */}
       <img 
         src="/images/interviewer.png" 

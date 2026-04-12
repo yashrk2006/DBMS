@@ -42,15 +42,15 @@ export const DashboardHeader = ({
   };
 
   return (
-    <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+    <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 md:mb-12">
       <div>
         <div className="flex items-center gap-2 mb-1">
           <span className="text-[10px] font-black text-amber-500 uppercase tracking-[4px]">Verified Career Profile</span>
           <div className="h-[1px] w-8 bg-amber-500/30" />
         </div>
-        <h1 className="text-4xl md:text-5xl font-black text-slate-950 tracking-tighter">
+        <h1 className="text-3xl md:text-5xl font-black text-slate-950 tracking-tighter leading-[0.9]">
           Welcome back,
-          <br className="hidden md:block" /> {userName || 'Student'}
+          <br className="hidden lg:block" /> {userName || 'Student'}
         </h1>
       </div>
 
@@ -113,7 +113,7 @@ export const DashboardHeader = ({
           </div>
         </div>
         
-        <div className="flex items-center gap-2 md:gap-4 pl-2 md:pl-4 border-l border-slate-100">
+        <div className="flex items-center gap-2 md:gap-4 pl-0 md:pl-4 border-l-0 md:border-l border-slate-100 w-full md:w-auto justify-end">
           {/* Notification Bell */}
           <div 
             onClick={() => setIsPanelOpen(true)}

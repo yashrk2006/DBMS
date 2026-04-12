@@ -245,7 +245,7 @@ export default function DashboardLayout({
 
       {/* Main Content Area */}
       <main className="lg:ml-[260px] flex-1 min-h-screen">
-        <div className="max-w-[1600px] mx-auto min-h-screen p-4 md:p-6 lg:p-8">
+        <div className="max-w-[1600px] mx-auto min-h-screen p-4 md:p-6 lg:p-8 pb-32 lg:pb-8">
           <Toaster position="top-right" />
           {children}
         </div>

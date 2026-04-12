@@ -44,7 +44,7 @@ export const RecruitmentPanel = ({
       <div className="bg-white/50 backdrop-blur-sm p-6 rounded-3xl relative flex flex-col gap-4 overflow-hidden border border-slate-100 h-full shadow-sm hover:shadow-md transition-shadow">
         <div className="space-y-1 relative z-10">
           <h4 className="text-lg font-extrabold tracking-tight text-slate-800">Mock Preparation</h4>
-          <p className="text-sm text-slate-500">Practice your interview skills with AI</p>
+          <p className="text-xs text-slate-500">Practice with realistic AI interviewers</p>
         </div>
         <div className="flex items-center justify-between mt-auto relative z-10">
           <button 
@@ -119,12 +119,10 @@ export const RecruitmentPanel = ({
          )}
       </div>
 
-      {/* AI Matched Jobs Section (Conditional) */}
-      {aiJobs && aiJobs.length > 0 && (
-        <div className="col-span-1 lg:col-span-3 bg-white/40 backdrop-blur-md rounded-3xl p-8 border border-white shadow-sm space-y-6">
-          <div className="flex justify-between items-center">
+        <div className="col-span-1 lg:col-span-3 bg-white/40 backdrop-blur-md rounded-3xl p-6 md:p-8 border border-white shadow-sm space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h4 className="text-xl font-black tracking-tight uppercase flex items-center gap-2">
+              <h4 className="text-lg md:text-xl font-black tracking-tight uppercase flex items-center gap-2">
                 <Sparkles className="text-amber-500 size-5" />
                 Opportunities Found
               </h4>
@@ -132,7 +130,7 @@ export const RecruitmentPanel = ({
             </div>
             <button 
               onClick={() => setHideApplied(!hideApplied)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${hideApplied ? 'bg-amber-100 text-amber-700' : 'bg-slate-50 text-slate-400'}`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all w-full md:w-auto justify-center ${hideApplied ? 'bg-amber-100 text-amber-700' : 'bg-slate-50 text-slate-400'}`}
             >
               <Icon name={hideApplied ? 'visibility_off' : 'visibility'} className="text-sm" />
               {hideApplied ? 'Hidden Applied' : 'Hide Applied'}

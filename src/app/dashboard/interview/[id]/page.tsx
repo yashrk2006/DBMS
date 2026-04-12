@@ -400,7 +400,7 @@ export default function CareerAssessmentCenter() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-hidden relative flex flex-col md:flex-row bg-[#FAFAFA]">
+      <main className="flex-1 overflow-hidden relative flex flex-col xl:flex-row bg-[#FAFAFA]">
         <div className="flex-1 flex flex-col overflow-hidden relative">
           <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
             <AnimatePresence mode="popLayout">
@@ -409,16 +409,16 @@ export default function CareerAssessmentCenter() {
                   key="intro" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
                   className="max-w-4xl mx-auto space-y-10 pt-20 flex flex-col items-center text-center px-6"
                 >
-                  <div className="space-y-6 flex flex-col items-center">
+                  <div className="space-y-4 md:space-y-6 flex flex-col items-center">
                     <div className="flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-full">
                       <Sparkles size={16} className="text-indigo-600" />
                       <span className="text-[10px] font-black uppercase tracking-[4px] text-indigo-600">Unified Career Intelligence</span>
                     </div>
-                    <h2 className="text-6xl md:text-8xl font-black text-slate-900 uppercase tracking-tighter leading-[0.85]">
+                    <h2 className="text-4xl md:text-8xl font-black text-slate-900 uppercase tracking-tighter leading-[0.85]">
                       Your <span className="text-indigo-600">Career</span> <br/>
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-500">Journey</span> Starts.
                     </h2>
-                    <p className="text-xl text-slate-500 font-medium leading-relaxed max-w-2xl">
+                    <p className="text-sm md:text-xl text-slate-500 font-medium leading-relaxed max-w-2xl px-4">
                       Experience a high-fidelity, real-time conversational assessment driven by our advanced Career Assistant.
                     </p>
                   </div>
@@ -608,14 +608,14 @@ export default function CareerAssessmentCenter() {
 
           {/* INPUT BAR */}
           {isStarted && !isFinished && (
-            <div className="p-6 md:p-12 absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#FAFAFA] to-transparent z-10">
-              <div className="max-w-3xl mx-auto relative group">
+            <div className="p-4 md:p-12 absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#FAFAFA] to-transparent z-10">
+              <div className="max-w-4xl mx-auto relative group">
                 <textarea 
                   value={currentAnswer}
                   onChange={(e) => setCurrentAnswer(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-                  placeholder="Type your response here..."
-                  className="w-full p-8 pr-32 rounded-[2.5rem] bg-white border border-slate-200 focus:border-indigo-600/30 transition-all text-slate-800 font-medium tracking-tight resize-none outline-none text-lg shadow-xl"
+                  placeholder="Type or speak your response..."
+                  className="w-full p-6 md:p-8 pr-32 rounded-[2rem] md:rounded-[2.5rem] bg-white border border-slate-200 focus:border-indigo-600/30 transition-all text-slate-800 font-medium tracking-tight resize-none outline-none text-base md:text-lg shadow-xl"
                   rows={1}
                 />
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -647,7 +647,7 @@ export default function CareerAssessmentCenter() {
                 initial={{ x: 400, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 400, opacity: 0 }}
-                className="w-full md:w-[420px] bg-white border-l border-slate-100 flex flex-col p-8 gap-8 relative shrink-0 shadow-[-10px_0_30px_rgba(0,0,0,0.02)] overflow-y-auto"
+                className="w-full xl:w-[420px] bg-white border-l border-slate-100 flex flex-col p-6 md:p-8 gap-6 md:gap-8 relative shrink-0 shadow-[-10px_0_30px_rgba(0,0,0,0.02)] overflow-y-auto"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
