@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ShieldCheck, Award, Brain, Activity, TrendingUp, Cpu, Gauge, Rocket, Briefcase, Zap } from 'lucide-react';
+import Link from 'next/link';
 
 interface AIReadinessWidgetProps {
   score: number; // 0-100
@@ -178,7 +179,7 @@ export function CareerSummaryWidget({
               <ShieldCheck size={14} className="text-emerald-500" />
               <p className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">Verified Profile • <span className="opacity-60">{lastUpdate}</span></p>
            </div>
-           <button className="text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:underline">View Deep Analysis</button>
+           <Link href="/dashboard/analysis" className="text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:underline z-20" onClick={(e) => e.stopPropagation()}>View Deep Analysis</Link>
         </div>
       </div>
     </motion.div>

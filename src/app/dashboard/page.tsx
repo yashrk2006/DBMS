@@ -384,7 +384,7 @@ export default function DashboardPage() {
               }
               applicationStatus={{ active: recentApplications.filter(a => a.status !== 'Rejected').length, total: recentApplications.length }}
               latestOpportunity={aiJobs?.length ? { title: aiJobs[0].title, company: aiJobs[0].company_name } : { title: "Ready for Matching", company: "SkillSync Hub" }}
-              onViewDetail={() => setIsReadinessModalOpen(true)}
+              onViewDetail={() => router.push('/dashboard/analysis')}
             />
 
             <RecruitmentPanel 
