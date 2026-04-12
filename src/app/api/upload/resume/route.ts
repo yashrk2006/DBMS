@@ -23,12 +23,13 @@ export async function POST(request: Request) {
     const fileName = `${studentId}-${Date.now()}.${fileExt}`;
     const filePath = `${fileName}`;
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    console.log(`[Resume Pipeline] Buffer generated. Length: ${buffer.length}`);
+    const arrayBuffer = await file.arrayBuffer();
+    const binaryData = new Uint8Array(arrayBuffer);
+    console.log(`[Resume Pipeline] Binary data prepared. Length: ${binaryData.length}`);
 
     const { data: uploadData, error: uploadErr } = await supabase.storage
       .from('resumes')
-      .upload(filePath, buffer, {
+      .upload(filePath, binaryData, {
         cacheControl: '3600',
         upsert: false,
         contentType: file.type
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
     let extractedText = "";
     try {
       console.log(`[Resume Pipeline] Initiating extraction engine (unpdf)...`);
-      const data = await extractText(buffer) as any;
+      const data = await extractText(binaryData) as any;
       extractedText = Array.isArray(data.text) ? data.text.join('\n') : (data.text || "");
       console.log(`[Resume Pipeline] Extraction complete. Raw length: ${extractedText.length}`);
     } catch (parseErr: any) {

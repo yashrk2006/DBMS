@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-server';
 import { getFriendlyErrorMessage } from '@/lib/error-adapter';
-import pg from 'pg';
 
 /**
  * OTP Verification Service (Permanent Access Version)
