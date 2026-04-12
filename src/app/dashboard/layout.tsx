@@ -96,21 +96,7 @@ export default function DashboardLayout({
         </nav>
 
         <div className="mt-8 space-y-4 px-2 shrink-0 pb-4">
-          <div className="bg-[#fffbe6] p-6 rounded-[2.2rem] relative overflow-hidden text-center mb-6 shadow-soft hover:-translate-y-1 transition-transform">
-            <div className="absolute -top-4 -right-2 w-16 h-16 bg-blue-100/40 rounded-full blur-xl"></div>
-            <div className="flex justify-center mb-2 gap-1">
-              <div className="w-6 h-10 bg-yellow-400 rounded-full transform rotate-12 shadow-md"></div>
-              <div className="w-8 h-4 bg-pink-300 rounded-full transform -rotate-12 mt-4 shadow-md"></div>
-            </div>
-            <div className="relative z-10">
-              <h4 className="font-extrabold text-[15px] mb-1">Upgrade to Pro</h4>
-              <p className="text-[11px] text-[#717171] mb-3 leading-tight">Get 1 month free and unlock all Pro features</p>
-              <div className="bg-white/80 inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold mb-4">
-                4.9 out of 5 🔥
-              </div>
-              <button className="w-full bg-black text-white py-3 rounded-2xl text-[11px] font-bold shadow-lg h-12" onClick={() => toast("Redirecting to Stripe checkout...", { icon: '💳' })}>Upgrade now</button>
-            </div>
-          </div>
+          {/* Removed Upgrade to Pro section */}
 
           <div className="flex flex-col gap-1 pb-4">
             <button onClick={() => router.push('/dashboard/profile')} className="flex items-center gap-4 px-4 py-3 text-[#717171] hover:text-[#2d3335] transition-colors w-full text-left font-sans">

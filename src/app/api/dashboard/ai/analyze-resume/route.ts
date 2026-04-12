@@ -1,38 +1,12 @@
 import { NextResponse } from 'next/server';
 import { analyzeResumeAgent } from '@/lib/agents';
 import { supabase } from '@/lib/supabase';
+import { extractText } from 'unpdf';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   try {
-    // Safety Vault: Deferred parser loading & Web Primitives Polyfill
-    let PDFParse: any;
-    try {
-      const canvas = require('@napi-rs/canvas');
-      
-      // Inject Web Primitives missing in Node.js but required by modern PDF engines
-      // @ts-ignore
-      if (typeof global.DOMMatrix === 'undefined') global.DOMMatrix = canvas.DOMMatrix;
-      // @ts-ignore
-      if (typeof global.Path2D === 'undefined') global.Path2D = canvas.Path2D;
-      // @ts-ignore
-      if (typeof global.DOMPoint === 'undefined') global.DOMPoint = canvas.DOMPoint;
-      // @ts-ignore
-      if (typeof global.DOMRect === 'undefined') global.DOMRect = canvas.DOMRect;
-      
-      console.log(`[Re-Analysis] Web Primitives established. DOMMatrix: ${typeof global.DOMMatrix}`);
-
-      const parserModule = require('pdf-parse');
-      PDFParse = parserModule.PDFParse;
-      if (!PDFParse) throw new Error("Parser class not found in module exports.");
-    } catch (loadErr: any) {
-      console.error("[Re-Analysis] Library Load failure:", loadErr);
-      return NextResponse.json({ 
-        success: false, 
-        error: `Analysis Service Error: ${loadErr.message || "Failed to initialize native PDF components."}` 
-      }, { status: 500 });
-    }
 
     const contentType = request.headers.get('content-type') || '';
     if (!contentType.includes('multipart/form-data')) {
@@ -56,12 +30,11 @@ export async function POST(request: Request) {
 
     let text = '';
     try {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      console.log(`[Re-Analysis] Initiating PDFParse engine...`);
-      const parser = new PDFParse({ data: buffer });
-      const data = await parser.getText();
-      text = data.text || "";
-      await parser.destroy();
+      const arrayBuffer = await file.arrayBuffer();
+      const binaryData = new Uint8Array(arrayBuffer);
+      console.log(`[Re-Analysis] Initiating extraction engine (unpdf)...`);
+      const data = await extractText(binaryData) as any;
+      text = Array.isArray(data.text) ? data.text.join('\n') : (data.text || "");
       console.log(`[Re-Analysis] Extraction complete. Text length: ${text.length}`);
     } catch (parseError: any) {
       console.error('[Re-Analysis] PDF Parse Internal Error:', parseError);
