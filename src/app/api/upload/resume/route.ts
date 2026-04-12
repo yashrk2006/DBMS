@@ -1,41 +1,13 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase';
-
 import { analyzeResumeAgent } from '@/lib/agents';
+import { extractText } from 'unpdf';
 
-// BUILD_STABILIZATION_ID: REF_VER_005
+// BUILD_STABILIZATION_ID: REF_VER_005_UNPDF
 export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   try {
-    // Safety Vault: Deferred parser loading & Web Primitives Polyfill
-    let PDFParse: any;
-    try {
-      const canvas = require('@napi-rs/canvas');
-      
-      // Inject Web Primitives missing in Node.js but required by modern PDF engines
-      // @ts-ignore
-      if (typeof global.DOMMatrix === 'undefined') global.DOMMatrix = canvas.DOMMatrix;
-      // @ts-ignore
-      if (typeof global.Path2D === 'undefined') global.Path2D = canvas.Path2D;
-      // @ts-ignore
-      if (typeof global.DOMPoint === 'undefined') global.DOMPoint = canvas.DOMPoint;
-      // @ts-ignore
-      if (typeof global.DOMRect === 'undefined') global.DOMRect = canvas.DOMRect;
-      
-      console.log(`[Resume Pipeline] Web Primitives established. DOMMatrix: ${typeof global.DOMMatrix}`);
-
-      const parserModule = require('pdf-parse');
-      PDFParse = parserModule.PDFParse;
-      if (!PDFParse) throw new Error("Parser class not found in module exports.");
-    } catch (loadErr: any) {
-      console.error("[Resume Pipeline] Primary Engine Initialization failure:", loadErr);
-      return NextResponse.json({ 
-        success: false, 
-        error: `Analysis Service Error: ${loadErr.message || "Failed to initialize native PDF components."}` 
-      }, { status: 500 });
-    }
-
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const studentId = formData.get('studentId') as string;
@@ -73,11 +45,9 @@ export async function POST(request: Request) {
     // 2. Intelligence Layer: PDF Extraction
     let extractedText = "";
     try {
-      console.log(`[Resume Pipeline] Initiating PDFParse engine...`);
-      const parser = new PDFParse({ data: buffer });
-      const data = await parser.getText();
-      extractedText = data.text || "";
-      await parser.destroy();
+      console.log(`[Resume Pipeline] Initiating extraction engine (unpdf)...`);
+      const data = await extractText(buffer) as any;
+      extractedText = Array.isArray(data.text) ? data.text.join('\n') : (data.text || "");
       console.log(`[Resume Pipeline] Extraction complete. Raw length: ${extractedText.length}`);
     } catch (parseErr: any) {
       console.error("[Resume Pipeline] PDF Engine Crash:", parseErr);

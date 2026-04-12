@@ -106,7 +106,7 @@ export const RecruitmentPanel = ({
                <div onClick={onUploadClick} className="flex flex-col items-center justify-center text-center gap-3 cursor-pointer py-4 group">
                  <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform"><Icon name="edit_document" className="text-3xl" /></div>
                  <div className="space-y-1">
-                   <h5 className="text-[15px] font-bold tracking-tight">Update Profile</h5>
+                   <h5 className="text-[15px] font-bold tracking-tight">Resume Analysis</h5>
                    <p className="text-[11px] text-[#5a6062] px-6 font-medium">Get personalized career help</p>
                  </div>
                </div>
