@@ -10,9 +10,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { AI_ENGINE } from '@/lib/ai-engine';
 import { toast } from 'react-hot-toast';
-import { NeuralCore3D } from '@/components/ui/NeuralCore3D';
-import { supabase } from '@/lib/supabase';
 import { WebcamPreview, WebcamPreviewHandle } from '@/components/interview/WebcamPreview';
+import { AIAvatar } from '@/components/interview/AIAvatar';
+import { supabase } from '@/lib/supabase';
 
 interface Message {
   role: 'ai' | 'user';
@@ -38,6 +38,10 @@ export default function CareerAssessmentCenter() {
   const [isFollowUp, setIsFollowUp] = useState(false);
   const [incidentLogs, setIncidentLogs] = useState(['SESSION_INITIALIZED', 'VOICE_READY']);
   const [feedback, setFeedback] = useState<{ score: number; notes: string } | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+  const voiceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTranscriptRef = useRef('');
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -102,8 +106,12 @@ export default function CareerAssessmentCenter() {
     if (!voiceEnabled || typeof window === 'undefined') return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.95;
+    utterance.rate = 1.0;
     utterance.pitch = 1;
+    
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    
     window.speechSynthesis.speak(utterance);
   };
 
@@ -214,6 +222,14 @@ export default function CareerAssessmentCenter() {
           transcript += event.results[i][0].transcript;
         }
         setCurrentAnswer(transcript);
+        
+        // Silence detection: reset timer on every new transcript result
+        if (voiceTimerRef.current) clearTimeout(voiceTimerRef.current);
+        voiceTimerRef.current = setTimeout(() => {
+          if (transcript.trim().length > 2) {
+            handleSendMessage(transcript);
+          }
+        }, 1800); // 1.8s silence detection
       };
 
       recognitionRef.current.onerror = (event: any) => {
@@ -244,24 +260,48 @@ export default function CareerAssessmentCenter() {
     }
   };
 
-  const handleSendMessage = () => {
-    if (!currentAnswer.trim()) return;
+  const handleSendMessage = async (overrideAnswer?: string) => {
+    const answerToSend = overrideAnswer || currentAnswer;
+    if (!answerToSend.trim()) return;
+    
     if (isListening) recognitionRef.current?.stop();
-    const userMsg = { role: 'user' as const, content: currentAnswer, timestamp: Date.now() };
+    if (voiceTimerRef.current) clearTimeout(voiceTimerRef.current);
+
+    const userMsg = { role: 'user' as const, content: answerToSend, timestamp: Date.now() };
     setMessages(prev => [...prev, userMsg]);
-    const lastAnswer = currentAnswer;
     setCurrentAnswer('');
-    setTimeout(() => {
-      if (!isFollowUp && Math.random() > 0.7) {
-        const followUp = AI_ENGINE.generateFollowUp(lastAnswer);
-        addAIMessage(followUp);
-        speak(followUp);
-        setIsFollowUp(true);
+    setIsThinking(true);
+
+    try {
+      const history = messages.map(m => ({ 
+        role: m.role === 'ai' ? 'assistant' : 'user', 
+        content: m.content 
+      }));
+
+      const response = await fetch('/api/ai/interview/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          answer: answerToSend,
+          history: history,
+          targetRole: applicationId === 'general' ? 'Software Engineer' : 'Specialized Intern',
+          skills: questions // use generated questions as skill anchor
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        addAIMessage(data.response);
+        speak(data.response);
       } else {
-        setIsFollowUp(false);
-        handleNextInquiry();
+        throw new Error(data.error);
       }
-    }, 1000);
+    } catch (err) {
+      toast.error("Interviewer connection lost. Falling back...");
+      handleNextInquiry();
+    } finally {
+      setIsThinking(false);
+    }
   };
 
   const finishAssessment = async () => {
@@ -588,7 +628,7 @@ export default function CareerAssessmentCenter() {
                   </motion.button>
                   <motion.button 
                     whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                    onClick={handleSendMessage}
+                    onClick={() => handleSendMessage()}
                     disabled={!currentAnswer.trim() || isTyping}
                     className="size-12 rounded-2xl bg-[#0F172A] text-white flex items-center justify-center shadow-lg disabled:opacity-30 transition-opacity"
                   >
@@ -598,25 +638,68 @@ export default function CareerAssessmentCenter() {
               </div>
             </div>
           )}
-        </div>
-
-        {/* RIGHT HUD */}
-        <div className="w-full md:w-[360px] bg-white border-l border-slate-100 flex flex-col p-8 gap-8 relative overflow-hidden shrink-0">
-          <WebcamPreview ref={webcamRef} />
-          <div className="flex-1 flex flex-col items-center justify-center gap-6 relative">
-            <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-               <NeuralCore3D status={isFinished ? 'active' : (isStarted ? 'processing' : 'idle')} size={400} />
+         {/* RIGHT HUD */}
+        <div className="w-full md:w-[420px] bg-white border-l border-slate-100 flex flex-col p-8 gap-8 relative overflow-hidden shrink-0 shadow-[-10px_0_30px_rgba(0,0,0,0.02)]">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[11px] font-black text-indigo-600 uppercase tracking-[4px]">AI Interviewer</h3>
+              <div className="flex items-center gap-1.5">
+                  <motion.div 
+                    animate={isSpeaking ? { scale: [1, 1.5, 1] } : {}}
+                    transition={{ repeat: Infinity, duration: 0.5 }}
+                    className={`size-2 rounded-full ${isSpeaking ? 'bg-indigo-500' : 'bg-slate-300'}`} 
+                  />
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Live Feedback</span>
+              </div>
             </div>
-            <div className="relative z-10 text-center space-y-4">
-              <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-[4px]">AI Analysis Engine</h3>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[2px] max-w-[200px] leading-relaxed mx-auto">
-                Real-time analysis to help provide the best feedback on your responses.
+            <AIAvatar isSpeaking={isSpeaking} isThinking={isThinking} />
+          </div>
+
+          <div className="flex-1 flex flex-col gap-6 relative">
+            <div className="text-center space-y-3 pb-4 border-b border-slate-50">
+              <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-[4px]">AI Analysis Engine</h3>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[2px] leading-relaxed">
+                Real-time architectural assessment and communication metrics
               </p>
             </div>
-          <div className="space-y-4">
+
+            <div className="space-y-4">
+              {/* PRIMARY ANALYSIS GAUGE */}
+              <div className="p-6 rounded-[2rem] bg-[#0F172A] text-white space-y-4 shadow-xl">
+                 <div className="flex justify-between items-center">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400">Technical Mastery</span>
+                    <span className="text-xl font-black">{isFinished ? feedback?.score : (isStarted ? '88' : '0')}%</span>
+                 </div>
+                 <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: isFinished ? `${feedback?.score}%` : (isStarted ? '88%' : '0%') }}
+                      className="h-full bg-gradient-to-r from-indigo-500 to-indigo-300"
+                    />
+                 </div>
+              </div>
+
+              {/* DETAILED METRICS GRID */}
+              <div className="grid grid-cols-2 gap-3">
+                 {[
+                   { label: 'Confidence', val: 'HIGH', color: 'text-emerald-500', icon: ShieldCheck },
+                   { label: 'Clarity', val: 'OPTIMIZED', color: 'text-indigo-500', icon: Volume2 },
+                   { label: 'Sentiment', val: 'PROFESSIONAL', color: 'text-amber-500', icon: Sparkles },
+                   { label: 'Focus', val: proctorWarnings > 0 ? 'WARNING' : 'STABLE', color: proctorWarnings > 0 ? 'text-rose-500' : 'text-emerald-500', icon: AlertCircle }
+                 ].map(m => (
+                   <div key={m.label} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
+                      <div className="flex items-center gap-2 opacity-50">
+                         <m.icon size={10} />
+                         <span className="text-[8px] font-black uppercase tracking-widest">{m.label}</span>
+                      </div>
+                      <div className={`text-[9px] font-black uppercase tracking-widest ${m.color}`}>{m.val}</div>
+                   </div>
+                 ))}
+              </div>
+
               <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
                  <div className="flex justify-between items-center">
-                    <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Focus Level</div>
+                    <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Session Integrity</div>
                     <div className={`text-[8px] font-black uppercase tracking-widest ${proctorWarnings > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
                       {proctorWarnings > 0 ? `Alert: ${proctorWarnings}/${MAX_INCIDENTS}` : 'Optimized'}
                     </div>
@@ -635,7 +718,8 @@ export default function CareerAssessmentCenter() {
                     ))}
                  </div>
               </div>
-          </div>
+            </div>
+
              <div className="hidden md:flex flex-col gap-2 opacity-40 pt-4">
                 {incidentLogs.slice(-3).map((log, i) => (
                   <div key={i} className="text-[7px] font-mono text-slate-400 p-2 border-l border-indigo-500/20 bg-slate-50/50">
@@ -643,10 +727,15 @@ export default function CareerAssessmentCenter() {
                   </div>
                 ))}
              </div>
-             <div className="text-[8px] font-black text-slate-300 uppercase tracking-[4px] pt-8 text-center">
-                ID // {sessionId.current}
+             
+             <div className="mt-auto pt-6 text-center border-t border-slate-50">
+                <WebcamPreview ref={webcamRef} />
+                <div className="text-[8px] font-black text-slate-300 uppercase tracking-[4px] pt-4">
+                  SESSION // {sessionId.current}
+                </div>
              </div>
           </div>
+        </div>
         </div>
       </main>
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] z-[-1]" />
