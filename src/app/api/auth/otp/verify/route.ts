@@ -73,28 +73,41 @@ export async function POST(request: Request) {
       }, { status: 500 });
     }
 
+    // Modernize connection string for Vercel/Supabase pooled connections
+    const connectionString = process.env.DATABASE_URL;
+    const url = new URL(connectionString);
+    if (!url.searchParams.has('sslmode')) {
+      url.searchParams.set('sslmode', 'require');
+    }
+
     const pgClient = new pg.Client({
-      connectionString: process.env.DATABASE_URL.includes('?') ? process.env.DATABASE_URL : `${process.env.DATABASE_URL}?sslmode=require`,
+      connectionString: url.toString(),
       ssl: { rejectUnauthorized: false }
     });
 
     let authUser: any = null;
     try {
       await pgClient.connect();
+      console.log('✅ Synchronized with Institutional DB');
+      
       const { rows } = await pgClient.query('SELECT id, email FROM auth.users WHERE email = $1', [email]);
       if (rows.length > 0) {
         authUser = { id: rows[0].id, email: rows[0].email };
         console.log('✅ Identity Discovered via Postgres Bypass:', authUser.id);
       }
-      await pgClient.end();
     } catch (pgErr: any) {
       console.error('❌ Direct SQL Bypass Failed:', pgErr.message);
-      
       return NextResponse.json({ 
         success: false,
         error: getFriendlyErrorMessage(pgErr),
         details: pgErr.message
       }, { status: 500 });
+    } finally {
+      try {
+        await pgClient.end();
+      } catch (err) {
+        console.error('Warning: PG client close error:', err);
+      }
     }
 
     // 4. IDENTITY HARDENING & PASS-HANDSHAKE

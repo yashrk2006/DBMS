@@ -31,8 +31,11 @@ export function getFriendlyErrorMessage(error: any): string {
   if (code === 'PGRST116' || message.includes("not found")) {
     return "Record not found in the verified institutional directory.";
   }
-  if (code.startsWith('57') || message.includes("connection") || message.includes("dns") || message.includes("econnrefused")) {
-    return "Institutional service reached a connectivity limit or database is unavailable. Please try again.";
+  if (code.startsWith('57') || message.includes("connection") || message.includes("dns") || message.includes("econnrefused") || message.includes("too many clients")) {
+    return "Institutional service reached a connectivity limit or database is unavailable. Please try again in 30 seconds.";
+  }
+  if (message.includes("self-signed certificate") || message.includes("ssl") || message.includes("certificate")) {
+    return "Secure connection handshake failed (SSL). Please verify your institutional proxy settings.";
   }
   if (message.includes("database") || message.includes("rls") || message.includes("permission") || message.includes("auth.users")) {
     return "Access to institutional identity records is restricted. Contact Administrator.";
