@@ -58,19 +58,19 @@ export const StatGrid = ({ stats, skills, onCatalogClick }: StatGridProps) => {
         <div className="flex justify-between items-center mb-6 relative z-10">
           <h3 className="font-black text-[13px] uppercase tracking-[4px] text-slate-400">Skill Progress</h3>
         </div>
-        <div className="flex gap-12 relative z-10">
-          <div className="flex flex-col justify-end">
+        <div className="flex flex-col sm:flex-row gap-8 md:gap-12 relative z-10">
+          <div className="flex flex-col justify-end shrink-0">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl md:text-5xl font-black text-slate-950 leading-none tracking-tighter">
+              <span className="text-4xl md:text-5xl font-black text-slate-950 leading-none tracking-tighter">
                 {Math.floor(stats.skills * 14.5)}h
               </span>
-              <div className="text-xs font-black text-emerald-500 flex items-center bg-emerald-50 px-2 py-0.5 rounded-md mb-1">
+              <div className="text-[10px] md:text-xs font-black text-emerald-500 flex items-center bg-emerald-50 px-2 py-0.5 rounded-md mb-1">
                 <Icon name="arrow_upward" className="text-sm mr-1" />{(stats.skills * 4)}%
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 font-black uppercase tracking-[3px] mt-2">Study Hours</p>
+            <p className="text-[10px] md:text-[11px] text-slate-400 font-black uppercase tracking-[2px] md:tracking-[3px] mt-2">Study Hours</p>
           </div>
-          <div className="flex-1 space-y-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+          <div className="flex-1 space-y-4 md:space-y-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
             {(skills.length > 0 ? skills : stats.skills > 0 ? Array(Math.min(stats.skills, 5)).fill(null) : []).map((s, i) => (
               <div key={i} className={!s ? 'animate-pulse' : ''}>
                 <div className="flex justify-between text-[10px] font-black mb-2 uppercase tracking-widest">

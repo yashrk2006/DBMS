@@ -162,30 +162,30 @@ export default function LandingPage() {
                 </span>
               </div>
 
-              <h1 className="text-[clamp(4rem,12vw,12rem)] font-black text-slate-950 uppercase tracking-tighter mb-10 leading-[0.75] italic">
+              <h1 className="text-[clamp(2.5rem,10vw,12rem)] font-black text-slate-950 uppercase tracking-tighter mb-6 md:mb-10 leading-[0.85] md:leading-[0.75] italic">
                 Sync Skills. <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-400 to-amber-700 drop-shadow-2xl not-italic">Get Hired.</span>
               </h1>
 
-              <p className="text-slate-500 text-xl md:text-3xl font-bold max-w-4xl mx-auto mb-16 leading-[1.1] tracking-tighter">
-                The ultimate <span className="text-slate-900 border-b-8 border-amber-500/30">Career Hub</span> for students. 
+              <p className="text-slate-500 text-lg md:text-3xl font-bold max-w-4xl mx-auto mb-10 md:mb-16 leading-snug md:leading-[1.1] tracking-tighter px-4">
+                The ultimate <span className="text-slate-900 border-b-4 md:border-b-8 border-amber-500/30">Career Hub</span> for students. 
                 Seamlessly match your <span className="italic text-amber-600 font-black">Skills</span> with placements from 100+ top tech companies.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8 w-full max-w-lg mx-auto md:max-w-none">
                 <Link
                   href="/auth/login"
-                  className="w-full sm:w-auto px-20 py-8 rounded-[2.5rem] bg-slate-950 text-white text-[11px] font-black uppercase tracking-[0.6em] shadow-[0_45px_90px_-20px_rgba(0,0,0,0.4)] hover:scale-110 active:scale-95 transition-all flex items-center justify-center gap-6 group"
+                  className="w-full sm:w-auto px-10 md:px-20 py-5 md:py-8 rounded-[1.5rem] md:rounded-[2.5rem] bg-slate-950 text-white text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] md:tracking-[0.6em] shadow-[0_45px_90px_-20px_rgba(0,0,0,0.4)] hover:scale-110 active:scale-95 transition-all flex items-center justify-center gap-4 md:gap-6 group"
                 >
                   Get Started
-                  <Zap size={22} className="fill-amber-500 text-amber-500 group-hover:rotate-45 transition-transform duration-500" />
+                  <Zap size={18} md:size={22} className="fill-amber-500 text-amber-500 group-hover:rotate-45 transition-transform duration-500" />
                 </Link>
                 <button
                   onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="w-full sm:w-auto px-20 py-8 rounded-[2.5rem] bg-white border border-slate-200 text-slate-950 text-[11px] font-black uppercase tracking-[0.6em] hover:bg-slate-50 hover:border-amber-500 transition-all flex items-center justify-center gap-6 group shadow-2xl"
+                  className="w-full sm:w-auto px-10 md:px-20 py-5 md:py-8 rounded-[1.5rem] md:rounded-[2.5rem] bg-white border border-slate-200 text-slate-950 text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] md:tracking-[0.6em] hover:bg-slate-50 hover:border-amber-500 transition-all flex items-center justify-center gap-4 md:gap-6 group shadow-2xl"
                 >
                   Explore Features
-                  <BoxIcon size={22} className="group-hover:translate-x-3 transition-transform duration-500" />
+                  <Box size={18} md:size={22} className="group-hover:translate-x-3 transition-transform duration-500" />
                 </button>
               </div>
             </AnimatedSection>
@@ -215,16 +215,16 @@ export default function LandingPage() {
                        </div>
                     </div>
                    
-                   <div className="grid grid-cols-4 gap-8">
+                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                        {[
                          { label: 'Latency', value: '4ms', color: 'text-amber-500' },
                          { label: 'Accuracy', value: '98.5%', color: 'text-white' },
                          { label: 'Uptime', value: '99.99%', color: 'text-white' },
                          { label: 'Active Students', value: '12,042', color: 'text-emerald-500' }
                        ].map((stat, i) => (
-                         <div key={stat.label} className="h-48 rounded-[2.5rem] bg-white/5 border border-white/5 p-8 flex flex-col justify-end group/item hover:bg-white/10 transition-colors">
-                            <div className={`text-4xl font-black ${stat.color} mb-2 tracking-tighter`}>{stat.value}</div>
-                            <div className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">{stat.label}</div>
+                         <div key={stat.label} className="h-32 md:h-48 rounded-[1.5rem] md:rounded-[2.5rem] bg-white/5 border border-white/5 p-4 md:p-8 flex flex-col justify-end group/item hover:bg-white/10 transition-colors">
+                            <div className={`text-xl md:text-4xl font-black ${stat.color} mb-1 md:mb-2 tracking-tighter`}>{stat.value}</div>
+                            <div className="text-[7px] md:text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">{stat.label}</div>
                          </div>
                        ))}
                    </div>

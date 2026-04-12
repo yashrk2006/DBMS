@@ -28,7 +28,7 @@ export default function RootLayout({
           rel="stylesheet" 
         />
       </head>
-      <body className={`${plusJakarta.className} antialiased min-h-screen bg-background text-foreground transition-colors duration-300`} suppressHydrationWarning>
+      <body className={`${plusJakarta.className} antialiased min-h-screen bg-background text-foreground transition-colors duration-300 overflow-x-hidden`} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

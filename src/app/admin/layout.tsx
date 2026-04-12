@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import { ReactNode, useEffect, useState } from 'react';
-import { LayoutDashboard, GraduationCap, Briefcase, ArrowLeft, Crown, BarChart3, ShieldAlert } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { LayoutDashboard, GraduationCap, Briefcase, ArrowLeft, Crown, BarChart3, ShieldAlert, LogOut } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 
@@ -16,6 +16,7 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -58,8 +59,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <aside className="w-64 flex-shrink-0 bg-white border-r border-slate-100 flex flex-col shadow-sm sticky top-0 h-screen overflow-y-auto">
+    <div className="flex min-h-screen bg-slate-50 relative overflow-x-hidden">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-64 flex-shrink-0 bg-white border-r border-slate-100 flex-col shadow-sm sticky top-0 h-screen overflow-y-auto z-50">
         <div className="p-6 border-b border-slate-50 flex items-center gap-3">
           <div className="size-9 rounded-xl bg-amber-600 flex items-center justify-center shadow-lg shadow-amber-600/10">
             <Crown size={18} className="text-white" />
@@ -72,15 +74,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all text-sm font-semibold group"
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-semibold group ${
+                pathname === item.href ? 'text-amber-600 bg-amber-50' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+              }`}
             >
-              <item.icon size={18} className="group-hover:text-amber-600 transition-colors" />
+              <item.icon size={18} className={pathname === item.href ? 'text-amber-600' : 'group-hover:text-amber-600 transition-colors'} />
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-50 space-y-2">
+        <div className="p-4 border-t border-slate-50 space-y-2 mt-auto">
           <Link
             href="/dashboard"
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all text-sm font-semibold"
@@ -92,7 +96,39 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <main className="flex-1 p-10 overflow-y-auto">
+      {/* Mobile Bottom Nav */}
+      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm px-4 py-3 bg-white/80 backdrop-blur-3xl border border-slate-200 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)] rounded-[2.5rem] flex items-center justify-between z-[100]">
+        {navItems.map(item => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex flex-col items-center gap-1 transition-all ${
+              pathname === item.href ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <div className={`p-2 rounded-2xl transition-all ${pathname === item.href ? 'bg-amber-100' : 'bg-transparent'}`}>
+              <item.icon size={20} />
+            </div>
+          </Link>
+        ))}
+        <div className="w-px h-6 bg-slate-200 mx-1" />
+        <Link href="/dashboard" className="text-slate-400 p-2">
+          <ArrowLeft size={20} />
+        </Link>
+        <div className="text-red-400">
+           <LogoutButton className="p-2" hideText />
+        </div>
+      </div>
+
+      <main className="flex-1 p-4 md:p-10 pb-32 lg:pb-10 overflow-y-auto">
+        <header className="lg:hidden flex items-center justify-between mb-8 pt-4">
+           <div className="flex items-center gap-3">
+              <div className="size-9 rounded-xl bg-amber-600 flex items-center justify-center">
+                <Crown size={18} className="text-white" />
+              </div>
+              <span className="font-black text-lg uppercase tracking-tighter text-slate-900">Admin</span>
+           </div>
+        </header>
         {children}
       </main>
     </div>

@@ -54,16 +54,16 @@ export const DashboardHeader = ({
         </h1>
       </div>
 
-      <div className="flex items-center gap-2 md:gap-4 flex-1 justify-end">
-        <div className="relative group flex-1 max-w-[340px] flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 flex-1 justify-end w-full">
+        <div className="relative group w-full sm:max-w-[340px] flex items-center gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400 group-focus-within:text-[#575a93] transition-colors" />
             <input 
               type="text"
-              placeholder="Search Jobs & Skills..."
+              placeholder="Search Opportunities..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-12 pr-6 py-4 bg-white/50 backdrop-blur-md rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest placeholder:text-slate-300 focus:outline-none focus:border-[#575a93]/30 focus:bg-white shadow-soft transition-all"
+              className="w-full pl-11 pr-6 py-3.5 md:py-4 bg-white/50 backdrop-blur-md rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest placeholder:text-slate-300 focus:outline-none focus:border-[#575a93]/30 focus:bg-white shadow-soft transition-all"
             />
           </div>
           
@@ -113,7 +113,12 @@ export const DashboardHeader = ({
           </div>
         </div>
         
-        <div className="flex items-center gap-2 md:gap-4 pl-0 md:pl-4 border-l-0 md:border-l border-slate-100 w-full md:w-auto justify-end">
+        <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto justify-between sm:justify-end sm:pl-4 sm:border-l border-slate-100 pt-2 sm:pt-0">
+          <div className="flex sm:hidden flex-col items-start">
+             <span className="text-[10px] font-black text-[#575a93] uppercase tracking-[1px] leading-tight">Student Hub</span>
+             <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">ID: {rollNo || 'Verified'}</span>
+          </div>
+          <div className="flex items-center gap-2 md:gap-3">
           {/* Notification Bell */}
           <div 
             onClick={() => setIsPanelOpen(true)}
@@ -155,12 +160,13 @@ export const DashboardHeader = ({
             </div>
           )}
 
-          <div 
-            onClick={onLogout}
-            className="size-11 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 transition-all cursor-pointer active:scale-95"
-            title="Logout"
-          >
-            <Icon name="logout" className="text-lg" />
+            <div 
+              onClick={onLogout}
+              className="size-10 md:size-11 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 transition-all cursor-pointer active:scale-95 shadow-sm"
+              title="Logout"
+            >
+              <Icon name="logout" className="text-lg" />
+            </div>
           </div>
         </div>
       </div>

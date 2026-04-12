@@ -175,7 +175,7 @@ export default function Navbar() {
 
           {/* Mobile Menu Toggle */}
           <button 
-            className="lg:hidden p-2 text-slate-950 hover:text-amber-600 transition-colors"
+            className="lg:hidden p-2 text-slate-950 hover:text-amber-600 transition-colors relative z-[110]"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -186,46 +186,64 @@ export default function Navbar() {
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden absolute inset-x-0 top-full bg-white border-b border-slate-200 shadow-2xl overflow-hidden"
-          >
-            <div className="px-8 py-10 flex flex-col gap-6">
-               {navLinks.map((item) => (
-                <button
-                  key={item.label}
-                  onClick={() => {
-                    scrollTo(item.target);
-                    setMobileMenuOpen(false);
-                  }}
-                  className="text-[11px] font-black uppercase tracking-[3px] text-slate-500 hover:text-amber-600 text-left border-l-2 border-slate-100 pl-4 hover:border-amber-600 transition-all"
-                >
-                  {item.label}
-                </button>
-              ))}
-              <div className="h-px bg-slate-100 w-full" />
-              {session ? (
-                <button 
-                  onClick={handleLogout}
-                  className="flex items-center gap-3 text-[11px] font-black uppercase tracking-[3px] text-red-500"
-                >
-                  <LogOut size={18} />
-                  Log Out
-                </button>
-              ) : (
-                <Link 
-                  href="/auth/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-[11px] font-black uppercase tracking-[3px] text-amber-600"
-                >
-                  <Globe size={18} />
-                  Access Dashboard
-                </Link>
-              )}
-            </div>
-          </motion.div>
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="lg:hidden fixed inset-0 bg-slate-950/20 backdrop-blur-sm z-[100]"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <motion.div 
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              className="lg:hidden absolute inset-x-0 top-full bg-white border-b border-slate-200 shadow-2xl overflow-hidden z-[101]"
+            >
+              <div className="px-8 py-10 flex flex-col gap-6">
+                 {navLinks.map((item) => (
+                  <button
+                    key={item.label}
+                    onClick={() => {
+                      scrollTo(item.target);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="text-[11px] font-black uppercase tracking-[3px] text-slate-500 hover:text-amber-600 text-left border-l-2 border-slate-100 pl-4 hover:border-amber-600 transition-all py-2"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+                <div className="h-px bg-slate-100 w-full" />
+                {session ? (
+                  <div className="flex flex-col gap-4">
+                    <Link
+                      href={session.user.role === 'company' ? '/company' : session.user.role === 'admin' ? '/admin' : '/dashboard'}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 text-[11px] font-black uppercase tracking-[3px] text-amber-600 border-l-2 border-amber-600 pl-4 py-2"
+                    >
+                      <Globe size={18} />
+                      Access Hub
+                    </Link>
+                    <button 
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 text-[11px] font-black uppercase tracking-[3px] text-red-500 border-l-2 border-slate-100 pl-4 py-2"
+                    >
+                      <LogOut size={18} />
+                      Log Out
+                    </button>
+                  </div>
+                ) : (
+                  <Link 
+                    href="/auth/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-3 py-4 rounded-xl bg-amber-600 text-white text-[11px] font-black uppercase tracking-[3px]"
+                  >
+                    Get Started Now
+                  </Link>
+                )}
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </motion.nav>

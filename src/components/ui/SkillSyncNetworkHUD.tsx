@@ -24,9 +24,9 @@ export function SkillSyncNetworkHUD({ progress, range = [0.2, 0.4] }: HUDProps) 
   return (
     <motion.div
       style={{ y, opacity, rotateX, scale, z, perspective: 1200 }}
-      className="pointer-events-none fixed inset-x-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-20"
+      className="pointer-events-none fixed inset-x-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center p-4 md:p-20"
     >
-      <div className="relative size-[600px] flex items-center justify-center">
+      <div className="relative size-[320px] md:size-[600px] flex items-center justify-center">
         {/* --- VISUAL RINGS (SVG) --- */}
         <svg className="absolute inset-0 size-full overflow-visible drop-shadow-[0_0_30px_rgba(245,158,11,0.3)]">
           {/* Main Outer Ring */}
@@ -72,72 +72,72 @@ export function SkillSyncNetworkHUD({ progress, range = [0.2, 0.4] }: HUDProps) 
         </svg>
 
         {/* --- CENTRAL INTERFACE --- */}
-        <div className="relative z-10 size-64 rounded-full bg-slate-950/40 backdrop-blur-3xl border border-amber-500/20 flex flex-col items-center justify-center p-8 text-center group">
+        <div className="relative z-10 size-48 md:size-64 rounded-full bg-slate-950/40 backdrop-blur-3xl border border-amber-500/20 flex flex-col items-center justify-center p-4 md:p-8 text-center group">
           <motion.div
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="mb-4 text-amber-500"
+            className="mb-2 md:mb-4 text-amber-500"
           >
-            <Zap size={48} strokeWidth={1} />
+            <Zap size={32} md:size={48} strokeWidth={1} />
           </motion.div>
           
-          <div className="text-[10px] font-black tracking-[0.4em] text-amber-500 uppercase mb-2">SkillSync Active</div>
-          <div className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none mb-4">Skill <br /> Sync</div>
+          <div className="text-[7px] md:text-[10px] font-black tracking-[0.4em] text-amber-500 uppercase mb-1 md:mb-2">SkillSync Active</div>
+          <div className="text-2xl md:text-4xl font-black text-white tracking-tighter uppercase italic leading-none mb-2 md:mb-4">Skill <br /> Sync</div>
           
-          <div className="flex gap-2">
+          <div className="flex gap-1 md:gap-2">
             {[...Array(4)].map((_, i) => (
               <motion.div
                 key={i}
                 animate={{ opacity: [0.2, 1, 0.2] }}
                 transition={{ delay: i * 0.2, duration: 1, repeat: Infinity }}
-                className="w-1.5 h-6 bg-amber-500 rounded-full"
+                className="w-1 md:w-1.5 h-4 md:h-6 bg-amber-500 rounded-full"
               />
             ))}
           </div>
         </div>
 
         {/* --- FLOATING HUD LABELS --- */}
-        <div className="absolute inset-0 font-mono text-[9px] font-black uppercase tracking-widest text-amber-500/60">
+        <div className="absolute inset-0 font-mono text-[7px] md:text-[9px] font-black uppercase tracking-widest text-amber-500/60">
            {/* Top Left */}
            <motion.div 
-             animate={{ x: [-5, 5, -5] }}
+             animate={{ x: [-3, 3, -3] }}
              transition={{ duration: 4, repeat: Infinity }}
-             className="absolute top-10 left-10 flex items-center gap-2 border-l border-amber-500/30 pl-3"
+             className="absolute top-4 left-4 md:top-10 md:left-10 flex items-center gap-1 md:gap-2 border-l border-amber-500/30 pl-2 md:pl-3"
            >
-              <Activity size={10} />
+              <Activity size={8} md:size={10} />
               <span>STATUS::ACTIVE</span>
            </motion.div>
 
            {/* Top Right */}
            <motion.div 
-             animate={{ x: [5, -5, 5] }}
+             animate={{ x: [3, -3, 3] }}
              transition={{ duration: 5, repeat: Infinity }}
-             className="absolute top-10 right-10 flex flex-col items-end gap-1 border-r border-amber-500/30 pr-3"
+             className="absolute top-4 right-4 md:top-10 md:right-10 flex flex-col items-end gap-1 border-r border-amber-500/30 pr-2 md:pr-3"
            >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 md:gap-2">
                  <span>OPTIMIZED::ON</span>
-                 <Radio size={10} className="text-emerald-500" />
+                 <Radio size={8} md:size={10} className="text-emerald-500" />
               </div>
-              <span className="text-[7px] text-white/40">DATA_VERIFIED</span>
+              <span className="text-[6px] md:text-[7px] text-white/40">DATA_VERIFIED</span>
            </motion.div>
 
            {/* Bottom Left */}
-           <motion.div className="absolute bottom-20 left-0 space-y-2">
-              <div className="flex items-center gap-3">
-                 <div className="size-2 bg-amber-500 animate-ping" />
+           <motion.div className="absolute bottom-10 left-0 md:bottom-20 md:left-0 space-y-1 md:space-y-2">
+              <div className="flex items-center gap-2 md:gap-3">
+                 <div className="size-1 md:size-2 bg-amber-500 animate-ping" />
                  <span>PLATFORM_ONLINE</span>
               </div>
-              <div className="w-32 h-[1px] bg-gradient-to-r from-amber-500/50 to-transparent" />
+              <div className="w-20 md:w-32 h-[1px] bg-gradient-to-r from-amber-500/50 to-transparent" />
            </motion.div>
 
            {/* Bottom Right */}
-           <motion.div className="absolute bottom-20 right-0 text-right">
-              <div className="mb-2 text-white font-black italic text-sm">#CAREER_HUB</div>
-              <div className="flex gap-1 justify-end">
+           <motion.div className="absolute bottom-10 right-0 md:bottom-20 md:right-0 text-right">
+              <div className="mb-1 md:mb-2 text-white font-black italic text-xs md:text-sm">#CAREER_HUB</div>
+              <div className="flex gap-0.5 md:gap-1 justify-end">
                 {[...Array(10)].map((_, i) => (
                    <motion.div
                      key={i}
-                     animate={{ height: [4, 12, 4] }}
+                     animate={{ height: [3, 10, 3] }}
                      transition={{ delay: i * 0.1, duration: 0.5, repeat: Infinity }}
                      className="w-0.5 bg-amber-500"
                    />
@@ -150,7 +150,7 @@ export function SkillSyncNetworkHUD({ progress, range = [0.2, 0.4] }: HUDProps) 
         <motion.div
           animate={{ x: ['100%', '-100%'] }}
           transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-x-0 h-[2px] bg-amber-500/20 blur-sm pointer-events-none"
+          className="absolute inset-x-0 h-[1.5px] md:h-[2px] bg-amber-500/20 blur-sm pointer-events-none"
           style={{ top: '45%' }}
         />
       </div>

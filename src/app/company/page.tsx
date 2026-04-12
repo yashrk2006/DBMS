@@ -173,18 +173,18 @@ export default function CompanyDashboard() {
         <div className="space-y-1">
           <div className="flex items-center gap-2 mb-2">
             <div className="size-2 rounded-full bg-emerald-500" />
-            <span className="text-[9px] font-black uppercase tracking-[5px] text-slate-400">Hiring Dashboard • Active</span>
+            <span className="text-[9px] font-black uppercase tracking-[5px] text-slate-400">Dashboard • Active</span>
           </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Applicant Review</h1>
-          <p className="text-slate-500 font-medium tracking-tight">Review applicants and identify top talent for your team.</p>
+          <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight uppercase">Applicants</h1>
+          <p className="text-sm text-slate-500 font-medium tracking-tight">Review applicants and identify top talent.</p>
         </div>
-        <div className="relative group shrink-0">
+        <div className="relative group w-full md:w-auto shrink-0">
           <button 
             disabled={!stats.isVerified}
             onClick={() => router.push('/company/postings')}
-            className={`px-8 py-4 rounded-2xl flex items-center gap-3 transition-all font-black text-xs uppercase tracking-widest shadow-lg ${
+            className={`w-full md:w-auto px-8 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all font-black text-[10px] md:text-xs uppercase tracking-widest shadow-lg ${
               stats.isVerified 
-                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20 hover:-translate-y-0.5' 
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20' 
                 : 'bg-slate-100 text-slate-400 cursor-not-allowed grayscale'
             }`}
           >
@@ -207,10 +207,10 @@ export default function CompanyDashboard() {
             className="space-y-4"
           >
             <div className="flex items-center gap-2">
-               <Star size={16} className="text-amber-500 fill-amber-500" />
-               <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[4px]">Top Recommendations</h3>
+               <Star size={14} md:size={16} className="text-amber-500 fill-amber-500" />
+               <h3 className="text-[10px] md:text-xs font-black text-slate-900 uppercase tracking-[4px]">Top Recommendations</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                {applications
                  .filter(a => (a as any).interview_score)
                  .sort((a, b) => ((b as any).interview_score || 0) - ((a as any).interview_score || 0))
@@ -232,13 +232,13 @@ export default function CompanyDashboard() {
                            </div>
                            <div>
                               <div className="text-sm font-black uppercase tracking-tight">{app.student_name}</div>
-                              <div className="text-[8px] font-bold text-white/60 uppercase tracking-widest">{app.role_title}</div>
+                              <div className="text-[8px] font-bold text-white/60 uppercase tracking-widest leading-none">{app.role_title}</div>
                            </div>
                         </div>
                         <div className="flex items-end justify-between">
                            <div>
                               <div className="text-[7px] font-black text-indigo-200 uppercase tracking-[3px]">Match Score</div>
-                              <div className="text-3xl font-black">{(app as any).interview_score}%</div>
+                              <div className="text-2xl md:text-3xl font-black">{(app as any).interview_score}%</div>
                            </div>
                            <div className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-[8px] font-black uppercase tracking-widest">
                               Member #{idx + 1}
@@ -254,21 +254,21 @@ export default function CompanyDashboard() {
       </AnimatePresence>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {[
           { label: 'Active Roles', value: stats.activeRoles, icon: Briefcase, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Total Applicants', value: stats.totalApplicants, icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-          { label: 'Pending Review', value: stats.pendingReview, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
-          { label: 'Schedule Set', value: stats.interviewsScheduled, icon: Calendar, color: 'text-slate-700', bg: 'bg-slate-50' },
+          { label: 'Applicants', value: stats.totalApplicants, icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+          { label: 'Pending', value: stats.pendingReview, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Schedule', value: stats.interviewsScheduled, icon: Calendar, color: 'text-slate-700', bg: 'bg-slate-50' },
         ].map(stat => (
-          <div key={stat.label} className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">{stat.label}</span>
-              <div className={`size-10 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color}`}>
-                <stat.icon size={18} />
+          <div key={stat.label} className="bg-white p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+            <div className="flex items-center justify-between mb-4 md:mb-6">
+              <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-[2px]">{stat.label}</span>
+              <div className={`size-8 md:size-10 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color}`}>
+                <stat.icon size={16} md:size={18} />
               </div>
             </div>
-            <div className={`text-4xl font-black ${stat.color} tracking-tighter`}>{stat.value}</div>
+            <div className={`text-2xl md:text-4xl font-black ${stat.color} tracking-tighter`}>{stat.value}</div>
           </div>
         ))}
       </div>
@@ -277,33 +277,57 @@ export default function CompanyDashboard() {
         
         {/* Applicant Feed */}
         <div className="xl:col-span-8 space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Candidate Feed</h3>
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={handleAiShortlist} 
-                disabled={isShortlisting}
-                className="px-4 py-2 rounded-xl bg-indigo-600 text-white flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg active:scale-95 disabled:opacity-50"
-              >
-                <Sparkles size={14} className={isShortlisting ? "animate-spin" : ""} /> {isShortlisting ? "Analyzing..." : "Quick Match"}
-              </button>
-              <button onClick={handleExport} className="px-4 py-2 rounded-xl border border-slate-100 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 transition-all shadow-sm">
-                <Download size={14} /> Export CSV
-              </button>
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h3 className="text-[10px] md:text-xs font-black text-slate-900 uppercase tracking-widest text-center sm:text-left">Candidate Feed</h3>
+              <div className="flex items-center justify-center gap-3">
+                <button 
+                  onClick={handleAiShortlist} 
+                  disabled={isShortlisting}
+                  className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-indigo-600 text-white flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg active:scale-95 disabled:opacity-50"
+                >
+                  <Sparkles size={14} className={isShortlisting ? "animate-spin" : ""} /> {isShortlisting ? "Analyzing..." : "AI Match"}
+                </button>
+                <button onClick={handleExport} className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl border border-slate-100 flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 transition-all shadow-sm">
+                  <Download size={14} /> Export
+                </button>
+              </div>
+            </div>
+
+            {/* Granular Search & Filter Bar */}
+            <div className="flex flex-col md:flex-row gap-3">
+              <div className="flex-1 relative group">
+                <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                <input 
+                  type="text"
+                  placeholder="Seach and set live query run (E.g. Student Name, ID...)"
+                  className="w-full h-12 pl-12 pr-4 bg-white border border-slate-100 rounded-xl text-[10px] font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/40 transition-all shadow-sm"
+                />
+              </div>
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="h-10 px-4 rounded-xl border border-slate-100 bg-white flex items-center gap-2 text-[8px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
+                  <Filter size={10} /> 
+                  Match > 80%
+                </div>
+                <div className="h-10 px-4 rounded-xl border border-slate-100 bg-white flex items-center gap-2 text-[8px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
+                  <Clock size={10} /> 
+                  This Week
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Performance Summary Chips */}
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-3 md:gap-4">
              {[
                { icon: Target, label: 'Highest Match', val: applications.length > 0 ? `${Math.max(...applications.map(a => a.match_score))}%` : '0%', color: 'text-emerald-600', bg: 'bg-emerald-50' },
                { icon: Brain, label: 'Priority List', val: aiShortlist?.length || 0, color: 'text-indigo-600', bg: 'bg-indigo-50' }
              ].map(chip => (
-               <div key={chip.label} className="px-6 py-4 rounded-[1.5rem] bg-white border border-slate-100 shadow-sm flex items-center gap-4">
-                  <div className={`size-8 rounded-xl ${chip.bg} ${chip.color} flex items-center justify-center shadow-inner`}><chip.icon size={14} /></div>
-                  <div>
-                    <div className="text-[7px] font-black text-slate-400 uppercase tracking-widest">{chip.label}</div>
-                    <div className="text-sm font-black text-slate-900 tracking-tighter">{chip.val}</div>
+               <div key={chip.label} className="flex-1 min-w-[140px] px-5 md:px-6 py-3 md:py-4 rounded-2xl md:rounded-[1.5rem] bg-white border border-slate-100 shadow-sm flex items-center gap-3 md:gap-4">
+                  <div className={`size-8 rounded-xl ${chip.bg} ${chip.color} flex items-center justify-center shadow-inner shrink-0`}><chip.icon size={14} /></div>
+                  <div className="min-w-0">
+                    <div className="text-[7px] font-black text-slate-400 uppercase tracking-widest truncate">{chip.label}</div>
+                    <div className="text-sm font-black text-slate-900 tracking-tighter truncate">{chip.val}</div>
                   </div>
                </div>
              ))}
@@ -317,33 +341,31 @@ export default function CompanyDashboard() {
                 layoutId={app.application_id}
                 className={`p-6 bg-white border rounded-[2rem] transition-all cursor-pointer group hover:border-emerald-600/50 hover:shadow-xl ${selectedApplication?.application_id === app.application_id ? 'border-emerald-600 shadow-lg' : 'border-slate-100'}`}
               >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="flex items-center gap-5">
-                    <div className="size-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-xl font-black uppercase shadow-lg group-hover:bg-emerald-600 transition-colors">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 md:gap-6">
+                  <div className="flex items-center gap-4 md:gap-5">
+                    <div className="size-12 md:size-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-lg font-black uppercase shadow-lg group-hover:bg-emerald-600 transition-colors shrink-0">
                       {app.student_name ? app.student_name.charAt(0) : '?'}
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight">{app.student_name}</h4>
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-[8px] font-black text-slate-500 uppercase tracking-widest">{app.student_roll_no}</span>
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h4 className="text-base md:text-lg font-black text-slate-900 uppercase tracking-tight">{app.student_name}</h4>
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-[7px] font-black text-slate-500 uppercase tracking-widest">{app.student_roll_no}</span>
                       </div>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{app.role_title}</span>
-                        <div className="size-1 rounded-full bg-slate-200" />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Applied {new Date(app.applied_date).toLocaleDateString()}</span>
+                      <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                        <span className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">{app.role_title}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6">
-                    <div className="text-right">
-                        <div className="flex items-center gap-2 justify-end">
+                  <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 border-slate-50 pt-4 sm:pt-0">
+                    <div className="text-left sm:text-right">
+                        <div className="flex items-center gap-2 sm:justify-end">
                             <Brain size={12} className="text-indigo-500" />
-                            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Fit Score</span>
+                            <span className="text-[8px] md:text-[10px] font-black text-indigo-500 uppercase tracking-widest">Fit Score</span>
                         </div>
-                        <div className="text-2xl font-black text-slate-900 tracking-tighter">{app.match_score}%</div>
+                        <div className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter">{app.match_score}%</div>
                     </div>
-                    <div className={`px-4 py-2 rounded-2xl border text-[9px] font-black uppercase tracking-[2px] ${statusColors[app.status]?.bg || 'bg-slate-50'} ${statusColors[app.status]?.border || 'border-slate-100'} ${statusColors[app.status]?.color || 'text-slate-500'}`}>
+                    <div className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl border text-[8px] md:text-[9px] font-black uppercase tracking-[2px] ${statusColors[app.status]?.bg || 'bg-slate-50'} ${statusColors[app.status]?.border || 'border-slate-100'} ${statusColors[app.status]?.color || 'text-slate-500'}`}>
                       {app.status}
                     </div>
                   </div>
@@ -384,14 +406,13 @@ export default function CompanyDashboard() {
                 {selectedApplication ? (
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-                        className="bg-slate-950 rounded-[3rem] p-10 text-white border border-white/5 relative overflow-hidden h-fit shadow-2xl"
+                        className="bg-slate-950 rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-10 text-white border border-white/5 relative overflow-hidden h-fit shadow-2xl"
                     >
-                        {/* Suggested Reply */}
                         <AnimatePresence>
                             {activeDraft && (
                                 <motion.div 
                                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                                    className="absolute inset-4 z-20 bg-slate-900/90 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/10 flex flex-col gap-6"
+                                    className="absolute inset-4 z-20 bg-slate-900/90 backdrop-blur-xl rounded-[2rem] p-6 md:p-8 border border-white/10 flex flex-col gap-4 md:gap-6"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
@@ -403,21 +424,21 @@ export default function CompanyDashboard() {
                                     <textarea 
                                         readOnly
                                         value={activeDraft}
-                                        className="flex-1 bg-white/5 rounded-2xl p-6 text-[11px] font-medium text-slate-300 border border-white/5 resize-none font-mono leading-relaxed"
+                                        className="flex-1 bg-white/5 rounded-2xl p-4 md:p-6 text-[11px] font-medium text-slate-300 border border-white/5 resize-none font-mono leading-relaxed"
                                     />
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-col gap-2">
                                         <button 
                                             onClick={() => {
                                                 navigator.clipboard.writeText(activeDraft);
                                                 toast.success("Saved to clipboard");
                                             }}
-                                            className="flex-1 py-3 bg-indigo-600 rounded-xl font-black text-[9px] uppercase tracking-[3px] hover:bg-indigo-700 active:scale-95 transition-all"
+                                            className="w-full py-3 bg-indigo-600 rounded-xl font-black text-[9px] uppercase tracking-[3px] hover:bg-indigo-700 active:scale-95 transition-all"
                                         >
                                             Copy to clipboard
                                         </button>
                                         <button 
                                             onClick={() => setActiveDraft(null)}
-                                            className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl font-black text-[9px] uppercase tracking-[3px] hover:bg-white/10"
+                                            className="w-full py-3 bg-white/5 border border-white/10 rounded-xl font-black text-[9px] uppercase tracking-[3px] hover:bg-white/10"
                                         >
                                             Discard
                                         </button>
@@ -426,52 +447,52 @@ export default function CompanyDashboard() {
                             )}
                         </AnimatePresence>
 
-                        <div className="relative z-10 space-y-10">
+                        <div className="relative z-10 space-y-8 md:space-y-10">
                            <div className="flex items-center justify-between">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-3">
-                                        <Sparkles size={14} className="text-emerald-500" />
-                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[4px]">Review Center</span>
+                                        <Sparkles size={12} md:size={14} className="text-emerald-500" />
+                                        <span className="text-[9px] md:text-[10px] font-black text-emerald-500 uppercase tracking-[3px] md:tracking-[4px]">Review Center</span>
                                     </div>
-                                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Candidate Evaluation</h3>
+                                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter leading-none">Evaluation.</h3>
                                 </div>
                                 <button onClick={() => setSelectedApplication(null)} className="size-8 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-white"><XCircle size={18} /></button>
                            </div>
 
                            <div className="space-y-6">
-                                <div className="p-6 bg-white/5 rounded-2xl border border-white/10 space-y-6">
+                                <div className="p-5 md:p-6 bg-white/5 rounded-2xl border border-white/10 space-y-4 md:space-y-6">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Growth Metrics</span>
+                                        <span className="text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest">Growth Metrics</span>
                                         {(selectedApplication as any).interview_score && (
                                             <div className="flex items-center gap-2">
-                                                <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Review Complete</span>
+                                                <div className="size-1 rounded-full bg-emerald-500 animate-pulse" />
+                                                <span className="text-[8px] md:text-[9px] font-black text-emerald-500 uppercase tracking-widest">Complete</span>
                                             </div>
                                         )}
                                     </div>
 
                                     {(selectedApplication as any).interview_score ? (
-                                        <div className="space-y-6">
+                                        <div className="space-y-4 md:space-y-6">
                                             <div className="flex items-end gap-3">
-                                                <h4 className="text-5xl font-black text-white tracking-tighter">{(selectedApplication as any).interview_score}%</h4>
+                                                <h4 className="text-4xl md:text-5xl font-black text-white tracking-tighter">{(selectedApplication as any).interview_score}%</h4>
                                                 <div className="pb-1">
-                                                    <div className="text-[8px] font-black text-indigo-400 uppercase tracking-[3px]">Compatibility Score</div>
-                                                    <div className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Status: Highly Recommended</div>
+                                                    <div className="text-[7px] font-black text-indigo-400 uppercase tracking-[2px]">Match Score</div>
+                                                    <div className="text-[7px] font-bold text-slate-500 uppercase tracking-widest">Recommended</div>
                                                 </div>
                                             </div>
                                             
                                             <div className="space-y-2">
                                                 <div className="flex items-center gap-2">
                                                     <Brain size={12} className="text-indigo-400" />
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recruitment Notes</span>
+                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Recruitment Notes</span>
                                                 </div>
-                                                <p className="text-[11px] font-medium text-slate-300 leading-relaxed italic">&quot;{(selectedApplication as any).interview_notes}&quot;</p>
+                                                <p className="text-[10px] md:text-[11px] font-medium text-slate-300 leading-relaxed italic">&quot;{(selectedApplication as any).interview_notes}&quot;</p>
                                             </div>
 
                                             {(selectedApplication as any).interview_logs && (selectedApplication as any).interview_logs.length > 0 && (
                                                 <div className="pt-4 border-t border-white/5 space-y-3">
                                                     <div className="flex items-center justify-between">
-                                                        <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                                                        <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-2">
                                                             <ShieldCheck size={12} /> Verification Log
                                                         </span>
                                                         <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">{(selectedApplication as any).interview_logs.length} Note(s)</span>
@@ -487,11 +508,11 @@ export default function CompanyDashboard() {
                                             )}
                                         </div>
                                     ) : (
-                                        <div className="space-y-5">
+                                        <div className="space-y-4">
                                             {(selectedApplication.ai_interview_guide || ["Describe your experience.", "How do you solve problems?", "Technical expertise summary."]).map((q: string, i: number) => (
-                                                <div key={i} className="flex gap-4 group">
-                                                    <span className="text-indigo-500 font-black text-xs leading-none">0{i+1}.</span>
-                                                    <p className="text-[11px] font-medium text-slate-400 group-hover:text-white transition-colors">{q}</p>
+                                                <div key={i} className="flex gap-3 group">
+                                                    <span className="text-indigo-500 font-black text-[10px] leading-none">0{i+1}.</span>
+                                                    <p className="text-[10px] md:text-[11px] font-medium text-slate-400 group-hover:text-white transition-colors">{q}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -503,24 +524,24 @@ export default function CompanyDashboard() {
                                 <div className="flex gap-2">
                                     <button 
                                       onClick={() => (selectedApplication as any).resume_analysis?.resume_url ? window.open((selectedApplication as any).resume_analysis.resume_url, '_blank') : toast.error("Document not found")}
-                                      className="flex-1 py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-[3px] text-white/70 hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+                                      className="flex-1 py-3.5 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-[3px] text-white/70 hover:bg-white/10 transition-all flex items-center justify-center gap-2"
                                     >
-                                      <Download size={14} /> Resume
+                                      <Download size={12} md:size={14} /> Resume
                                     </button>
                                 </div>
 
                                 <div className="flex gap-3">
                                     <button 
                                       onClick={() => handleStatusUpdate(selectedApplication.application_id, 'Interviewing')}
-                                      className="flex-1 py-4 bg-emerald-600 rounded-2xl font-black text-[10px] uppercase tracking-[3px] shadow-lg shadow-emerald-900/40 hover:bg-emerald-700 transition-all active:scale-95"
+                                      className="flex-1 py-4 bg-emerald-600 rounded-xl md:rounded-2xl font-black text-[10px] uppercase tracking-[3px] shadow-lg shadow-emerald-900/40 hover:bg-emerald-700 transition-all active:scale-95"
                                     >
                                       Accept
                                     </button>
                                     <button 
                                       onClick={() => handleStatusUpdate(selectedApplication.application_id, 'Rejected')}
-                                      className="size-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/50 hover:bg-red-900/40 hover:text-red-400 transition-all active:scale-95"
+                                      className="size-12 md:size-14 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-white/50 hover:bg-red-900/40 hover:text-red-400 transition-all active:scale-95"
                                     >
-                                      <XCircle size={20} />
+                                      <XCircle size={18} md:size={20} />
                                     </button>
                                 </div>
                            </div>

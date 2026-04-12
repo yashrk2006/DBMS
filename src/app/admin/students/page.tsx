@@ -110,40 +110,40 @@ export default function AdminStudentsPage() {
           <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Student Directory</h1>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
-           <div className="relative flex-1 sm:w-80 group">
+        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:flex lg:flex-row items-center gap-4 w-full lg:w-auto">
+           <div className="relative w-full sm:col-span-1 lg:w-80 group">
               <input 
                 type="text" 
                 placeholder="SEARCH REGISTRY..." 
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full h-14 pl-12 pr-6 rounded-2xl border border-slate-100 bg-white text-[10px] font-black uppercase tracking-[3px] focus:border-amber-500/30 transition-all shadow-sm" 
+                className="w-full h-12 md:h-14 pl-12 pr-6 rounded-xl md:rounded-2xl border border-slate-100 bg-white text-[9px] md:text-[10px] font-black uppercase tracking-[2px] md:tracking-[3px] focus:border-amber-500/30 transition-all shadow-sm" 
               />
-              <Search size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" />
+              <Search size={14} md:size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" />
            </div>
 
            <select 
              value={sortBy} 
              onChange={(e) => setSortBy(e.target.value as any)}
-             className="h-14 px-6 rounded-2xl border border-slate-100 bg-white text-[10px] font-black uppercase tracking-[3px] focus:border-amber-500/30 transition-all shadow-sm outline-none appearance-none cursor-pointer pr-12 min-w-[160px]"
+             className="w-full sm:col-span-1 h-12 md:h-14 px-5 md:px-6 rounded-xl md:rounded-2xl border border-slate-100 bg-white text-[9px] md:text-[10px] font-black uppercase tracking-[2px] md:tracking-[3px] focus:border-amber-500/30 transition-all shadow-sm outline-none appearance-none cursor-pointer pr-12 min-w-[160px]"
            >
              <option value="name">Sort by Name</option>
              <option value="cgpa">Sort by CGPA</option>
              <option value="roll_no">Sort by Roll No</option>
            </select>
            
-           <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200 shadow-inner">
+           <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200 shadow-inner w-full sm:w-auto justify-center">
               <button 
                 onClick={() => setViewMode('grid')}
-                className={`p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`flex-1 sm:flex-none p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
               >
-                <LayoutGrid size={16} />
+                <LayoutGrid size={16} className="mx-auto" />
               </button>
               <button 
                 onClick={() => setViewMode('list')}
-                className={`p-2.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`flex-1 sm:flex-none p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
               >
-                <List size={16} />
+                <List size={16} className="mx-auto" />
               </button>
            </div>
         </div>
@@ -265,9 +265,8 @@ export default function AdminStudentsPage() {
             ))}
           </AnimatePresence>
         </div>
-      ) : (
-        <div className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm">
-           <table className="w-full text-left border-collapse">
+        <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 overflow-x-auto shadow-sm">
+           <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                  <tr className="bg-slate-50 border-b border-slate-100">
                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Student</th>
@@ -350,26 +349,26 @@ export default function AdminStudentsPage() {
              exit={{ opacity: 0, scale: 0.9, y: 40 }}
              className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden flex flex-col"
            >
-              <div className="p-8 lg:p-12 border-b border-slate-50 flex items-start justify-between">
-                 <div className="flex gap-6 items-center">
-                    <div className="size-20 rounded-[2rem] bg-amber-600 text-white flex items-center justify-center text-3xl font-black shadow-xl">
+              <div className="p-6 md:p-8 lg:p-12 border-b border-slate-50 flex items-start justify-between">
+                 <div className="flex gap-4 md:gap-6 items-center">
+                    <div className="size-14 md:size-20 rounded-2xl md:rounded-[2rem] bg-amber-600 text-white flex items-center justify-center text-xl md:text-3xl font-black shadow-xl">
                        {selectedStudent.name.charAt(0)}
                     </div>
                     <div className="space-y-1">
-                       <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">{selectedStudent.name}</h2>
-                       <div className="flex items-center gap-3 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                       <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase">{selectedStudent.name}</h2>
+                       <div className="flex items-center gap-2 md:gap-3 text-slate-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest">
                           <span>{selectedStudent.roll_no}</span>
                           <span className="opacity-20">|</span>
                           <span>{selectedStudent.cgpa} CGPA</span>
                        </div>
                     </div>
                  </div>
-                 <button onClick={() => setSelectedStudent(null)} className="p-3 bg-slate-50 rounded-2xl text-slate-400 hover:text-slate-900 transition-colors">
-                    <AlertCircle size={20} />
+                 <button onClick={() => setSelectedStudent(null)} className="p-2 md:p-3 bg-slate-50 rounded-xl md:rounded-2xl text-slate-400 hover:text-slate-900 transition-colors">
+                    <AlertCircle size={18} md:size={20} />
                  </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-8 lg:p-12 space-y-12 bg-slate-50/30">
+              <div className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-12 space-y-8 md:space-y-12 bg-slate-50/30">
                  {loadingDetails ? (
                    <div className="py-20 flex flex-col items-center justify-center gap-4">
                       <Activity className="text-amber-600 animate-spin" />

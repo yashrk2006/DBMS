@@ -142,7 +142,7 @@ export default function CareerHubAgent() {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-24 right-8 lg:bottom-12 lg:right-12 z-[100] bg-slate-900 text-white p-4 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 flex items-center gap-3 active:bg-slate-800 transition-colors"
+          className="fixed bottom-28 md:bottom-12 right-6 md:right-12 z-[100] bg-slate-900 text-white p-3.5 md:p-4 rounded-2xl md:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 flex items-center gap-2 md:gap-3 active:bg-slate-800 transition-colors"
         >
           <div className="relative">
             <Zap className="text-amber-400 fill-amber-400" size={24} />
@@ -152,7 +152,7 @@ export default function CareerHubAgent() {
               className="absolute inset-0 bg-amber-400 rounded-full"
             />
           </div>
-          <span className="font-black text-xs uppercase tracking-[0.2em] hidden md:block">Career Assistant</span>
+          <span className="font-black text-[10px] md:text-xs uppercase tracking-[0.2em] hidden sm:block">Career Assistant</span>
         </motion.button>
       )}
 
@@ -169,7 +169,7 @@ export default function CareerHubAgent() {
             <div className="h-full bg-white/90 backdrop-blur-3xl rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-white flex flex-col overflow-hidden">
               
               {/* Header */}
-              <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-white/50">
+              <div className="p-6 md:p-8 border-b border-slate-100 flex items-center justify-between bg-white/50">
                 <div className="flex items-center gap-4">
                   <div className="size-12 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3">
                     <Zap className="text-amber-400 fill-amber-400" size={24} />
@@ -193,7 +193,7 @@ export default function CareerHubAgent() {
               {/* Chat Area */}
               <div 
                 ref={scrollRef}
-                className="flex-1 overflow-y-auto p-8 space-y-8 scroll-smooth"
+                className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 md:space-y-8 scroll-smooth"
               >
                 {messages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center space-y-6 opacity-40">
@@ -218,13 +218,13 @@ export default function CareerHubAgent() {
                         <div className={`shrink-0 size-8 rounded-xl flex items-center justify-center ${isMe ? 'bg-amber-100' : 'bg-slate-900'}`}>
                           {isMe ? <Zap size={14} className="text-amber-600 fill-amber-600" /> : <Bot size={14} className="text-white" />}
                         </div>
-                        <div className={`p-5 text-[13px] font-semibold leading-relaxed shadow-sm ${
+                        <div className={`p-4 md:p-5 text-[12px] md:text-[13px] font-semibold leading-relaxed shadow-sm ${
                           isMe 
-                          ? 'bg-slate-900 text-white rounded-[2rem] rounded-tr-none' 
-                          : 'bg-slate-50 text-slate-800 rounded-[2rem] rounded-tl-none border border-slate-100'
+                          ? 'bg-slate-900 text-white rounded-[1.5rem] md:rounded-[2rem] rounded-tr-none' 
+                          : 'bg-slate-50 text-slate-800 rounded-[1.5rem] md:rounded-[2rem] rounded-tl-none border border-slate-100'
                         }`}>
                           <div className="whitespace-pre-wrap">{m.content}</div>
-                          <p className="text-[9px] mt-3 opacity-50 font-bold uppercase tracking-widest">
+                          <p className="text-[8px] md:text-[9px] mt-2 md:mt-3 opacity-50 font-bold uppercase tracking-widest">
                             {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
                         </div>
@@ -248,7 +248,7 @@ export default function CareerHubAgent() {
 
               {/* Suggestions */}
               {messages.length < 5 && !isAiThinking && (
-                <div className="px-8 pb-4 flex flex-wrap gap-2">
+                <div className="px-6 md:px-8 pb-4 flex flex-wrap gap-2">
                    {suggestions.map((s, idx) => (
                      <button
                        key={idx}
@@ -263,22 +263,22 @@ export default function CareerHubAgent() {
               )}
 
               {/* Input */}
-              <div className="p-8 pt-4 bg-white/50">
-                <div className="flex items-center gap-3 bg-white p-2.5 pl-6 rounded-full border border-slate-200 shadow-xl focus-within:border-amber-400 transition-all">
+              <div className="p-6 md:p-8 pt-2 md:pt-4 bg-white/50">
+                <div className="flex items-center gap-2 md:gap-3 bg-white p-2 pl-4 md:pl-6 rounded-full border border-slate-200 shadow-xl focus-within:border-amber-400 transition-all">
                   <input
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                     placeholder="Ask me anything..."
-                    className="flex-1 bg-transparent border-none focus:ring-0 text-[13px] font-bold placeholder:text-slate-300"
+                    className="flex-1 bg-transparent border-none focus:ring-0 text-xs md:text-[13px] font-bold placeholder:text-slate-300"
                   />
                   <button 
                     onClick={() => sendMessage()}
                     disabled={!input.trim() || isAiThinking}
-                    className="size-12 bg-slate-900 text-white rounded-full flex items-center justify-center hover:bg-amber-600 transition-all disabled:opacity-50 disabled:hover:bg-slate-900"
+                    className="size-10 md:size-12 bg-slate-900 text-white rounded-full flex items-center justify-center hover:bg-amber-600 transition-all disabled:opacity-50 disabled:hover:bg-slate-900 shrink-0"
                   >
-                    <Send size={18} className="translate-x-0.5" />
+                    <Send size={16} md:size={18} className="translate-x-0.5" />
                   </button>
                 </div>
               </div>

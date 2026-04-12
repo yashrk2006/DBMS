@@ -205,31 +205,42 @@ export default function ProfilePage() {
 
       {/* Hero Banner */}
       <AnimatedSection direction="up" distance={40}>
-        <div className="relative h-64 rounded-[4rem] bg-white border border-slate-100 overflow-hidden shadow-premium flex items-end p-12 md:p-14 group">
+        <div className="relative min-h-[16rem] md:h-64 rounded-[2.5rem] md:rounded-[4rem] bg-white border border-slate-100 overflow-hidden shadow-premium flex items-end p-6 md:p-14 group">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-slate-50 opacity-40 pointer-events-none" />
           <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 blur-[120px] rounded-full -mr-32 -mt-32 pointer-events-none" />
           
-          <div className="relative z-10 flex flex-col md:flex-row items-center md:items-end gap-10 w-full">
-            <div className="relative group/avatar">
-               <div className="size-36 rounded-[3rem] bg-white border-[6px] border-white flex items-center justify-center text-amber-600 shadow-2xl group-hover:scale-105 transition-all duration-700 relative overflow-hidden ring-1 ring-slate-100">
-                  <span className="text-6xl font-black tracking-tighter text-amber-500/20 select-none">{profile.name ? profile.name.charAt(0).toUpperCase() : 'S'}</span>
+          <div className="relative z-10 flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-10 w-full text-center md:text-left mt-8 md:mt-0">
+            <div className="relative group/avatar shrink-0 mb-2 md:mb-0">
+               <div className="size-24 md:size-36 rounded-2xl md:rounded-[3rem] bg-white border-[4px] md:border-[6px] border-white flex items-center justify-center text-amber-600 shadow-2xl group-hover:scale-105 transition-all duration-700 relative overflow-hidden ring-1 ring-slate-100">
+                  <span className="text-3xl md:text-6xl font-black tracking-tighter text-amber-500/20 select-none">{profile.name ? profile.name.charAt(0).toUpperCase() : 'S'}</span>
                   <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'User')}&background=f59e0b&color=fff&bold=true&size=256`} alt="Profile" className="absolute inset-0 size-full object-cover" />
                </div>
-               <div className="absolute -bottom-2 -right-2 size-10 rounded-2xl bg-slate-950 border-4 border-white flex items-center justify-center text-white shadow-lg cursor-pointer hover:bg-amber-600 transition-colors">
-                  <Camera size={14} />
+               <div className="absolute -bottom-1 -right-1 size-8 md:size-10 rounded-xl md:rounded-2xl bg-slate-950 border-2 md:border-4 border-white flex items-center justify-center text-white shadow-lg cursor-pointer hover:bg-amber-600 transition-colors">
+                  <Camera size={12} md:size={14} />
                </div>
             </div>
-            <div className="flex-1 text-center md:text-left pb-2">
-               <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/10">
-                    <ShieldCheck size={12} className="text-amber-600" />
-                    <span className="text-[9px] font-black uppercase tracking-[3px] text-amber-700">Verified Identity</span>
+            <div className="flex-1 pb-2">
+               <div className="flex items-center justify-center md:justify-start gap-3 mb-2 md:mb-4">
+                  <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/10">
+                    <ShieldCheck size={10} md:size={12} className="text-amber-600" />
+                    <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[2px] md:tracking-[3px] text-amber-700">Verified identity</span>
                   </div>
                </div>
-               <h1 className="text-5xl md:text-7xl font-black text-slate-950 tracking-tighter uppercase leading-[0.8]">
-                 {profile.name || 'Anonymous'}<br />
-                 <span className="text-amber-600 opacity-80">Sync Interface.</span>
+               <h1 className="text-2xl sm:text-3xl md:text-7xl font-black text-slate-950 tracking-tighter uppercase leading-[1.1] md:leading-[0.8]">
+                 {profile.name || 'Anonymous'}<br className="hidden md:block" />
+                 <span className="text-amber-600 opacity-80 md:ml-0 ml-2">Sync Profile.</span>
                </h1>
+            </div>
+
+            <div className="flex md:hidden w-full items-center justify-between border-t border-slate-100 pt-4 mt-2">
+                <div className="flex flex-col items-start gap-1">
+                  <span className="text-[8px] font-black uppercase tracking-[2px] text-slate-400">Sync Nodes</span>
+                  <div className="text-xl font-black tracking-tighter text-slate-900">{completedCount}/{completionSteps.length}</div>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-[8px] font-black uppercase tracking-[2px] text-slate-400">Match Index</span>
+                  <div className={`text-xl font-black tracking-tighter ${completionColor}`}>{completionPct}%</div>
+                </div>
             </div>
 
             <div className="hidden md:flex flex-col items-end gap-2 pb-2">
@@ -253,15 +264,15 @@ export default function ProfilePage() {
 
           {/* Dynamic Profile Completion Widget */}
           <AnimatedSection direction="right">
-            <div className="bg-white/70 backdrop-blur-xl rounded-[3rem] border border-white/60 shadow-premium p-10 space-y-8 relative overflow-hidden">
+            <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] md:rounded-[3rem] border border-white/60 shadow-premium p-6 md:p-10 space-y-6 md:space-y-8 relative overflow-hidden">
                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl -mr-10 -mt-10" />
               <div className="flex items-center gap-4 relative z-10">
-                <div className="size-12 rounded-2xl bg-amber-500/10 border border-amber-500/10 flex items-center justify-center text-amber-600 shadow-inner">
-                  <Activity size={20} />
+                <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-amber-500/10 border border-amber-500/10 flex items-center justify-center text-amber-600 shadow-inner shrink-0">
+                  <Activity size={18} md:size={20} />
                 </div>
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-[4px] text-slate-400">Capability Sync</div>
-                  <div className={`text-3xl font-black tracking-tighter ${completionColor}`}>{completionPct}% Profile</div>
+                  <div className="text-[8px] md:text-[10px] font-black uppercase tracking-[2px] md:tracking-[4px] text-slate-400">Capability Sync</div>
+                  <div className={`text-xl md:text-3xl font-black tracking-tighter ${completionColor}`}>{completionPct}% Completion</div>
                 </div>
               </div>
 
@@ -276,18 +287,18 @@ export default function ProfilePage() {
               </div>
 
               {/* Checklist */}
-              <div className="space-y-4 relative z-10">
+              <div className="space-y-3 md:space-y-4 relative z-10">
                 {completionSteps.map((step) => (
-                  <div key={step.label} className={`flex items-start gap-4 p-4 rounded-2xl transition-all duration-500 ${step.done ? 'bg-emerald-500/5 border border-emerald-500/10' : 'bg-slate-50/50 border border-slate-100 hover:border-amber-500/20'}`}>
-                    <div className={`size-8 rounded-xl flex items-center justify-center shrink-0 ${step.done ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-white border border-slate-200 text-slate-300'}`}>
-                      {step.done ? <CheckCircle2 size={14} /> : <step.icon size={14} />}
+                  <div key={step.label} className={`flex items-start gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl transition-all duration-500 ${step.done ? 'bg-emerald-500/5 border border-emerald-500/10' : 'bg-slate-50/50 border border-slate-100 hover:border-amber-500/20'}`}>
+                    <div className={`size-7 md:size-8 rounded-lg md:rounded-xl flex items-center justify-center shrink-0 ${step.done ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-white border border-slate-200 text-slate-300'}`}>
+                      {step.done ? <CheckCircle2 size={12} md:size={14} /> : <step.icon size={12} md:size={14} />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className={`text-[11px] font-black uppercase tracking-[2px] ${step.done ? 'text-emerald-700 opacity-60' : 'text-slate-700'}`}>
+                      <div className={`text-[9px] md:text-[11px] font-black uppercase tracking-[1px] md:tracking-[2px] ${step.done ? 'text-emerald-700 opacity-60' : 'text-slate-700'}`}>
                         {step.label}
                       </div>
                       {!step.done && (
-                        <div className="text-[10px] font-medium text-slate-400 mt-1 leading-relaxed">{step.hint}</div>
+                        <div className="text-[9px] md:text-[10px] font-medium text-slate-400 mt-0.5 leading-relaxed">{step.hint}</div>
                       )}
                     </div>
                   </div>
@@ -319,15 +330,15 @@ export default function ProfilePage() {
 
           {/* Quick Stats */}
           <AnimatedSection direction="right" delay={0.1}>
-            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 grid grid-cols-2 gap-4">
+            <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-4 md:p-6 grid grid-cols-2 gap-3 md:gap-4">
               {[
                 { label: 'Skills Added', value: skillCount, color: 'text-amber-600', icon: Award },
                 { label: 'Applications', value: appCount, color: 'text-indigo-600', icon: Zap },
               ].map(item => (
-                <div key={item.label} className="bg-slate-50 rounded-xl border border-slate-100 p-4 flex flex-col gap-2">
-                  <item.icon size={14} className={item.color} />
-                  <div className={`text-2xl font-black tracking-tighter ${item.color}`}>{item.value}</div>
-                  <div className="text-[9px] font-black uppercase tracking-[2px] text-slate-400">{item.label}</div>
+                <div key={item.label} className="bg-slate-50 rounded-xl border border-slate-100 p-3 md:p-4 flex flex-col gap-1 md:gap-2">
+                  <item.icon size={12} md:size={14} className={item.color} />
+                  <div className={`text-xl md:text-2xl font-black tracking-tighter ${item.color}`}>{item.value}</div>
+                  <div className="text-[8px] md:text-[9px] font-black uppercase tracking-[2px] text-slate-400">{item.label}</div>
                 </div>
               ))}
             </div>
@@ -348,8 +359,8 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <form onSubmit={saveProfile} className="p-8 space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={saveProfile} className="p-6 md:p-8 space-y-6 md:space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
 
                   {/* Name */}
                   <div className="space-y-2">
@@ -360,20 +371,20 @@ export default function ProfilePage() {
                       type="text" value={profile.name}
                       onChange={e => setProfile(p => ({ ...p, name: e.target.value }))}
                       placeholder="e.g. Rahul Sharma"
-                      className="w-full h-14 px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
+                      className="w-full h-12 md:h-14 px-4 md:px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
                     />
                   </div>
 
                   {/* Roll Number (Official ID) */}
                   <div className="space-y-2">
                     <label className="text-[9px] font-black text-amber-600 uppercase tracking-[3px] flex items-center gap-2">
-                      <ShieldCheck size={11} /> Institutional ID (Roll No)
+                      <ShieldCheck size={11} /> Institutional ID
                     </label>
                     <input 
                       type="text" value={profile.roll_no}
                       onChange={e => setProfile(p => ({ ...p, roll_no: e.target.value }))}
                       placeholder="e.g. 24/70001"
-                      className="w-full h-14 px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-black text-slate-900 tracking-wider focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
+                      className="w-full h-12 md:h-14 px-4 md:px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-black text-slate-900 tracking-wider focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
                     />
                   </div>
 
@@ -386,20 +397,20 @@ export default function ProfilePage() {
                       type="number" value={profile.graduation_year}
                       onChange={e => setProfile(p => ({ ...p, graduation_year: e.target.value }))}
                       placeholder="e.g. 2026" min="2020" max="2035"
-                      className="w-full h-14 px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
+                      className="w-full h-12 md:h-14 px-4 md:px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
                     />
                   </div>
 
                   {/* College */}
                   <div className="space-y-2">
                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-[3px] flex items-center gap-2">
-                      <School size={11} /> University / Institution
+                      <School size={11} /> Institution
                     </label>
                     <input 
                       type="text" value={profile.college}
                       onChange={e => setProfile(p => ({ ...p, college: e.target.value }))}
                       placeholder="e.g. IIT Delhi"
-                      className="w-full h-14 px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
+                      className="w-full h-12 md:h-14 px-4 md:px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
                     />
                   </div>
 
@@ -412,7 +423,7 @@ export default function ProfilePage() {
                       type="text" value={profile.branch}
                       onChange={e => setProfile(p => ({ ...p, branch: e.target.value }))}
                       placeholder="e.g. Computer Science"
-                      className="w-full h-14 px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
+                      className="w-full h-12 md:h-14 px-4 md:px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
                     />
                   </div>
 
@@ -426,7 +437,7 @@ export default function ProfilePage() {
                       value={profile.cgpa}
                       onChange={e => setProfile(p => ({ ...p, cgpa: e.target.value }))}
                       placeholder="e.g. 9.15"
-                      className="w-full h-14 px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-black text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
+                      className="w-full h-12 md:h-14 px-4 md:px-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-black text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none"
                     />
                   </div>
 
@@ -438,8 +449,8 @@ export default function ProfilePage() {
                     <textarea 
                       value={profile.bio}
                       onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))}
-                      placeholder="A short summary of your professional background, goals, and expertise..."
-                      className="w-full h-32 p-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none resize-none"
+                      placeholder="A short summary of your background..."
+                      className="w-full h-32 p-4 md:p-5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-900 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/40 transition-all placeholder:text-slate-300 outline-none resize-none"
                     />
                   </div>
                 </div>

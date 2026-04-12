@@ -130,13 +130,13 @@ export default function AdminOverview() {
     <div className="space-y-12">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Platform Hub</h1>
-          <p className="text-slate-500 font-medium tracking-tight">Overview of SkillSync student progress and employment trends.</p>
+          <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight uppercase">Platform Hub</h1>
+          <p className="text-sm text-slate-500 font-medium tracking-tight">Overview of SkillSync student progress and employment trends.</p>
         </div>
         <button 
           onClick={handleAiPrediction}
           disabled={isPredicting}
-          className="px-8 py-4 bg-slate-950 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl flex items-center gap-3 active:scale-95 disabled:opacity-50"
+          className="w-full md:w-auto px-6 md:px-8 py-3 md:py-4 bg-slate-950 text-white rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
         >
           <BarChart3 size={18} className={isPredicting ? "animate-spin" : ""} />
           {isPredicting ? "Analyzing..." : "Trend Analysis"}
@@ -149,16 +149,16 @@ export default function AdminOverview() {
           className="p-12 rounded-[3.5rem] bg-slate-950 text-white border border-white/5 shadow-2xl relative overflow-hidden group"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-amber-600/10 via-transparent to-indigo-600/10 opacity-50 transition-opacity group-hover:opacity-100" />
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="space-y-6">
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            <div className="space-y-4 md:space-y-6">
               <div className="flex items-center gap-3">
                 <div className="size-2 rounded-full bg-amber-500 animate-ping" />
                 <span className="text-[10px] font-black uppercase tracking-[5px] text-white/50">Placement Velocity</span>
               </div>
-              <div className="text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20">
+              <div className="text-6xl md:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20">
                 {predictionData.predicted_success_rate}%
               </div>
-              <p className="text-[10px] font-bold opacity-40 leading-relaxed uppercase tracking-[3px]">Matched against industry benchmarks & skill requirements.</p>
+              <p className="text-[8px] md:text-[10px] font-bold opacity-40 leading-relaxed uppercase tracking-[3px]">Matched against industry benchmarks & skill requirements.</p>
             </div>
             
             <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -190,20 +190,20 @@ export default function AdminOverview() {
       )}
 
       {/* Impact Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {impactCards.map(stat => (
           <ThreeDCard key={stat.label} className="h-full">
             <div 
               onClick={() => stat.label === 'Corporate Partners' ? router.push('/admin/companies') : null}
-              className={`bg-white h-full p-8 rounded-[2rem] border ${stat.border} shadow-sm group hover:shadow-md transition-all cursor-pointer`}
+              className={`bg-white h-full p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border ${stat.border} shadow-sm group hover:shadow-md transition-all cursor-pointer`}
             >
-              <div className="flex items-center justify-between mb-6">
-                <div className="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">{stat.label}</div>
-                <div className={`size-9 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color}`}>
+              <div className="flex items-center justify-between mb-4 md:mb-6">
+                <div className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[2px]">{stat.label}</div>
+                <div className={`size-8 md:size-9 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color}`}>
                   <stat.icon size={16} />
                 </div>
               </div>
-              <div className={`text-4xl font-black ${stat.color} tracking-tighter`}>
+              <div className={`text-3xl md:text-4xl font-black ${stat.color} tracking-tighter`}>
                 {stat.value.toLocaleString('en-IN')}
               </div>
             </div>
@@ -221,7 +221,7 @@ export default function AdminOverview() {
             </div>
 
             <div className="relative z-10">
-                <div className="flex items-center justify-between mb-10">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 md:mb-10">
                     <div className="space-y-1">
                         <div className="flex items-center gap-3">
                             <div className="size-6 rounded-lg bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
@@ -229,7 +229,7 @@ export default function AdminOverview() {
                             </div>
                             <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[4px]">Career Analytics</span>
                         </div>
-                        <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Skill Adoption Growth</h2>
+                        <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">Skill Adoption Growth</h2>
                     </div>
                 </div>
 
@@ -296,16 +296,16 @@ export default function AdminOverview() {
         </div>
 
         {/* Support Alerts Panel */}
-        <div className="lg:col-span-4 bg-slate-900 rounded-[3rem] p-10 border border-white/5 flex flex-col relative overflow-hidden group/radar">
+        <div className="lg:col-span-4 bg-slate-900 rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 border border-white/5 flex flex-col relative overflow-hidden group/radar">
           <div className="absolute top-0 right-0 p-8 opacity-5 group-hover/radar:rotate-12 transition-transform">
             <TrendingDown size={100} className="text-rose-500" />
           </div>
-          <div className="flex flex-col gap-4 mb-8">
+          <div className="flex flex-col gap-4 mb-6 md:mb-8">
             <div className="flex items-center gap-3">
               <div className="size-8 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center border border-rose-500/20">
                 <AlertTriangle size={18} />
               </div>
-              <h3 className="text-xl font-black text-white uppercase tracking-tighter">Support Pipeline</h3>
+              <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter">Support Pipeline</h3>
             </div>
             <div className="relative group">
               <input 
@@ -341,11 +341,11 @@ export default function AdminOverview() {
       </div>
 
       {/* Activity Feed */}
-      <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm p-10 overflow-hidden relative">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+      <div className="bg-white rounded-[2rem] md:rounded-[3rem] border border-slate-100 shadow-sm p-6 md:p-10 overflow-hidden relative">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 md:mb-10">
           <div className="space-y-1">
-            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Live Updates Feed</h2>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Platform Event Log</p>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Live Updates Feed</h2>
+            <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Platform Event Log</p>
           </div>
           <div className="flex items-center gap-6 w-full md:w-auto">
             <div className="relative group w-full md:w-64">
@@ -384,17 +384,17 @@ export default function AdminOverview() {
                   a.status.toLowerCase().includes(query);
               })
               .map((activity, idx) => (
-              <div key={activity.id} className={`flex items-center justify-between p-6 rounded-2xl transition-all hover:bg-slate-50 group ${idx !== recentActivity.length - 1 ? 'border-b border-slate-50' : ''}`}>
-                <div className="flex items-center gap-6">
+              <div key={activity.id} className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 md:p-6 rounded-2xl transition-all hover:bg-slate-50 group gap-4 ${idx !== recentActivity.length - 1 ? 'border-b border-slate-50' : ''}`}>
+                <div className="flex items-center gap-4 md:gap-6">
                   <div className="size-10 rounded-xl bg-slate-900 text-white flex items-center justify-center text-xs font-black shadow-lg shadow-slate-900/20 group-hover:bg-amber-600 group-hover:shadow-amber-600/20 transition-all shrink-0">
                     {activity.type.charAt(0)}
                   </div>
                   <div>
                     <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight leading-none mb-2">{activity.title}</h4>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[2px]">{new Date(activity.timestamp).toLocaleString()}</span>
+                    <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                      <span className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-[2px]">{new Date(activity.timestamp).toLocaleString()}</span>
                       <div className="size-1 rounded-full bg-slate-200" />
-                      <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest">{activity.type}</span>
+                      <span className="text-[8px] md:text-[9px] font-black text-amber-600 uppercase tracking-widest">{activity.type}</span>
                     </div>
                   </div>
                 </div>

@@ -451,13 +451,13 @@ export default function DashboardPage() {
 
       {/* Modals */}
       {isReadinessModalOpen && (
-        <div className="fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-6 backdrop-blur-md animate-in fade-in">
-          <div className="bg-white rounded-[2.5rem] p-10 max-w-2xl w-full shadow-2xl relative overflow-hidden">
+        <div className="fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-4 md:p-6 backdrop-blur-md animate-in fade-in">
+          <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 max-w-2xl w-full shadow-2xl relative overflow-hidden overflow-y-auto max-h-[90vh]">
              <div className="absolute top-0 right-0 p-12 opacity-5 -rotate-12 translate-x-8 -translate-y-8">
                 <Icon name="auto_awesome" className="text-[160px] text-indigo-600" />
              </div>
              
-             <button onClick={() => setIsReadinessModalOpen(false)} className="absolute top-8 right-8 text-slate-400 hover:text-black transition-colors">
+             <button onClick={() => setIsReadinessModalOpen(false)} className="absolute top-4 right-4 md:top-8 md:right-8 text-slate-400 hover:text-black transition-colors z-20">
                 <Icon name="close" />
              </button>
 
@@ -511,8 +511,8 @@ export default function DashboardPage() {
         </div>
       )}
       {aiRoadmap && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6 backdrop-blur-sm animate-in fade-in max-h-screen overflow-y-auto">
-          <div className="bg-white rounded-[2rem] p-8 max-w-xl w-full shadow-2xl relative">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 md:p-6 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+          <div className="bg-white rounded-[2rem] p-6 md:p-8 max-w-xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
              <button onClick={() => setAiRoadmap(null)} className="absolute top-6 right-6 text-slate-400 hover:text-black"><Icon name="close" /></button>
              <h2 className="text-2xl font-black uppercase mb-2">Learning Roadmap</h2>
              <p className="text-slate-500 font-bold uppercase tracking-widest text-xs mb-6">Steps to reach your career goal</p>
