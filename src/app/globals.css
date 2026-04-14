@@ -42,10 +42,10 @@
   --font-sans: var(--font-plus-jakarta), sans-serif;
   --font-mono: var(--font-mono), monospace;
 
-  /* Premium Radii */
-  --radius-lg: 1.8rem;
-  --radius-md: 1.4rem;
-  --radius-sm: 0.8rem;
+  /* Premium Radii - Comfy & Soft */
+  --radius-lg: 2rem;
+  --radius-md: 1.5rem;
+  --radius-sm: 1rem;
 }
 
 :root {
@@ -75,10 +75,11 @@
   
   --radius: 1.8rem;
 
-  /* Premium Glassmorphism (Digital Curator Variant) */
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(87, 90, 147, 0.05);
-  --glass-shadow: 0 20px 40px rgba(45, 51, 53, 0.06);
+  /* Premium Soft Shadow (Apple-style Multi-layered) */
+  --soft-shadow: 0 2px 4px rgba(0,0,0,0.02), 0 10px 20px rgba(0,0,0,0.04);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.04);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
 }
 
 .dark {
@@ -124,24 +125,24 @@
   }
 }
 
-/* Alvance Utility Classes */
+/* Clean & Comfy Utility Classes */
 .curator-card {
-  @apply bg-white dark:bg-slate-900 border border-transparent shadow-[0px_20px_40px_rgba(45,51,53,0.06)] rounded-[1.8rem] transition-all duration-500 hover:shadow-[0px_30px_60px_rgba(45,51,53,0.1)] active:scale-[0.98];
+  @apply bg-white dark:bg-slate-900 border border-slate-100/50 dark:border-white/5 shadow-[var(--soft-shadow)] rounded-[var(--radius-lg)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 active:scale-[0.98];
 }
 
 .tonal-separation {
-  @apply bg-surface-container dark:bg-slate-800/50;
+  @apply bg-slate-50 dark:bg-slate-800/30;
 }
 
 .glass-bottom-nav {
-  @apply fixed bottom-0 left-0 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border-t border-white/10 shadow-[0px_-10px_40px_rgba(45,51,53,0.06)] z-50 rounded-t-[2.5rem];
+  @apply fixed bottom-0 left-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-3xl border-t border-slate-100/50 dark:border-white/5 shadow-[0_-8px_32px_rgba(0,0,0,0.04)] z-50 rounded-t-[2.5rem];
 }
 
 .mesh-glow {
   background-attachment: fixed;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(87, 90, 147, 0.05) 0, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(49, 99, 138, 0.05) 0, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(87, 90, 147, 0.03) 0, transparent 40%),
+    radial-gradient(at 100% 100%, rgba(49, 99, 138, 0.03) 0, transparent 40%);
 }
 
 /* Scroll Premium - Minimalist */

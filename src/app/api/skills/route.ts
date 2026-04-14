@@ -13,7 +13,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'User Context Missing' }, { status: 400 });
     }
 
-    // 1. Fetch Student Skills & Profile Data (use admin client to bypass any RLS)
+    // 1. Fetch Student Skills & Profile Data
     const [
       { data: studentData, error: studentError },
       { data: skilledData, error: skillsError }
@@ -24,6 +24,36 @@ export async function GET(request: Request) {
         .select('proficiency_level, skill(skill_id, skill_name, category)')
         .eq('student_id', userId)
     ]);
+
+    let studentInfo = studentData;
+
+    // Auto-provisioning for New Students (First Login Flow)
+    if (studentError || !studentInfo) {
+      console.log(`🎓 Auto-provisioning student record for user: ${userId} in Skills API`);
+      
+      const { data: { user: authUser } } = await supabaseAdmin.auth.admin.getUserById(userId);
+      const email = authUser?.email || `student_${userId.slice(0, 8)}@university.edu`;
+      const displayName = authUser?.user_metadata?.full_name || authUser?.user_metadata?.name || email.split('@')[0];
+
+      const { data: newStudent, error: createError } = await supabaseAdmin
+        .from('student')
+        .upsert({
+          student_id: userId,
+          email,
+          name: displayName,
+          roll_no: authUser?.user_metadata?.roll_no || `R-${userId.slice(0, 6).toUpperCase()}`,
+          college: 'Institutional Partner',
+          cgpa: 0
+        }, { onConflict: 'student_id' })
+        .select('ai_resume_analysis')
+        .single();
+
+      if (createError) {
+        console.error('❌ Student auto-provision failed in Skills API:', createError.message);
+      } else {
+        studentInfo = newStudent;
+      }
+    }
 
     if (skillsError) throw skillsError;
 
@@ -61,7 +91,7 @@ export async function GET(request: Request) {
       success: true, 
       studentSkills,
       allSkills: allAvailableSkills || [],
-      aiResumeAnalysis: studentData?.ai_resume_analysis,
+      aiResumeAnalysis: studentInfo?.ai_resume_analysis,
       careerInsights: {
         marketReach,
         nextBestSkill

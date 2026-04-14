@@ -1,8 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, Briefcase, TrendingUp, BarChart3, MapPin, Clock, Flame, Download, ShieldAlert, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { 
+  Search, Briefcase, TrendingUp, BarChart3, MapPin, 
+  Clock, Flame, Download, ShieldAlert, Sparkles,
+  Target, Activity, Globe, ArrowUpRight
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { exportToCSV } from '@/lib/utils/export';
 import { toast } from 'react-hot-toast';
 
@@ -22,6 +27,7 @@ interface Internship {
 type SortKey = 'app_count' | 'req_count' | 'internship_id';
 
 export default function AdminInternshipsPage() {
+  const router = useRouter();
   const [internships, setInternships] = useState<Internship[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -58,7 +64,7 @@ export default function AdminInternshipsPage() {
       'Market Saturation (%)': i.saturation || 0
     }));
     exportToCSV(exportData, `admin_roles_${new Date().toISOString().split('T')[0]}.csv`);
-    toast.success('Market report generated successfully.');
+    toast.success('Market report generated successfully.', { icon: '📊' });
   };
 
   const handlePromote = (role: string) => {
@@ -77,12 +83,12 @@ export default function AdminInternshipsPage() {
       <motion.div
         animate={{ rotate: 360, scale: [1, 1.1, 1], opacity: [0.5, 1, 0.5] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="text-amber-600"
+        className="text-indigo-600"
       >
         <Briefcase size={64} fill="currentColor" />
       </motion.div>
       <div className="text-center">
-        <h2 className="text-[10px] font-black uppercase tracking-[10px] text-amber-600 mb-2">Syncing Opportunities</h2>
+        <h2 className="text-[10px] font-black uppercase tracking-[10px] text-indigo-600 mb-2">Syncing Opportunities</h2>
         <p className="text-slate-500 text-[9px] font-bold uppercase tracking-[5px] animate-pulse">Accessing Global Internship Registry</p>
       </div>
     </div>
@@ -109,68 +115,93 @@ export default function AdminInternshipsPage() {
   const avgApps = internships.length > 0 ? Math.round(totalApps / internships.length) : 0;
 
   return (
-    <div className="space-y-10">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Internship Listings</h1>
-          <p className="text-slate-500 font-medium">{internships.length} active roles · <span className="text-amber-600 font-black">{totalApps}</span> total applications received</p>
+    <div className="space-y-12 pb-20 max-w-7xl mx-auto">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 pb-10 border-b border-slate-100">
+        <div className="space-y-4">
+          <button 
+            onClick={() => router.push('/admin')}
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors mb-2"
+          >
+            <ArrowUpRight size={14} className="rotate-[225deg]" /> Back to Command Hub
+          </button>
+          <div className="flex items-center gap-3">
+             <div className="size-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-sm">
+                <Target size={14} />
+             </div>
+             <h2 className="text-[10px] font-black uppercase tracking-[6px] text-slate-400">Opportunity Verification</h2>
+          </div>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Internship Registry</h1>
+          <p className="text-slate-500 font-medium">{internships.length} active roles · <span className="text-indigo-600 font-black">{totalApps}</span> total applications</p>
         </div>
-        <button 
-          onClick={handleExport}
-          className="bg-slate-900 text-white px-8 py-4 rounded-2xl flex items-center gap-3 transition-all font-black text-xs uppercase tracking-widest shrink-0 hover:bg-black shadow-lg"
-        >
-          <Download size={18} />
-          Market Report
-        </button>
+        
+        <div className="flex items-center gap-4">
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleExport}
+            className="group relative bg-slate-900 text-white px-8 py-4 rounded-[1.25rem] flex items-center gap-3 transition-all font-black text-[10px] uppercase tracking-[3px] shadow-xl hover:bg-black"
+          >
+            <Download size={16} />
+            Market Intelligence Report
+            <div className="absolute inset-0 rounded-[1.25rem] bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          </motion.button>
+        </div>
       </header>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Summary KPI Mosaic */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Active Roles', value: internships.length, icon: Briefcase, color: 'text-slate-700', bg: 'bg-slate-50', border: 'border-slate-100' },
-          { label: 'Total Applications', value: totalApps, icon: BarChart3, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
-          { label: 'High Demand Roles', value: hotRoles, icon: Flame, color: 'text-red-500', bg: 'bg-red-50', border: 'border-red-100' },
-          { label: 'Avg Apps / Role', value: avgApps, icon: TrendingUp, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
-        ].map(card => (
-          <div key={card.label} className={`bg-white p-6 rounded-2xl border ${card.border} shadow-sm hover:shadow-md transition-all`}>
+          { label: 'Active Roles', value: internships.length, icon: Briefcase, color: 'text-slate-700', bg: 'bg-slate-50', trend: 'STABLE' },
+          { label: 'Application Volume', value: totalApps, icon: BarChart3, color: 'text-indigo-600', bg: 'bg-indigo-50', trend: '+14%' },
+          { label: 'Critical Demand', value: hotRoles, icon: Flame, color: 'text-rose-500', bg: 'bg-rose-50', trend: 'URGENT' },
+          { label: 'Avg Matching', value: `${avgApps}`, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50', trend: 'OPTIMAL' },
+        ].map((card, i) => (
+          <motion.div 
+            key={card.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className={`bg-white/40 backdrop-blur-xl p-6 rounded-[2rem] border border-white shadow-sm hover:shadow-xl transition-all group`}
+          >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[9px] font-black uppercase tracking-[2px] text-slate-400">{card.label}</span>
-              <div className={`size-8 rounded-lg ${card.bg} border ${card.border} flex items-center justify-center ${card.color}`}>
-                <card.icon size={14} />
+              <div className={`size-10 rounded-xl ${card.bg} border border-transparent group-hover:border-current flex items-center justify-center ${card.color} transition-all`}>
+                <card.icon size={16} />
               </div>
+              <span className={`text-[8px] font-black px-2 py-1 rounded-md bg-white border border-slate-100 ${card.color}`}>{card.trend}</span>
             </div>
+            <div className="text-[10px] font-black uppercase tracking-[3px] text-slate-400 mb-1">{card.label}</div>
             <div className={`text-3xl font-black tracking-tighter ${card.color}`}>{card.value}</div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      <div className="flex flex-col gap-6">
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1 max-w-md group">
+      <div className="flex flex-col gap-8">
+        {/* Controls Layer */}
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="relative w-full lg:max-w-md group">
+            <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
             <input
               type="text"
-              placeholder="Filter by role or organization..."
+              placeholder="FILTER REGISTRY BY ROLE..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full h-14 pl-12 pr-5 rounded-2xl border border-slate-200 bg-white text-sm font-bold text-slate-900 placeholder:text-slate-300 focus:border-amber-600/30 focus:ring-4 focus:ring-amber-500/5 transition-all outline-none"
+              className="w-full h-16 pl-16 pr-6 rounded-[1.5rem] border border-slate-100 bg-white text-[10px] font-black uppercase tracking-[3px] placeholder:text-slate-300 focus:border-indigo-500/30 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none shadow-sm"
             />
-            <Search size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-600 transition-colors" />
           </div>
-          {/* Sort Pills */}
-          <div className="flex gap-2 flex-wrap">
+          
+          <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-[1.25rem] border border-slate-200 shadow-inner">
             {([
-              { key: 'app_count' as SortKey, label: 'Most Applied' },
-              { key: 'req_count' as SortKey, label: 'Most Skills' },
-              { key: 'internship_id' as SortKey, label: 'Newest' },
+              { key: 'app_count' as SortKey, label: 'Highest Demand' },
+              { key: 'req_count' as SortKey, label: 'Skill Density' },
+              { key: 'internship_id' as SortKey, label: 'System ID' },
             ]).map(opt => (
               <button
                 key={opt.key}
                 onClick={() => setSortBy(opt.key)}
-                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-[3px] border transition-all ${
+                className={`px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[3px] transition-all ${
                   sortBy === opt.key
-                    ? 'bg-amber-600 text-white border-amber-600 shadow-md shadow-amber-600/20'
-                    : 'bg-white text-slate-500 border-slate-200 hover:border-amber-200'
+                    ? 'bg-white text-indigo-600 shadow-sm border border-indigo-100'
+                    : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
                 {opt.label}
@@ -179,96 +210,141 @@ export default function AdminInternshipsPage() {
           </div>
         </div>
 
-        {/* Internship Cards with Demand Bars */}
-        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-slate-50 flex items-center justify-between">
-            <span className="text-sm font-black text-slate-700 uppercase tracking-wide">{filtered.length} roles</span>
-            <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-              <BarChart3 size={13} />
-              Sorted by: {sortBy === 'app_count' ? 'Demand' : sortBy === 'req_count' ? 'Skill Complexity' : 'Newest'}
+        {/* The Opportunity Ledger */}
+        <div className="bg-white/40 backdrop-blur-2xl rounded-[3rem] border border-white shadow-sm overflow-hidden">
+          <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+            <div className="flex items-center gap-4">
+               <div className="size-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black shadow-lg">
+                  <Activity size={18} />
+               </div>
+               <div>
+                  <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[4px]">Verified Opportunity Cluster</h3>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{filtered.length} active nodes in registry</p>
+               </div>
+            </div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white px-4 py-2 rounded-xl border border-slate-100 flex items-center gap-3">
+              <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+              Live Precision Audit
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse min-w-[1000px]">
               <thead>
-                <tr className="bg-slate-50/50 text-[10px] font-black uppercase tracking-[2px] text-slate-400">
-                  <th className="px-8 py-5">#</th>
-                  <th className="px-8 py-5">Role</th>
-                  <th className="px-8 py-5">Company</th>
-                  <th className="px-8 py-5">Location / Duration</th>
-                  <th className="px-8 py-5">Saturation Analytics</th>
-                  <th className="px-8 py-5">System Status</th>
-                  <th className="px-8 py-5 text-right">Actions</th>
+                <tr className="border-b border-slate-50 text-[10px] font-black uppercase tracking-[2px] text-slate-400">
+                  <th className="px-10 py-6">Status ID</th>
+                  <th className="px-10 py-6">Role Specification</th>
+                  <th className="px-10 py-6">Organization</th>
+                  <th className="px-10 py-6">Global Positioning</th>
+                  <th className="px-10 py-6">Market Saturation</th>
+                  <th className="px-10 py-6">Health</th>
+                  <th className="px-10 py-6 text-right">Provisions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {filtered.length === 0 ? (
-                   <tr>
-                     <td colSpan={6} className="px-8 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">No roles matched your query.</td>
-                   </tr>
-                ) : filtered.map((i, idx) => {
-                  const isHot = (i.saturation || 0) >= 60;
-                  const isCritical = i.health === 'Critical';
-                  return (
-                    <tr key={i.internship_id} className="hover:bg-slate-50/30 transition-colors group">
-                      <td className="px-8 py-5 text-[10px] font-mono text-slate-300 font-black">
-                        {String(idx + 1).padStart(3, '0')}
-                      </td>
-                      <td className="px-8 py-5">
-                        <div className="flex items-center gap-2">
-                          <div className="text-sm font-black text-slate-900 group-hover:text-amber-600 transition-colors">{i.title}</div>
-                          {isHot && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-red-50 border border-red-100 text-[9px] font-black text-red-500 uppercase tracking-widest">
-                              <Flame size={9} /> Hot
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mt-0.5">{i.stipend || 'Unpaid'}</div>
-                      </td>
-                      <td className="px-8 py-5">
-                        <div className="text-xs font-bold text-slate-600 truncate max-w-[160px]">{i.company?.company_name || '—'}</div>
-                      </td>
-                      <td className="px-8 py-5">
-                        <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-                          <MapPin size={11} className="text-slate-300 shrink-0" /> {i.location || 'Remote'}
-                        </div>
-                        <div className="flex items-center gap-2 text-[10px] font-medium text-slate-400 uppercase tracking-wider mt-1">
-                          <Clock size={10} className="shrink-0" /> {i.duration || 'Flexible'}
-                        </div>
-                      </td>
-                      <td className="px-8 py-5 min-w-[140px]">
-                        <div className="flex items-center gap-3">
-                          <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${i.saturation || 0}%` }}
-                              className={`h-full rounded-full transition-all ${isHot ? 'bg-red-400' : 'bg-emerald-400'}`}
-                            />
-                          </div>
-                          <span className={`text-[10px] font-black w-8 text-right ${isHot ? 'text-red-500' : 'text-emerald-600'}`}>{i.saturation}%</span>
-                        </div>
-                      </td>
-                      <td className="px-8 py-5">
-                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest ${
-                          isCritical ? 'bg-rose-50 text-rose-600 border-rose-100' : i.health === 'High Demand' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                        }`}>
-                           {isCritical ? <ShieldAlert size={10} /> : <Sparkles size={10} />}
-                           {i.health}
-                        </div>
-                      </td>
-                      <td className="px-8 py-5">
-                        <div className="flex items-center justify-end gap-2">
-                           <button 
-                            onClick={() => handlePromote(i.title)}
-                            className="px-4 py-2 rounded-xl bg-white border border-slate-100 text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-amber-600 hover:border-amber-200 hover:shadow-sm transition-all"
-                           >
-                             Promote
-                           </button>
-                        </div>
+                <AnimatePresence>
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-10 py-32 text-center">
+                         <div className="size-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200 mx-auto mb-6 border border-slate-100">
+                            <Briefcase size={32} />
+                         </div>
+                         <h3 className="text-xl font-black text-slate-300 uppercase tracking-[10px] mb-2">Registry Silent</h3>
+                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[4px]">Zero nodes matched search parameters within cluster</p>
                       </td>
                     </tr>
-                  );
-                })}
+                  ) : filtered.map((i, idx) => {
+                    const saturation = i.saturation || 0;
+                    const isHot = saturation >= 60;
+                    const isCritical = i.health === 'Critical';
+                    
+                    return (
+                      <motion.tr 
+                        key={i.internship_id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="hover:bg-slate-50/40 transition-colors group cursor-pointer"
+                      >
+                        <td className="px-10 py-7">
+                          <span className="text-[10px] font-mono text-slate-300 font-black tracking-tighter group-hover:text-indigo-400 transition-colors">
+                            SYS-{(i.internship_id as string).toString().toUpperCase().slice(0, 8)}
+                          </span>
+                        </td>
+                        <td className="px-10 py-7">
+                          <div className="flex items-start gap-4">
+                            <div className={`size-10 rounded-xl flex items-center justify-center font-black uppercase text-sm shrink-0 shadow-inner group-hover:scale-110 transition-transform ${isHot ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>
+                              {i.title.charAt(0)}
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <div className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors">{i.title}</div>
+                                {isHot && (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-600 text-[8px] font-black text-white uppercase tracking-widest shadow-lg shadow-rose-600/20">
+                                    <Flame size={9} /> High Demand
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+                                <Sparkles size={10} /> {i.stipend || 'Unpaid Fellowship'}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-10 py-7">
+                          <div className="flex items-center gap-2 text-xs font-black text-slate-700 uppercase tracking-tight line-clamp-1">
+                             <Globe size={13} className="text-slate-300" />
+                             {i.company?.company_name || 'Autonomous Node'}
+                          </div>
+                        </td>
+                        <td className="px-10 py-7">
+                          <div className="flex flex-col gap-1.5">
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                              <MapPin size={11} className="text-slate-300" /> {i.location || 'Distributed'}
+                            </div>
+                            <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                              <Clock size={10} /> {i.duration || 'Flexible'}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-10 py-7 min-w-[200px]">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-[8px] font-black uppercase tracking-[2px] text-slate-400">
+                               <span>Saturation Coefficient</span>
+                               <span className={isHot ? 'text-rose-600' : 'text-emerald-600'}>{saturation}%</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-50">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${saturation}%` }}
+                                className={`h-full rounded-full transition-all shadow-sm ${isHot ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                              />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-10 py-7">
+                          <div className={`px-4 py-2 rounded-xl border text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm ${
+                            isCritical ? 'bg-rose-50 text-rose-600 border-rose-100' : 
+                            i.health === 'High Demand' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 
+                            'bg-emerald-50 text-emerald-600 border-emerald-100'
+                          }`}>
+                             <div className={`size-1.5 rounded-full animate-pulse ${isCritical ? 'bg-rose-500' : 'bg-current'}`} />
+                             {i.health}
+                          </div>
+                        </td>
+                        <td className="px-10 py-7 text-right">
+                           <motion.button 
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handlePromote(i.title)}
+                            className="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-[9px] font-black uppercase tracking-[3px] hover:bg-black hover:shadow-xl transition-all shadow-lg active:scale-95"
+                           >
+                              Boost Algorithmic Priority
+                           </motion.button>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </AnimatePresence>
               </tbody>
             </table>
           </div>

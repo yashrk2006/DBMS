@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Calendar, ChevronLeft, ChevronRight, CalendarOff, Users, Bell, User, Clock, CalendarDays } from 'lucide-react';
 import Icon from '@/components/ui/Icon';
 import { CalendarEvent } from '@/types';
 
@@ -67,7 +68,7 @@ export const CalendarProfile = ({
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
               <div className="size-8 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md">
-                <Icon name="calendar_month" className="text-sm" />
+                <Calendar size={14} />
               </div>
               <span className="text-[11px] font-black uppercase tracking-wider text-slate-900">
                 {currentMonth.toLocaleString('en-us', { month: 'short', year: 'numeric' })}
@@ -78,13 +79,13 @@ export const CalendarProfile = ({
                 onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} 
                 className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 hover:bg-slate-100 transition-colors"
               >
-                <Icon name="chevron_left" className="text-lg text-slate-400" />
+                <ChevronLeft size={16} className="text-slate-400" />
               </button>
               <button 
                 onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} 
                 className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100 hover:bg-slate-100 transition-colors"
               >
-                <Icon name="chevron_right" className="text-lg text-slate-400" />
+                <ChevronRight size={16} className="text-slate-400" />
               </button>
             </div>
           </div>
@@ -134,7 +135,7 @@ export const CalendarProfile = ({
           <div className="flex flex-col gap-4 overflow-y-auto pr-1 custom-scrollbar max-h-[500px]">
              {filteredEvents.length === 0 ? (
                <div className="py-12 text-center space-y-3 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-                 <Icon name="event_busy" className="text-3xl text-slate-200 animate-pulse mx-auto" />
+                 <CalendarOff size={32} className="text-slate-200 animate-pulse mx-auto" />
                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">
                    {selectedDate ? "No events for this date" : "No upcoming events found"}
                  </p>
@@ -143,24 +144,24 @@ export const CalendarProfile = ({
                filteredEvents.map(e => (
                  <div key={e.event_id || e.id} className="shrink-0 bg-slate-50 p-5 rounded-[2rem] border border-slate-100 group hover:border-[#575a93]/20 transition-all cursor-pointer relative overflow-hidden flex flex-col">
                     <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-5 transition-opacity z-0">
-                        <Icon name="groups" className="text-3xl text-slate-950" />
+                        <Users size={32} className="text-slate-950" />
                     </div>
                     
                     <div className="relative z-10 flex flex-col flex-1">
                       <div className="flex justify-between items-start mb-3">
-                        <Icon name="event" className="text-base text-orange-400 group-hover:text-[#575a93] transition-colors" />
+                        <Bell size={14} className="text-orange-400 group-hover:text-[#575a93] transition-colors" />
                         <span className="text-[8px] font-black uppercase tracking-[1px] text-[#575a93] bg-white px-2 py-0.5 rounded-full border border-slate-100 shadow-sm">Event</span>
                       </div>
                       <h4 className="text-[14px] font-black mb-1 leading-tight group-hover:text-[#575a93] transition-colors pr-6">{e.title}</h4>
                       <div className="flex items-center gap-2 mb-4">
                           <div className="size-6 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-[#575a93] shadow-sm">
-                              <Icon name="person" className="text-[10px]" />
+                              <User size={10} />
                           </div>
                            <p className="text-[9px] font-black text-slate-500 uppercase">{e.recruiter_name || "Coordinator"}</p>
                       </div>
                       <div className="mt-auto">
                         <p className="text-[8px] text-slate-400 leading-tight font-black uppercase tracking-widest flex items-center gap-2 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-200/50 w-fit">
-                          <Icon name="schedule" className="text-[12px] text-[#575a93]" />
+                          <Clock size={12} className="text-[#575a93]" />
                           {new Date(e.start_time).toLocaleString('en-us', { hour: 'numeric', minute: '2-digit', hour12: true })}
                           <span className="mx-1 opacity-20 text-slate-950">|</span>
                           {new Date(e.start_time).toLocaleString('en-us', { month: 'short', day: 'numeric' })}

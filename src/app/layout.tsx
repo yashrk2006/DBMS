@@ -3,6 +3,8 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ToasterProvider } from "@/components/providers/ToasterProvider";
+import { DBMSProvider } from "@/context/DBMSContext";
+import { SQLTraceOverlay } from "@/components/dashboard/SQLTraceOverlay";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -35,8 +37,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ToasterProvider />
-          {children}
+          <DBMSProvider>
+            <ToasterProvider />
+            {children}
+            <SQLTraceOverlay />
+          </DBMSProvider>
         </ThemeProvider>
       </body>
     </html>

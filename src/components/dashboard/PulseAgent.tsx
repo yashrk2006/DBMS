@@ -145,14 +145,14 @@ export default function CareerHubAgent() {
           className="fixed bottom-28 md:bottom-12 right-6 md:right-12 z-[100] bg-slate-900 text-white p-3.5 md:p-4 rounded-2xl md:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 flex items-center gap-2 md:gap-3 active:bg-slate-800 transition-colors"
         >
           <div className="relative">
-            <Zap className="text-amber-400 fill-amber-400" size={24} />
+            <Zap className="text-amber-500 fill-amber-500" size={20} />
             <motion.div 
-              animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-              className="absolute inset-0 bg-amber-400 rounded-full"
+              animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0, 0.3] }}
+              transition={{ repeat: Infinity, duration: 3 }}
+              className="absolute inset-0 bg-amber-500 rounded-full"
             />
           </div>
-          <span className="font-black text-[10px] md:text-xs uppercase tracking-[0.2em] hidden sm:block">Career Assistant</span>
+          <span className="font-bold text-[10px] md:text-xs uppercase tracking-[0.3em] hidden sm:block">Agent Pulse</span>
         </motion.button>
       )}
 
@@ -169,16 +169,16 @@ export default function CareerHubAgent() {
             <div className="h-full bg-white/90 backdrop-blur-3xl rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-white flex flex-col overflow-hidden">
               
               {/* Header */}
-              <div className="p-6 md:p-8 border-b border-slate-100 flex items-center justify-between bg-white/50">
-                <div className="flex items-center gap-4">
-                  <div className="size-12 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3">
-                    <Zap className="text-amber-400 fill-amber-400" size={24} />
+              <div className="p-8 md:p-10 border-b border-slate-50 flex items-center justify-between bg-white/80">
+                <div className="flex items-center gap-5">
+                  <div className="size-14 bg-slate-950 rounded-[1.5rem] flex items-center justify-center shadow-lg transform rotate-2">
+                    <Zap className="text-amber-500 fill-amber-500" size={28} />
                   </div>
                   <div>
-                    <h2 className="text-xl font-black tracking-tighter text-slate-900 uppercase">Career <span className="text-amber-600">Assistant.</span></h2>
-                    <div className="flex items-center gap-2">
-                       <div className="size-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Status: Online</p>
+                    <h2 className="text-2xl font-bold tracking-tight text-slate-950">Pulse AI.</h2>
+                    <div className="flex items-center gap-2 mt-1">
+                       <div className="size-1.5 bg-emerald-500 rounded-full" />
+                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[4px] leading-none">Intelligence Engine Active</p>
                     </div>
                   </div>
                 </div>
@@ -197,12 +197,12 @@ export default function CareerHubAgent() {
               >
                 {messages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center space-y-6 opacity-40">
-                    <div className="size-20 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100">
-                      <Sparkles className="text-slate-300" size={32} />
+                    <div className="size-24 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 mb-6">
+                      <Sparkles className="text-slate-300" size={40} />
                     </div>
                     <div className="text-center">
-                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Student Support</p>
-                      <p className="text-xs font-bold text-slate-400">Ask me about your career path</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[4px] text-slate-400 mb-2">Student Intelligence Hub</p>
+                      <p className="text-sm font-medium text-slate-400">Personalized career orchestration active.</p>
                     </div>
                   </div>
                 ) : (
@@ -215,16 +215,16 @@ export default function CareerHubAgent() {
                         key={m.id || i}
                         className={`flex items-start gap-4 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
                       >
-                        <div className={`shrink-0 size-8 rounded-xl flex items-center justify-center ${isMe ? 'bg-amber-100' : 'bg-slate-900'}`}>
-                          {isMe ? <Zap size={14} className="text-amber-600 fill-amber-600" /> : <Bot size={14} className="text-white" />}
+                        <div className={`shrink-0 size-10 rounded-[1rem] flex items-center justify-center ${isMe ? 'bg-amber-50' : 'bg-slate-950'}`}>
+                          {isMe ? <Zap size={18} className="text-amber-600 fill-amber-600" /> : <Bot size={18} className="text-white" />}
                         </div>
-                        <div className={`p-4 md:p-5 text-[12px] md:text-[13px] font-semibold leading-relaxed shadow-sm ${
+                        <div className={`p-5 md:p-6 text-[13px] font-medium leading-[1.6] shadow-[var(--soft-shadow)] ${
                           isMe 
-                          ? 'bg-slate-900 text-white rounded-[1.5rem] md:rounded-[2rem] rounded-tr-none' 
-                          : 'bg-slate-50 text-slate-800 rounded-[1.5rem] md:rounded-[2rem] rounded-tl-none border border-slate-100'
+                          ? 'bg-slate-950 text-white rounded-[2rem] rounded-tr-none' 
+                          : 'bg-slate-50 text-slate-800 rounded-[2rem] rounded-tl-none border border-slate-100'
                         }`}>
                           <div className="whitespace-pre-wrap">{m.content}</div>
-                          <p className="text-[8px] md:text-[9px] mt-2 md:mt-3 opacity-50 font-bold uppercase tracking-widest">
+                          <p className="text-[9px] mt-4 opacity-40 font-bold uppercase tracking-[2px]">
                             {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
                         </div>
@@ -278,7 +278,7 @@ export default function CareerHubAgent() {
                     disabled={!input.trim() || isAiThinking}
                     className="size-10 md:size-12 bg-slate-900 text-white rounded-full flex items-center justify-center hover:bg-amber-600 transition-all disabled:opacity-50 disabled:hover:bg-slate-900 shrink-0"
                   >
-                    <Send size={16} md:size={18} className="translate-x-0.5" />
+                    <Send size={16}  className="translate-x-0.5" />
                   </button>
                 </div>
               </div>

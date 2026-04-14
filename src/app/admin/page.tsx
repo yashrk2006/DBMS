@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   AlertTriangle, Users, Building2, Briefcase, ClipboardList, 
-  TrendingDown, BarChart3, Trophy, ArrowUpRight, Cpu, ShieldCheck 
+  TrendingDown, BarChart3, Trophy, ArrowUpRight, Cpu, ShieldCheck, Database, Search
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MarketEquilibriumItem, Skill } from '@/types';
@@ -17,6 +17,8 @@ interface AtRiskStudent {
   student_id: string;
   name: string;
   reason: string;
+  riskScore: number;
+  intensity: 'HIGH' | 'MEDIUM' | 'LOW';
 }
 
 export default function AdminOverview() {
@@ -121,133 +123,186 @@ export default function AdminOverview() {
 
   const impactCards = [
     { label: 'Total Enrolled', value: stats.students, icon: Users, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
-    { label: 'Corporate Partners', value: stats.companies, icon: Building2, color: 'text-slate-700', bg: 'bg-slate-300', border: 'border-slate-100' },
-    { label: 'Active Opportunities', value: stats.internships, icon: Briefcase, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
-    { label: 'Total Submissions', value: stats.applications, icon: ClipboardList, color: 'text-slate-700', bg: 'bg-slate-300', border: 'border-slate-100' },
+    { label: 'Corporate Partners', value: stats.companies, icon: Building2, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100' },
+    { label: 'Active Opportunities', value: stats.internships, icon: Briefcase, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+    { label: 'Total Submissions', value: stats.applications, icon: BarChart3, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-100' },
   ];
 
   return (
     <div className="space-y-12">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
         <div className="space-y-1">
-          <h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight uppercase">Platform Hub</h1>
-          <p className="text-sm text-slate-500 font-medium tracking-tight">Overview of SkillSync student progress and employment trends.</p>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="size-1.5 rounded-full bg-slate-900 shadow-[0_0_10px_rgba(15,23,42,0.4)]" />
+            <span className="text-[10px] font-black uppercase tracking-[4px] text-slate-400">Institutional Governance Console</span>
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold text-slate-950 tracking-tight">Governance.</h1>
+          <p className="text-sm text-slate-500 font-medium tracking-tight mt-2 max-w-lg">Orchestrate institutional progress, identify risk profiles, and monitor corporate engagement telemetry.</p>
         </div>
-        <button 
-          onClick={handleAiPrediction}
-          disabled={isPredicting}
-          className="w-full md:w-auto px-6 md:px-8 py-3 md:py-4 bg-slate-950 text-white rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
-        >
-          <BarChart3 size={18} className={isPredicting ? "animate-spin" : ""} />
-          {isPredicting ? "Analyzing..." : "Trend Analysis"}
-        </button>
+        <div className="flex flex-col md:flex-row items-center gap-4 grow-0">
+          {/* Governance Health Index */}
+          <div className="flex items-center gap-6 px-8 py-4 bg-white border border-slate-200 rounded-3xl shadow-xl mr-4 hidden xl:flex">
+             <div className="space-y-1">
+                <div className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Platform Health</div>
+                <div className="text-xl font-black text-emerald-600 tracking-tighter">98.4%</div>
+             </div>
+             <div className="size-10 rounded-full border-4 border-slate-50 border-t-emerald-500 animate-[spin_3s_linear_infinite]" />
+          </div>
+
+          <button 
+            onClick={() => router.push('/admin/db-audit')}
+            className="w-full md:w-auto px-8 py-5 bg-white border border-slate-200 text-slate-900 rounded-2xl font-black text-[11px] uppercase tracking-[3px] hover:bg-slate-50 transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 group"
+          >
+            <Database size={18} className="text-amber-600 group-hover:scale-110 transition-transform" />
+            DBMS Inspector
+          </button>
+          
+          <button 
+            onClick={handleAiPrediction}
+            disabled={isPredicting}
+            className="w-full md:w-auto px-10 py-5 bg-slate-950 text-white rounded-2xl font-black text-[11px] uppercase tracking-[3px] hover:bg-slate-800 transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 group"
+          >
+            <Cpu size={18} className={`${isPredicting ? "animate-spin" : "group-hover:rotate-12 transition-transform"}`} />
+            {isPredicting ? "Running Core Analysis..." : "Execute Pulse Prediction"}
+          </button>
+        </div>
       </header>
 
       {predictionData && (
         <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
-          className="p-12 rounded-[3.5rem] bg-slate-950 text-white border border-white/5 shadow-2xl relative overflow-hidden group"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          className="p-1 md:p-1.5 rounded-[3.5rem] bg-gradient-to-br from-indigo-500/20 via-slate-950 to-amber-500/20 shadow-2xl"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-600/10 via-transparent to-indigo-600/10 opacity-50 transition-opacity group-hover:opacity-100" />
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-            <div className="space-y-4 md:space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="size-2 rounded-full bg-amber-500 animate-ping" />
-                <span className="text-[10px] font-black uppercase tracking-[5px] text-white/50">Placement Velocity</span>
+          <div className="bg-slate-950 rounded-[3.1rem] p-10 md:p-14 text-white relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 via-transparent to-amber-600/10 opacity-50" />
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div className="lg:col-span-4 space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="size-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
+                  <span className="text-[10px] font-black uppercase tracking-[5px] text-white/50">Performance Forecast</span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <h4 className="text-8xl md:text-9xl font-black tracking-tighter text-white">
+                    {predictionData.predicted_success_rate}%
+                  </h4>
+                  <div className="pb-4">
+                    <ArrowUpRight className="text-emerald-500 size-12" />
+                  </div>
+                </div>
+                <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <p className="text-[10px] font-bold text-white/40 leading-relaxed uppercase tracking-[3px]">Institutional benchmark success probability for current session.</p>
+                </div>
               </div>
-              <div className="text-6xl md:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20">
-                {predictionData.predicted_success_rate}%
-              </div>
-              <p className="text-[8px] md:text-[10px] font-bold opacity-40 leading-relaxed uppercase tracking-[3px]">Matched against industry benchmarks & skill requirements.</p>
-            </div>
-            
-            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-6">
-                <span className="text-[10px] font-black uppercase tracking-[5px] text-amber-500">Key Focus Areas</span>
-                <ul className="space-y-4">
-                  {(predictionData.recommendations || []).map((r: string, i: number) => (
-                    <li key={i} className="flex gap-4 text-[11px] font-medium leading-relaxed text-white/70 group/item">
-                      <span className="text-amber-600 font-black">0{i+1}</span>
-                      <span className="group-hover/item:text-white transition-colors">{r}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="space-y-6">
-                <span className="text-[10px] font-black uppercase tracking-[5px] text-rose-500">Support Priority</span>
-                <ul className="space-y-4">
-                  {(predictionData.risk_factors || []).map((rk: string, i: number) => (
-                    <li key={i} className="flex gap-3 text-[11px] font-medium leading-relaxed text-rose-200/60 group/risk">
-                      <AlertTriangle size={14} className="shrink-0 text-rose-500" />
-                      <span className="group-hover/risk:text-rose-200 transition-colors">{rk}</span>
-                    </li>
-                  ))}
-                </ul>
+              
+              <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-12 border-l border-white/5 pl-0 lg:pl-12">
+                <div className="space-y-8">
+                  <div className="flex items-center gap-2">
+                    <Trophy size={14} className="text-amber-500" />
+                    <span className="text-[10px] font-black uppercase tracking-[5px] text-amber-500">Core Strategies</span>
+                  </div>
+                  <ul className="space-y-5">
+                    {(predictionData.recommendations || []).map((r: string, i: number) => (
+                      <li key={i} className="flex gap-5 text-[12px] font-medium leading-relaxed text-white/70 group/item items-start">
+                        <span className="text-amber-600 font-black text-xs">0{i+1}</span>
+                        <span className="group-hover/item:text-white transition-colors">{r}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="space-y-8">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle size={14} className="text-rose-500" />
+                    <span className="text-[10px] font-black uppercase tracking-[5px] text-rose-500">Critical Risks</span>
+                  </div>
+                  <ul className="space-y-5">
+                    {(predictionData.risk_factors || []).map((rk: string, i: number) => (
+                      <li key={i} className="flex gap-4 text-[12px] font-medium leading-relaxed text-rose-200/60 group/risk items-start">
+                        <div className="size-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
+                        <span className="group-hover/risk:text-rose-200 transition-colors">{rk}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
         </motion.div>
       )}
 
-      {/* Impact Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {impactCards.map(stat => (
-          <ThreeDCard key={stat.label} className="h-full">
-            <div 
-              onClick={() => stat.label === 'Corporate Partners' ? router.push('/admin/companies') : null}
-              className={`bg-white h-full p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border ${stat.border} shadow-sm group hover:shadow-md transition-all cursor-pointer`}
-            >
-              <div className="flex items-center justify-between mb-4 md:mb-6">
-                <div className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[2px]">{stat.label}</div>
-                <div className={`size-8 md:size-9 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color}`}>
-                  <stat.icon size={16} />
+      {/* Impact Metrics - High Fidelity Glassmorphism */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {impactCards.map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className={`group relative p-8 md:p-10 rounded-[2.5rem] bg-white border ${stat.border} shadow-[var(--soft-shadow)] hover:shadow-2xl transition-all cursor-pointer overflow-hidden active:scale-95`}
+            onClick={() => stat.label === 'Corporate Partners' ? router.push('/admin/companies') : null}
+          >
+            <div className={`absolute -right-6 -bottom-6 size-32 opacity-5 scale-150 transition-transform group-hover:rotate-12 duration-700 ${stat.color}`}>
+              <stat.icon size={128} />
+            </div>
+            
+            <div className="relative z-10 space-y-8">
+              <div className="flex items-center justify-between">
+                <div className={`size-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center border border-black/5 shadow-inner`}>
+                  <stat.icon size={22} />
+                </div>
+                <div className="h-0.5 w-12 bg-slate-100 rounded-full" />
+              </div>
+              
+              <div>
+                <div className="text-[10px] font-black text-slate-400 uppercase tracking-[3px] mb-1">{stat.label}</div>
+                <div className={`text-4xl md:text-5xl font-black ${stat.color} tracking-tighter`}>
+                  {stat.value.toLocaleString('en-IN')}
                 </div>
               </div>
-              <div className={`text-3xl md:text-4xl font-black ${stat.color} tracking-tighter`}>
-                {stat.value.toLocaleString('en-IN')}
+
+              <div className="flex items-center gap-2 pt-2">
+                <div className="size-1 rounded-full bg-emerald-500" />
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">Healthy Metadata</span>
               </div>
             </div>
-          </ThreeDCard>
+          </motion.div>
         ))}
       </div>
 
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
         
-        {/* Career Trends Panel */}
-        <div className="lg:col-span-8 bg-slate-950 rounded-[3rem] p-10 border border-white/5 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                <BarChart3 size={120} className="text-emerald-500" />
+        {/* Career Trends Panel - Premium Dark Center */}
+        <div className="lg:col-span-8 bg-slate-950 rounded-[3.5rem] p-10 md:p-14 border border-white/5 relative overflow-hidden group shadow-2xl shadow-indigo-950/20">
+            <div className="absolute top-0 right-0 p-16 opacity-10 group-hover:scale-110 transition-transform duration-1000">
+                <BarChart3 size={150} className="text-indigo-500" />
             </div>
 
-            <div className="relative z-10">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 md:mb-10">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-3">
-                            <div className="size-6 rounded-lg bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
-                                <Trophy size={14} />
-                            </div>
-                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[4px]">Career Analytics</span>
-                        </div>
-                        <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">Skill Adoption Growth</h2>
+            <div className="relative z-10 flex flex-col h-full gap-12">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                        <div className="size-2 rounded-full bg-indigo-500 shadow-[0_0_10px_#6366f1]" />
+                        <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[5px]">Core Analytics Engine</span>
                     </div>
+                    <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter mt-2">Skill Trajectories.</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+                    <div className="space-y-10">
                          {marketIntelligence.slice(0, 3).map((item, idx) => (
-                            <div key={item.name} className="space-y-4">
+                            <div key={item.name} className="space-y-5">
                                 <div className="flex justify-between items-end">
-                                    <span className="text-xs font-black text-white uppercase tracking-widest">{item.name}</span>
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-[2px]">
-                                        Market Gap: {item.gap > 0 ? `${item.gap} Roles Available` : `Balance Achieved`}
-                                    </span>
+                                    <span className="text-[11px] font-black text-white uppercase tracking-[4px]">{item.name}</span>
+                                    <div className="flex items-center gap-2">
+                                        <div className="size-1 rounded-full bg-indigo-500" />
+                                        <span className="text-[8px] font-bold text-slate-500 uppercase tracking-[2px]">
+                                            {item.gap > 0 ? `${item.gap} GAP` : `SATURATED`}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden flex">
+                                <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden flex shadow-inner border border-white/5">
                                     <motion.div 
                                         initial={{ width: 0 }}
                                         animate={{ width: `${(item.supply / (item.supply + item.demand + 1)) * 100}%` }}
-                                        className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                                        className="h-full bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.6)]"
                                     />
                                     <motion.div 
                                         initial={{ width: 0 }}
@@ -259,109 +314,155 @@ export default function AdminOverview() {
                         ))}
                     </div>
 
-                    {/* Engagement Overview */}
-                    <div className="bg-white/[0.03] border border-white/5 rounded-[2rem] p-8 space-y-6">
-                         <div className="flex items-center gap-2">
-                             <Cpu size={14} className="text-amber-500" />
-                             <span className="text-[10px] font-black text-amber-500 uppercase tracking-[3px]">Activity Summary</span>
+                    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/5 rounded-[3rem] p-10 space-y-10 shadow-2xl">
+                         <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-3">
+                                <Cpu size={16} className="text-amber-500" />
+                                <span className="text-[10px] font-black text-amber-500 uppercase tracking-[4px]">System Integrity</span>
+                             </div>
+                             <ShieldCheck size={18} className="text-emerald-500" />
                          </div>
                          
-                         <div className="space-y-4">
+                         <div className="space-y-8">
                              <div>
-                                 <div className="flex justify-between mb-2">
-                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Industry Engagement</span>
-                                     <span className="text-xs font-black text-white">{healthMetrics.responsiveness}%</span>
+                                 <div className="flex justify-between mb-3 items-end">
+                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-[3px]">Corporate Flux</span>
+                                     <span className="text-xl font-black text-white tracking-tighter">{healthMetrics.responsiveness}%</span>
                                  </div>
                                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                    <div className="h-full bg-amber-500" style={{ width: `${healthMetrics.responsiveness}%` }} />
+                                    <motion.div 
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${healthMetrics.responsiveness}%` }}
+                                      className="h-full bg-amber-500 shadow-[0_0_10px_#f59e0b]" 
+                                    />
                                  </div>
                              </div>
                              <div>
-                                 <div className="flex justify-between mb-2">
-                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Successful Connections</span>
-                                     <span className="text-xs font-black text-white">{healthMetrics.accuracy}%</span>
+                                 <div className="flex justify-between mb-3 items-end">
+                                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-[3px]">Placement Accuracy</span>
+                                     <span className="text-xl font-black text-white tracking-tighter">{healthMetrics.accuracy}%</span>
                                  </div>
                                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                    <div className="h-full bg-indigo-500" style={{ width: `${healthMetrics.accuracy}%` }} />
+                                    <motion.div 
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${healthMetrics.accuracy}%` }}
+                                      className="h-full bg-indigo-500 shadow-[0_0_10px_#6366f1]" 
+                                    />
                                  </div>
                              </div>
                          </div>
                          
-                         <p className="text-[9px] font-medium text-slate-500 leading-relaxed uppercase tracking-widest italic">
-                            Status: <span className="text-emerald-500 font-black">Optimal</span>. High recruitment activity detected in technology sectors.
-                         </p>
+                         <div className="pt-4 border-t border-white/5">
+                            <p className="text-[9px] font-bold text-slate-500 leading-relaxed uppercase tracking-[3px] italic">
+                                Status Monitor: <span className="text-emerald-500">Optimum Intelligence</span>. Data clusters indicate 14% growth in AI-centric roles.
+                            </p>
+                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {/* Support Alerts Panel */}
-        <div className="lg:col-span-4 bg-slate-900 rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 border border-white/5 flex flex-col relative overflow-hidden group/radar">
-          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover/radar:rotate-12 transition-transform">
-            <TrendingDown size={100} className="text-rose-500" />
+        {/* Support Pipeline Panel - High fidelity risk monitor */}
+        <div className="lg:col-span-4 bg-slate-900 rounded-[3.5rem] p-10 border border-white/5 flex flex-col relative overflow-hidden group/radar shadow-2xl">
+          <div className="absolute top-0 right-0 p-10 opacity-5 group-hover/radar:rotate-45 transition-transform duration-1000">
+            <TrendingDown size={140} className="text-rose-500" />
           </div>
-          <div className="flex flex-col gap-4 mb-6 md:mb-8">
-            <div className="flex items-center gap-3">
-              <div className="size-8 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center border border-rose-500/20">
-                <AlertTriangle size={18} />
-              </div>
-              <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter">Support Pipeline</h3>
+          <div className="relative z-10 flex flex-col gap-8 mb-10">
+            <div className="space-y-1">
+                <div className="flex items-center gap-3">
+                    <div className="size-2 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_#f43f5e]" />
+                    <span className="text-[10px] font-black text-rose-500 uppercase tracking-[5px]">Critical Interventions</span>
+                </div>
+                <h3 className="text-3xl font-black text-white uppercase tracking-tighter mt-2">At Risk.</h3>
             </div>
-            <div className="relative group">
+            <div className="relative">
               <input 
                 type="text"
-                placeholder="SEARCH NEEDS AND STATUS..."
+                placeholder="GLOBAL ID SEARCH..."
                 value={riskSearch}
                 onChange={(e) => setRiskSearch(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest text-white outline-none focus:border-rose-500/50 transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white outline-none focus:border-rose-500/50 focus:bg-white/10 transition-all placeholder:text-slate-700"
               />
             </div>
           </div>
           
-          <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+          <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar relative z-10">
             {atRiskStudents
               .filter(s => !riskSearch || s.name.toLowerCase().includes(riskSearch.toLowerCase()) || s.reason.toLowerCase().includes(riskSearch.toLowerCase()))
               .map((student, i) => (
-              <div key={student.student_id} className="p-5 bg-white/5 rounded-2xl border border-white/10 group hover:bg-white/10 transition-all cursor-pointer">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-black text-white text-sm uppercase tracking-tight">{student.name}</h4>
-                  <span className="text-[8px] font-black bg-rose-500/20 text-rose-500 px-2 py-1 rounded-md border border-rose-500/20 uppercase tracking-widest">Needs Focus</span>
+              <motion.div 
+                key={student.student_id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="p-6 md:p-8 bg-white/5 rounded-3xl border border-white/10 group/card hover:bg-white/10 hover:border-rose-500/30 transition-all cursor-pointer"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <div className="space-y-1">
+                    <h4 className="font-black text-white text-base uppercase tracking-tight">{student.name}</h4>
+                    <div className="flex items-center gap-2">
+                       <span className={`text-[7px] font-black px-2 py-0.5 rounded-md border uppercase tracking-widest ${
+                         student.intensity === 'HIGH' ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' :
+                         student.intensity === 'MEDIUM' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                         'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                       }`}>
+                          {student.intensity} RISK
+                       </span>
+                    </div>
+                  </div>
+                  <div className="relative size-10 flex items-center justify-center">
+                    <svg className="size-full -rotate-90">
+                      <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" strokeWidth="3" className="text-white/5" />
+                      <motion.circle 
+                        cx="20" cy="20" r="18" fill="none" stroke="currentColor" strokeWidth="3" 
+                        strokeDasharray={113}
+                        initial={{ strokeDashoffset: 113 }}
+                        animate={{ strokeDashoffset: 113 - (113 * student.riskScore) / 100 }}
+                        className={student.intensity === 'HIGH' ? 'text-rose-500' : 'text-amber-500'}
+                      />
+                    </svg>
+                    <span className="absolute text-[8px] font-black text-white">{student.riskScore}%</span>
+                  </div>
                 </div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 italic">&quot;{student.reason}&quot;</p>
+                <p className="text-[10px] font-medium text-slate-500 uppercase tracking-[2px] mb-8 leading-relaxed italic">&quot;{student.reason}&quot;</p>
                 <button 
                   onClick={() => handleMentorAssignment(student.student_id, student.name)}
-                  className="w-full py-2.5 rounded-xl bg-white text-black text-[9px] font-black uppercase tracking-[2px] opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-xl bg-white text-black text-[9px] font-black uppercase tracking-[3px] shadow-xl hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center gap-3 active:scale-95"
                 >
-                  Assign Counselor <ArrowUpRight size={14} />
+                  Initiate Support <ArrowUpRight size={14} />
                 </button>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Activity Feed */}
-      <div className="bg-white rounded-[2rem] md:rounded-[3rem] border border-slate-100 shadow-sm p-6 md:p-10 overflow-hidden relative">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 md:mb-10">
-          <div className="space-y-1">
-            <h2 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Live Updates Feed</h2>
-            <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">Platform Event Log</p>
-          </div>
+      {/* Activity Feed - Premium Telemetry List */}
+      <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-[var(--soft-shadow)] p-10 md:p-14 overflow-hidden relative group">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-14">
+            <div className="space-y-1">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="size-1.5 rounded-full bg-slate-900 shadow-[0_0_10px_rgba(0,0,0,0.2)]" />
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[5px]">Network Telemetry</span>
+                </div>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-950 tracking-tighter">Heartbeat.</h2>
+            </div>
           <div className="flex items-center gap-6 w-full md:w-auto">
-            <div className="relative group w-full md:w-64">
+            <div className="relative group w-full md:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
               <input 
                 type="text"
-                placeholder="SEARCH ACTIVITY..."
+                placeholder="SCAN SYSTEM LOGS..."
                 value={activitySearch}
                 onChange={(e) => setActivitySearch(e.target.value)}
-                className="w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest focus:bg-white focus:border-amber-500/30 outline-none transition-all"
+                className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:bg-white focus:border-slate-900 outline-none transition-all placeholder:text-slate-300"
               />
             </div>
-            <button className="hidden md:block text-[10px] font-black text-amber-600 uppercase tracking-widest hover:underline whitespace-nowrap">View Full Logs</button>
+            <button className="hidden md:flex h-12 items-center px-6 rounded-2xl bg-slate-950 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all active:scale-95 shadow-lg">Full Archive</button>
           </div>
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 border-t border-slate-50 pt-8">
           {recentActivity
             .filter(a => {
               const query = activitySearch.toLowerCase();
@@ -371,8 +472,11 @@ export default function AdminOverview() {
                 a.status.toLowerCase().includes(query);
             })
             .length === 0 ? (
-            <div className="py-20 text-center border border-dashed rounded-[2rem] border-slate-200">
-              <div className="text-slate-300 font-black uppercase tracking-widest text-xs">No Recent Updates</div>
+            <div className="py-32 text-center border-2 border-dashed rounded-[3rem] border-slate-100 bg-slate-50/30">
+              <div className="size-16 rounded-3xl bg-white border border-slate-100 flex items-center justify-center text-slate-200 mx-auto mb-6">
+                <ClipboardList size={32} />
+              </div>
+              <div className="text-slate-400 font-black uppercase tracking-[5px] text-[10px]">No Real-time Updates Detected</div>
             </div>
           ) : (
             recentActivity
@@ -384,37 +488,72 @@ export default function AdminOverview() {
                   a.status.toLowerCase().includes(query);
               })
               .map((activity, idx) => (
-              <div key={activity.id} className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 md:p-6 rounded-2xl transition-all hover:bg-slate-50 group gap-4 ${idx !== recentActivity.length - 1 ? 'border-b border-slate-50' : ''}`}>
-                <div className="flex items-center gap-4 md:gap-6">
-                  <div className="size-10 rounded-xl bg-slate-900 text-white flex items-center justify-center text-xs font-black shadow-lg shadow-slate-900/20 group-hover:bg-amber-600 group-hover:shadow-amber-600/20 transition-all shrink-0">
+              <motion.div 
+                key={activity.id} 
+                initial={{ opacity: 0, scale: 0.98 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 md:p-8 rounded-[2rem] transition-all hover:bg-slate-50 group gap-6 ${idx !== recentActivity.length - 1 ? 'border-b border-slate-50' : ''}`}
+              >
+                <div className="flex items-center gap-6 md:gap-8">
+                  <div className="size-14 rounded-2xl bg-slate-950 text-white flex items-center justify-center text-base font-black shadow-xl shadow-slate-900/10 group-hover:bg-indigo-600 group-hover:shadow-indigo-600/30 transition-all shrink-0">
                     {activity.type.charAt(0)}
                   </div>
-                  <div>
-                    <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight leading-none mb-2">{activity.title}</h4>
-                    <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                      <span className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-[2px]">{new Date(activity.timestamp).toLocaleString()}</span>
+                  <div className="space-y-2">
+                    <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight leading-none group-hover:text-indigo-600 transition-colors">{activity.title}</h4>
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <BarChart3 size={12} className="text-slate-300" />
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(activity.timestamp).toLocaleTimeString()}</span>
+                      </div>
                       <div className="size-1 rounded-full bg-slate-200" />
-                      <span className="text-[8px] md:text-[9px] font-black text-amber-600 uppercase tracking-widest">{activity.type}</span>
+                      <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[2px]">{activity.type}</span>
                     </div>
                   </div>
                 </div>
-                <div className="px-4 py-1.5 rounded-lg bg-slate-100 text-[8px] font-black text-slate-500 uppercase tracking-widest group-hover:bg-white group-hover:shadow-sm transition-all">
-                  {activity.status}
+                <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
+                    <div className="flex flex-col items-end">
+                        <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest mb-1">Status Vector</span>
+                        <div className="px-5 py-2 rounded-xl bg-slate-100 text-[10px] font-black text-slate-900 uppercase tracking-[2px] group-hover:bg-white group-hover:shadow-md transition-all border border-slate-100 ring-4 ring-slate-50/50">
+                        {activity.status}
+                        </div>
+                    </div>
+                    <button className="size-12 rounded-xl border border-slate-100 flex items-center justify-center text-slate-300 hover:text-slate-950 hover:bg-white transition-all active:scale-95 shadow-sm">
+                        <ArrowUpRight size={18} />
+                    </button>
                 </div>
-              </div>
+              </motion.div>
             ))
           )}
         </div>
       </div>
 
-      {/* Skill Inventory */}
-      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-8">
-        <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-8">Career Skill Tracking</h2>
-        <div className="flex flex-wrap gap-2">
-          {skills.map(s => (
-            <span key={s.skill_name} className="px-5 py-2 rounded-xl bg-slate-50 border border-slate-100 text-xs font-black text-slate-600 uppercase tracking-wider hover:border-amber-600/30 hover:bg-amber-50/30 transition-colors cursor-default">
+      {/* Skill Inventory - Visual Cloud */}
+      <div className="bg-slate-50 rounded-[3.5rem] border border-slate-200 p-10 md:p-14 mb-10 overflow-hidden relative group shadow-inner">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12">
+            <div className="space-y-1">
+                <div className="flex items-center gap-3">
+                    <div className="size-2 rounded-full bg-slate-900" />
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[5px]">Market Readiness</span>
+                </div>
+                <h2 className="text-3xl font-black text-slate-950 uppercase tracking-tighter mt-2">Inventory.</h2>
+            </div>
+            <div className="px-6 py-2 bg-white rounded-full border border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-widest shadow-sm">
+                Tracking {skills.length} Competencies
+            </div>
+        </div>
+        
+        <div className="flex flex-wrap gap-3">
+          {skills.map((s, i) => (
+            <motion.span 
+              key={s.skill_name} 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.02 }}
+              className="px-6 py-3 rounded-2xl bg-white border border-slate-200 text-[11px] font-black text-slate-600 uppercase tracking-[2px] hover:border-indigo-600/30 hover:text-indigo-600 hover:shadow-xl transition-all cursor-default active:scale-95"
+            >
               {s.skill_name}
-            </span>
+            </motion.span>
           ))}
         </div>
       </div>

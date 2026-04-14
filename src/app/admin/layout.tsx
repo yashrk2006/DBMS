@@ -1,17 +1,19 @@
 'use client';
 
 import { ReactNode, useEffect, useState } from 'react';
-import { LayoutDashboard, GraduationCap, Briefcase, ArrowLeft, Crown, BarChart3, ShieldAlert, LogOut } from 'lucide-react';
+import { LayoutDashboard, GraduationCap, Briefcase, ArrowLeft, Crown, BarChart3, ShieldAlert, LogOut, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { LogoutButton } from '@/components/auth/LogoutButton';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 
 const navItems = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard },
   { href: '/admin/students', label: 'Students', icon: GraduationCap },
   { href: '/admin/internships', label: 'Internships', icon: Briefcase },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/admin/settings', label: 'Governance', icon: Settings },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -20,6 +22,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     async function checkAdmin() {
@@ -62,11 +65,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-slate-50 relative overflow-x-hidden">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-64 flex-shrink-0 bg-white border-r border-slate-100 flex-col shadow-sm sticky top-0 h-screen overflow-y-auto z-50">
-        <div className="p-6 border-b border-slate-50 flex items-center gap-3">
-          <div className="size-9 rounded-xl bg-amber-600 flex items-center justify-center shadow-lg shadow-amber-600/10">
-            <Crown size={18} className="text-white" />
+        <div className="p-8 border-b border-slate-50 flex items-center gap-4">
+          <div className="size-10 rounded-2xl bg-slate-950 flex items-center justify-center shadow-2xl shadow-slate-900/20">
+            <Crown size={20} className="text-white" />
           </div>
-          <span className="font-black text-lg uppercase tracking-tighter font-display text-slate-900">Admin Hub</span>
+          <div className="flex flex-col">
+            <span className="font-black text-lg uppercase tracking-tighter font-display text-slate-900 leading-none">Admin</span>
+            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Platform Gov</span>
+          </div>
         </div>
 
         <nav className="p-4 flex flex-col gap-1 pb-8 border-b border-slate-50">
@@ -74,11 +80,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-semibold group ${
-                pathname === item.href ? 'text-amber-600 bg-amber-50' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+              className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all text-[11px] font-black uppercase tracking-widest group ${
+                pathname === item.href ? 'text-indigo-600 bg-indigo-50 border border-indigo-100' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
-              <item.icon size={18} className={pathname === item.href ? 'text-amber-600' : 'group-hover:text-amber-600 transition-colors'} />
+              <item.icon size={16} className={pathname === item.href ? 'text-indigo-600' : 'group-hover:text-indigo-600 transition-colors'} />
               {item.label}
             </Link>
           ))}
@@ -87,12 +93,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="p-4 border-t border-slate-50 space-y-2 mt-auto">
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all text-sm font-semibold"
+            className="flex items-center gap-3 px-5 py-3 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all text-[10px] font-black uppercase tracking-widest"
           >
-            <ArrowLeft size={18} />
-            Back to App
+            <ArrowLeft size={16} />
+            Exit Command
           </Link>
-          <LogoutButton className="hover:bg-red-50 text-red-500/60 transition-all" />
+          <LogoutButton className="hover:bg-red-50 text-red-500/60 transition-all font-black text-[10px]" />
         </div>
       </aside>
 
@@ -103,32 +109,32 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             key={item.href}
             href={item.href}
             className={`flex flex-col items-center gap-1 transition-all ${
-              pathname === item.href ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
+              pathname === item.href ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            <div className={`p-2 rounded-2xl transition-all ${pathname === item.href ? 'bg-amber-100' : 'bg-transparent'}`}>
-              <item.icon size={20} />
+            <div className={`p-2.5 rounded-2xl transition-all ${pathname === item.href ? 'bg-indigo-100' : 'bg-transparent'}`}>
+              <item.icon size={22} />
             </div>
           </Link>
         ))}
         <div className="w-px h-6 bg-slate-200 mx-1" />
-        <Link href="/dashboard" className="text-slate-400 p-2">
-          <ArrowLeft size={20} />
+        <Link href="/dashboard" className="text-slate-400 p-2.5">
+          <ArrowLeft size={22} />
         </Link>
-        <div className="text-red-400">
-           <LogoutButton className="p-2" hideText />
-        </div>
       </div>
 
-      <main className="flex-1 p-4 md:p-10 pb-32 lg:pb-10 overflow-y-auto">
-        <header className="lg:hidden flex items-center justify-between mb-8 pt-4">
-           <div className="flex items-center gap-3">
-              <div className="size-9 rounded-xl bg-amber-600 flex items-center justify-center">
-                <Crown size={18} className="text-white" />
-              </div>
-              <span className="font-black text-lg uppercase tracking-tighter text-slate-900">Admin</span>
-           </div>
-        </header>
+      <main className="flex-1 p-6 md:p-12 pb-32 lg:pb-12 overflow-y-auto">
+        <DashboardHeader 
+          userName="Adminstrator"
+          role="admin"
+          rollNo="001"
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          notifications={[]}
+          onProfileClick={() => router.push('/admin/settings')}
+          onLogout={() => supabase.auth.signOut()}
+          onMarkRead={() => {}}
+        />
         {children}
       </main>
     </div>

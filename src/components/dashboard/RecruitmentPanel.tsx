@@ -41,10 +41,10 @@ export const RecruitmentPanel = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-fit">
       {/* Skill Prep Card */}
-      <div className="bg-white/50 backdrop-blur-sm p-6 rounded-3xl relative flex flex-col gap-4 overflow-hidden border border-slate-100 h-full shadow-sm hover:shadow-md transition-shadow">
+      <div className="bg-white/50 backdrop-blur-sm p-8 rounded-3xl relative flex flex-col gap-5 overflow-hidden border border-slate-100 h-full shadow-[var(--soft-shadow)] hover:-translate-y-1 transition-all">
         <div className="space-y-1 relative z-10">
-          <h4 className="text-lg font-extrabold tracking-tight text-slate-800">Mock Preparation</h4>
-          <p className="text-xs text-slate-500">Practice with realistic AI interviewers</p>
+          <h4 className="text-xl font-bold tracking-tight text-slate-950">Mock Preparation.</h4>
+          <p className="text-xs text-slate-500 font-medium">Practice with realistic AI interviewers</p>
         </div>
         <div className="flex items-center justify-between mt-auto relative z-10">
           <button 
@@ -58,19 +58,18 @@ export const RecruitmentPanel = ({
       </div>
 
       {/* Profile Analysis */}
-      <div className="bg-white rounded-3xl p-6 shadow-soft border border-slate-50">
-         {resumeAnalysis ? (
-               <div className="space-y-3">
-                 <div className="flex justify-between items-center mb-2">
-                       <h4 className="font-extrabold text-[15px] tracking-tight text-emerald-600">Profile Updated</h4>
-                  <span className="bg-emerald-100 text-emerald-700 font-black text-[10px] px-2 py-1 rounded">Score: {resumeAnalysis.score}</span>
+          {resumeAnalysis ? (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-bold text-base tracking-tight text-emerald-600">Profile Intelligence</h4>
+                  <span className="bg-emerald-50 text-emerald-700 font-bold text-[10px] px-3 py-1 rounded-full border border-emerald-100">Score: {resumeAnalysis.score}</span>
                 </div>
                 <div>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Your Skills</p>
                   <div className="max-h-[140px] overflow-y-auto pr-1">
-                     <div className="grid grid-cols-4 gap-1">
+                     <div className="flex flex-wrap gap-2">
                         {(resumeAnalysis.skills||[]).map((s:string)=>(
-                          <span key={s} className="bg-slate-100 text-[7px] px-0.5 py-1.5 rounded font-black text-center truncate">{s}</span>
+                          <span key={s} className="bg-slate-50 text-[8px] px-3 py-1.5 rounded-xl font-bold text-slate-600 border border-slate-100">{s}</span>
                         ))}
                      </div>
                    </div>
@@ -78,9 +77,9 @@ export const RecruitmentPanel = ({
                 <div>
                   <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest mb-1">Focus Areas</p>
                   <div className="max-h-[140px] overflow-y-auto pr-1">
-                     <div className="grid grid-cols-4 gap-1">
+                     <div className="flex flex-wrap gap-2">
                         {(resumeAnalysis.missing||[]).map((s:string)=>(
-                          <span key={s} className="bg-indigo-50 text-indigo-600 text-[7px] px-0.5 py-1.5 rounded font-black text-center truncate">{s}</span>
+                          <span key={s} className="bg-amber-50 text-amber-600 text-[8px] px-3 py-1.5 rounded-xl font-bold border border-amber-100">{s}</span>
                         ))}
                      </div>
                    </div>
@@ -117,16 +116,16 @@ export const RecruitmentPanel = ({
                  </div>
                </div>
          )}
-      </div>
+
 
         <div className="col-span-1 lg:col-span-3 bg-white/40 backdrop-blur-md rounded-3xl p-6 md:p-8 border border-white shadow-sm space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h4 className="text-lg md:text-xl font-black tracking-tight uppercase flex items-center gap-2">
-                <Sparkles className="text-amber-500 size-5" />
-                Opportunities Found
+              <h4 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-3">
+                <Sparkles className="text-amber-500 size-6" />
+                Opportunities Found.
               </h4>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Matched via Career Intelligence</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[4px]">Verified Career Intelligence Matches</p>
             </div>
             <button 
               onClick={() => setHideApplied(!hideApplied)}
@@ -164,7 +163,7 @@ export const RecruitmentPanel = ({
              )}
           </div>
         </div>
-      )}
+
       <section id="growth-map" className="col-span-1 lg:col-span-3 space-y-6 pt-4">
         <div className="flex justify-between items-center">
           <div className="space-y-1">

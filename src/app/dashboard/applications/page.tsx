@@ -70,13 +70,21 @@ function PipelineTimeline({ status }: { status: string }) {
         return (
           <div key={step} className="flex items-center gap-1.5 md:gap-2 shrink-0">
             <div className={`flex flex-col items-center gap-1`}>
-              <div className={`size-2 md:size-2.5 rounded-full border-[1.5px] md:border-2 transition-all ${
+              <div className={`size-2 md:size-2.5 rounded-full border-[1.5px] md:border-2 transition-all relative ${
                 isDone
                   ? isCurrent
-                    ? 'bg-amber-600 border-amber-600 shadow-[0_0_6px_rgba(217,119,6,0.4)]'
+                    ? 'bg-amber-600 border-amber-600 shadow-[0_0_10px_rgba(217,119,6,0.6)]'
                     : 'bg-amber-400 border-amber-400'
                   : 'bg-white border-slate-200'
-              }`} />
+              }`}>
+                {isCurrent && (
+                  <motion.div 
+                    animate={{ scale: [1, 2], opacity: [0.5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className="absolute inset-0 rounded-full bg-amber-600"
+                  />
+                )}
+              </div>
               <span className={`text-[6px] md:text-[7px] font-black uppercase tracking-wider whitespace-nowrap ${isDone ? 'text-amber-600' : 'text-slate-300'}`}>
                 {step === 'Under Review' ? 'Review' : step}
               </span>
@@ -196,7 +204,7 @@ export default function ApplicationsPage() {
         <AnimatedSection direction="up" distance={40}>
           <div className="flex items-center gap-4 mb-4 md:mb-6">
              <div className="size-8 md:size-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm shrink-0">
-                <BarChart3 size={16} md:size={18} className="animate-pulse" />
+                <BarChart3 size={16}  className="animate-pulse" />
              </div>
              <h2 className="text-[8px] md:text-[10px] font-black uppercase tracking-[4px] md:tracking-[8px] text-slate-400">Application Tracker</h2>
           </div>
@@ -257,7 +265,7 @@ export default function ApplicationsPage() {
 
                           <div className="flex flex-col sm:flex-row sm:items-start gap-4 md:gap-8 flex-1">
                              <div className={`size-12 md:size-16 rounded-xl md:rounded-2xl ${config.bg} border ${config.border} flex items-center justify-center transition-all duration-700 shadow-inner shrink-0 leading-none`}>
-                                <config.icon size={20} md:size={24} className={config.color} />
+                                <config.icon size={20}  className={config.color} />
                              </div>
                              
                              <div className="space-y-3 flex-1">
@@ -269,7 +277,7 @@ export default function ApplicationsPage() {
                                      <div className="size-1.5 rounded-full bg-amber-500/30" />
                                      <span className="text-[9px] md:text-[11px] font-bold uppercase tracking-[2px] md:tracking-[3px] text-slate-400">{app.internship?.company?.company_name ?? 'Company'}</span>
                                      <div className="px-2 md:px-3 py-1 rounded-full bg-black text-white text-[7px] md:text-[9px] font-black tracking-widest flex items-center gap-1.5 md:gap-2">
-                                        <Zap size={8} md:size={10} className="text-amber-400 fill-amber-400" />
+                                        <Zap size={8}  className="text-amber-400 fill-amber-400" />
                                         {app.ai_match_score || 0}% MATCH
                                      </div>
                                   </div>
@@ -278,19 +286,19 @@ export default function ApplicationsPage() {
                                 <div className="flex flex-wrap items-center gap-x-6 md:gap-x-8 gap-y-2 md:gap-y-3">
                                    {app.internship?.location && (
                                      <div className="flex items-center gap-2">
-                                        <MapPin size={10} md:size={12} className="text-slate-300" />
+                                        <MapPin size={10}  className="text-slate-300" />
                                         <span className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-[1px] md:tracking-[2px]">{app.internship.location}</span>
                                      </div>
                                    )}
                                    {app.internship?.duration && (
                                      <div className="flex items-center gap-2">
-                                        <Calendar size={10} md:size={12} className="text-slate-300" />
+                                        <Calendar size={10}  className="text-slate-300" />
                                         <span className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-[1px] md:tracking-[2px]">{app.internship.duration}</span>
                                      </div>
                                    )}
                                    {app.internship?.stipend && (
                                      <div className="flex items-center gap-2">
-                                        <DollarSign size={10} md:size={12} className="text-amber-400" />
+                                        <DollarSign size={10}  className="text-amber-400" />
                                         <span className="text-[8px] md:text-[10px] font-black text-amber-600 uppercase tracking-[1px] md:tracking-[2px]">{app.internship.stipend}</span>
                                      </div>
                                    )}
@@ -305,7 +313,7 @@ export default function ApplicationsPage() {
                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-4 shrink-0 border-t md:border-t-0 border-slate-50 pt-6 md:pt-0 mt-2 md:mt-0">
                           {/* Status Badge */}
                           <div className={`flex items-center gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl border ${config.border} ${config.bg} shadow-sm ${config.glow} transition-all duration-500 group-hover:scale-105`}>
-                             <config.icon size={13} md:size={15} className={`${config.color} animate-pulse`} />
+                             <config.icon size={13}  className={`${config.color} animate-pulse`} />
                              <div className="flex flex-col">
                                 <span className={`text-[9px] md:text-[11px] font-black uppercase tracking-[2px] md:tracking-[3px] ${config.color}`}>{app.status}</span>
                                 <span className="text-[6px] md:text-[7px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-0.5">{config.label}</span>

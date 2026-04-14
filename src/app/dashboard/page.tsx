@@ -57,11 +57,20 @@ export default function DashboardPage() {
       }
 
       try {
-        const response = await fetch(`/api/dashboard/stats?userId=${userId}&t=${Date.now()}`, { 
-          signal: controller.signal,
-          cache: 'no-store'
-        });
-        const data = await response.json();
+        // Kick off all data fetching in parallel to avoid waterfalls
+        const [statsRes, learnRes, calRes, notifRes] = await Promise.all([
+          fetch(`/api/dashboard/stats?userId=${userId}&t=${Date.now()}`, { signal: controller.signal, cache: 'no-store' }),
+          fetch('/api/dashboard/learning', { signal: controller.signal }),
+          fetch(`/api/dashboard/calendar?userId=${userId}`, { signal: controller.signal }),
+          fetch(`/api/notifications?userId=${userId}`, { signal: controller.signal })
+        ]);
+
+        const [data, learnData, calData, notifData] = await Promise.all([
+          statsRes.json(),
+          learnRes.json(),
+          calRes.json(),
+          notifRes.json()
+        ]);
         
         if (data.success && !controller.signal.aborted) {
           const student = data.student as Student;
@@ -91,24 +100,17 @@ export default function DashboardPage() {
           }
         }
 
-        const [learnRes, calRes, notifRes] = await Promise.all([
-           fetch('/api/dashboard/learning', { signal: controller.signal }),
-           fetch(`/api/dashboard/calendar?userId=${userId}`, { signal: controller.signal }),
-           fetch(`/api/notifications?userId=${userId}`, { signal: controller.signal })
-        ]);
-
-        const [learnData, calData, notifData] = await Promise.all([
-          learnRes.json(),
-          calRes.json(),
-          notifRes.json()
-        ]);
+        if (learnData.success) {
+          setCourses(learnData.courses.slice(0, 6));
+        }
+        if (calData.success) {
+          setEvents(calData.events.slice(0, 5));
+        }
+        if (notifData.success) {
+          setNotifications(notifData.notifications || notifData.data || []);
+        }
         
         if (!controller.signal.aborted) {
-          if (learnData.success) setCourses(learnData.courses.slice(0, 6)); 
-          if (calData.success) setEvents(calData.events.slice(0, 5));     
-          if (notifData.success) {
-            setNotifications(notifData.notifications || notifData.data || []);
-          }
           setLoading(false);
           
           // Log initial data fetch for query visibility
@@ -375,35 +377,52 @@ export default function DashboardPage() {
         />
 
         {/* Dashboard Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-10 items-start">
-          
-          {/* Main Content Column */}
-          <div className="lg:col-span-3 space-y-6 md:space-y-10">
-            {/* Stats Row */}
-            <StatGrid 
-              stats={stats}
-              skills={skills}
-              onCatalogClick={() => router.push('/dashboard/learning')}
-            />
+        <div className="space-y-10">
+          {/* Top Row: Core Stats & Analysis + Sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-10 items-start">
+            {/* Main Content Info */}
+            <div className="lg:col-span-3 space-y-6 md:space-y-10">
+              {/* Stats Row */}
+              <StatGrid 
+                stats={stats}
+                skills={skills}
+                onCatalogClick={() => router.push('/dashboard/learning')}
+              />
 
-            {/* Career Summary Widget (Central Focus) */}
-            <CareerSummaryWidget 
-              score={Math.round(
-                ((resumeAnalysis?.score || 70) * 0.4) + 
-                ((recentApplications.filter(a => (a as any).interview_score).reduce((acc, curr) => acc + ((curr as any).interview_score || 0), 0) / 
-                  Math.max(1, recentApplications.filter(a => (a as any).interview_score).length)) * 0.6)
-              )}
-              topSkills={resumeAnalysis?.skills.slice(0, 3) || ['Technical Project', 'Teamwork', 'Core Fundamentals']}
-              recentScores={recentApplications
-                .filter(a => (a as any).interview_score)
-                .map(a => (a as any).interview_score)
-                .slice(0, 4)
-              }
-              applicationStatus={{ active: recentApplications.filter(a => a.status !== 'Rejected').length, total: recentApplications.length }}
-              latestOpportunity={aiJobs?.length ? { title: aiJobs[0].title, company: aiJobs[0].company_name } : { title: "Ready for Matching", company: "SkillSync Hub" }}
-              onViewDetail={() => router.push('/dashboard/analysis')}
-            />
+              {/* Career Summary Widget (Central Focus) */}
+              <CareerSummaryWidget 
+                score={Math.round(
+                  ((resumeAnalysis?.score || 70) * 0.4) + 
+                  ((recentApplications.filter(a => (a as any).interview_score).reduce((acc, curr) => acc + ((curr as any).interview_score || 0), 0) / 
+                    Math.max(1, recentApplications.filter(a => (a as any).interview_score).length)) * 0.6)
+                )}
+                topSkills={resumeAnalysis?.skills.slice(0, 3) || ['Technical Project', 'Teamwork', 'Core Fundamentals']}
+                recentScores={recentApplications
+                  .filter(a => (a as any).interview_score)
+                  .map(a => (a as any).interview_score)
+                  .slice(0, 4)
+                }
+                applicationStatus={{ active: recentApplications.filter(a => a.status !== 'Rejected').length, total: recentApplications.length }}
+                latestOpportunity={aiJobs?.length ? { title: aiJobs[0].title, company: aiJobs[0].company_name } : { title: "Ready for Matching", company: "SkillSync Hub" }}
+                onViewDetail={() => router.push('/dashboard/analysis')}
+              />
+            </div>
 
+            {/* Sidebar Area */}
+            <div className="lg:col-span-1 h-full lg:sticky lg:top-12">
+              <CalendarProfile 
+                currentMonth={currentMonth}
+                selectedDate={selectedDate}
+                events={events}
+                onMonthChange={setCurrentMonth}
+                onDateSelect={setSelectedDate}
+                onViewAllCalendar={() => router.push('/dashboard/calendar')}
+              />
+            </div>
+          </div>
+
+          {/* Expanded Bottom Row: Recruitment (Jobs/Applied) */}
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <RecruitmentPanel 
               aiJobs={aiJobs}
               recentApplications={recentApplications}
@@ -417,33 +436,21 @@ export default function DashboardPage() {
               onCourseClick={() => router.push('/dashboard/learning')}
               onMockInterview={() => router.push('/dashboard/interview')}
             />
-
-            {/* Final Progress Section */}
-            <div className="pt-10 border-t border-slate-200">
-              <PathExplorer 
-                courses={courses}
-                searchTerm={searchTerm}
-                onViewAll={() => router.push('/dashboard/learning')}
-                onCourseClick={(c) => {
-                  if (c.url && c.url.startsWith('http')) {
-                    window.open(c.url, '_blank');
-                  } else {
-                    router.push(c.url || '/dashboard/learning');
-                  }
-                }}
-              />
-            </div>
           </div>
 
-          {/* Sidebar Area */}
-          <div className="lg:col-span-1 h-full lg:sticky lg:top-12">
-            <CalendarProfile 
-              currentMonth={currentMonth}
-              selectedDate={selectedDate}
-              events={events}
-              onMonthChange={setCurrentMonth}
-              onDateSelect={setSelectedDate}
-              onViewAllCalendar={() => router.push('/dashboard/calendar')}
+          {/* Final Progress Section (Full Width Path Discovery) */}
+          <div className="pt-10 border-t border-slate-200">
+            <PathExplorer 
+              courses={courses}
+              searchTerm={searchTerm}
+              onViewAll={() => router.push('/dashboard/learning')}
+              onCourseClick={(c) => {
+                if (c.url && c.url.startsWith('http')) {
+                  window.open(c.url, '_blank');
+                } else {
+                  router.push(c.url || '/dashboard/learning');
+                }
+              }}
             />
           </div>
         </div>

@@ -103,8 +103,9 @@ export default function CalendarPage() {
     <div className="space-y-12 p-6 lg:p-12 max-w-7xl mx-auto pb-32">
       <AnimatedSection direction="up" distance={40}>
         <div className="flex items-center gap-4 mb-6">
-           <div className="size-12 rounded-2xl bg-[#575a93]/10 flex items-center justify-center text-[#575a93] shadow-inner border border-[#575a93]/10">
-              <CalendarIcon size={22} className="opacity-80" />
+           <div className="size-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 shadow-inner border border-indigo-500/10 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent" />
+              <CalendarIcon size={22} className="relative z-10" />
            </div>
            <div>
              <h2 className="text-[11px] font-black uppercase tracking-[6px] text-slate-400 mb-0.5">Your Schedule</h2>
@@ -118,16 +119,16 @@ export default function CalendarPage() {
         <div className="flex items-end justify-between">
           <div className="relative">
             <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter uppercase leading-[0.85]">
-              Career<br /><span className="text-[#575a93] opacity-90 inline-flex items-center gap-4">Timeline.<Sparkles className="text-amber-400 size-10 md:size-16" /></span>
+              Career<br /><span className="text-indigo-600 opacity-90 inline-flex items-center gap-4">Timeline.<Sparkles className="text-amber-400 size-10 md:size-16" /></span>
             </h1>
-            <div className="absolute -left-10 top-1/2 -translate-y-1/2 w-32 h-32 bg-[#575a93]/5 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute -left-10 top-1/2 -translate-y-1/2 w-32 h-32 bg-indigo-500/5 blur-[100px] rounded-full pointer-events-none" />
           </div>
 
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => setIsSchedulerOpen(true)}
-            className="flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-[4px] hover:bg-[#575a93] transition-all shadow-xl shadow-slate-900/20 mb-2"
+            className="flex items-center gap-3 px-8 py-4 bg-slate-950 text-white rounded-2xl font-black text-[11px] uppercase tracking-[4px] hover:bg-slate-900 transition-all shadow-xl shadow-slate-900/20 mb-2 border border-white/10"
           >
             <Plus size={16} />
             Schedule Event
@@ -145,44 +146,45 @@ export default function CalendarPage() {
                <div key={i} className="h-40 bg-white rounded-[3rem] animate-pulse border border-slate-100 shadow-soft" />
              ))
          ) : events.map((e, i) => {
-             const { month, day, time } = formatDate(e.start_time);
-             return (
-               <AnimatedSection key={e.event_id || i} direction="up" delay={i*0.1} className="relative bg-white/70 backdrop-blur-xl p-10 rounded-[3.5rem] shadow-premium border border-white/40 hover:border-[#575a93]/20 transition-all flex flex-col md:flex-row items-center md:items-start gap-10 group overflow-hidden">
-                   <div className="shrink-0 w-28 h-32 bg-slate-950 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-2xl relative z-10 group-hover:scale-105 transition-transform duration-500">
-                       <span className="text-xs font-black uppercase tracking-[0.2em] opacity-60 mb-1">{month}</span>
-                       <span className="text-5xl font-black tracking-tighter">{day}</span>
-                       <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-20 pointer-events-none" />
-                   </div>
+              const { month, day, time } = formatDate(e.start_time);
+              const config = typeColors[e.event_type] || 'bg-slate-50 text-slate-500 border-slate-100';
+              return (
+                <AnimatedSection key={e.event_id || i} direction="up" delay={i*0.1} className="relative bg-white/70 backdrop-blur-xl p-10 rounded-[3.5rem] shadow-premium border border-white/40 hover:border-indigo-500/20 transition-all flex flex-col md:flex-row items-center md:items-start gap-10 group overflow-hidden">
+                    <div className="shrink-0 w-28 h-32 bg-slate-950 rounded-[2.5rem] flex flex-col items-center justify-center text-white shadow-2xl relative z-10 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent" />
+                        <span className="text-xs font-black uppercase tracking-[0.2em] opacity-60 mb-1 relative z-10">{month}</span>
+                        <span className="text-5xl font-black tracking-tighter relative z-10">{day}</span>
+                    </div>
 
-                   <div className="flex-1 space-y-6 text-center md:text-left relative z-10 w-full">
-                       <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-4">
-                           <div>
-                             <h3 className="text-2xl font-black tracking-tight text-slate-950 group-hover:text-[#575a93] transition-colors">{e.title}</h3>
-                             <div className={`inline-flex items-center gap-1.5 mt-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${typeColors[e.event_type] || 'bg-slate-50 text-slate-500 border-slate-100'}`}>
-                               {e.event_type}
-                             </div>
+                    <div className="flex-1 space-y-6 text-center md:text-left relative z-10 w-full">
+                        <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-4">
+                            <div>
+                              <h3 className="text-2xl font-black tracking-tight text-slate-950 group-hover:text-indigo-600 transition-colors">{e.title}</h3>
+                              <div className={`inline-flex items-center gap-1.5 mt-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${config}`}>
+                                {e.event_type}
+                              </div>
+                            </div>
+                            <div className="size-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-300 group-hover:text-indigo-600 group-hover:border-indigo-500/20 transition-all shadow-sm">
+                               <LayoutGrid size={18} />
+                            </div>
+                        </div>
+                        
+                        <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-md">{e.description || 'Upcoming career event.'}</p>
+                        
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-8 pt-4">
+                           <div className="flex items-center gap-2.5 text-[11px] font-black tracking-[0.1em] uppercase text-slate-400">
+                              <div className="size-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(79,70,229,0.5)]" />
+                              <Clock size={14} className="text-indigo-600" /> {time}
                            </div>
-                           <div className="size-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 border border-slate-100 group-hover:text-[#575a93] group-hover:border-[#575a93]/10 transition-all">
-                              <LayoutGrid size={18} />
+                           <div className="flex items-center gap-2.5 text-[11px] font-black tracking-[0.1em] uppercase text-slate-400">
+                              <MapPin size={14} className="text-indigo-600" /> {e.location || 'Virtual Meeting'}
                            </div>
-                       </div>
-                       
-                       <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-md">{e.description || 'Upcoming career event.'}</p>
-                       
-                       <div className="flex flex-wrap items-center justify-center md:justify-start gap-8 pt-4">
-                          <div className="flex items-center gap-2.5 text-[11px] font-black tracking-[0.1em] uppercase text-slate-400">
-                             <div className="size-2 rounded-full bg-[#575a93] shadow-[0_0_10px_rgba(87,90,147,0.5)]" />
-                             <Clock size={14} className="text-[#575a93]" /> {time}
-                          </div>
-                          <div className="flex items-center gap-2.5 text-[11px] font-black tracking-[0.1em] uppercase text-slate-400">
-                             <MapPin size={14} className="text-[#575a93]" /> {e.location || 'Virtual Meeting'}
-                          </div>
-                       </div>
-                   </div>
-                   
-                   <div className="absolute top-1/2 -right-4 -translate-y-1/2 w-48 h-48 bg-slate-50 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-               </AnimatedSection>
-             );
+                        </div>
+                    </div>
+                    
+                    <div className="absolute top-1/2 -right-4 -translate-y-1/2 w-48 h-48 bg-indigo-500/5 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                </AnimatedSection>
+              );
          })}
 
          {!loading && events.length === 0 && (

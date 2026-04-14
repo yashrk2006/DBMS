@@ -51,9 +51,9 @@ export default function AnalysisPage() {
           <div className="size-24 rounded-full border-4 border-slate-100 border-t-indigo-600 animate-spin" />
           <Brain className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-indigo-600 animate-pulse" size={32} />
         </div>
-        <div className="text-center space-y-2">
-          <p className="text-lg font-black text-slate-900 uppercase tracking-widest">Cognitive Processing...</p>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[4px]">Syncing with Institutional Benchmarks</p>
+        <div className="text-center space-y-4">
+          <p className="text-xl font-bold text-slate-950 tracking-tight">Cognitive Processing.</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[5px]">Syncing with Institutional Benchmarks</p>
         </div>
       </div>
     );
@@ -66,28 +66,28 @@ export default function AnalysisPage() {
         <div className="space-y-4">
           <button 
             onClick={() => router.back()}
-            className="group flex items-center gap-2 text-slate-400 hover:text-indigo-600 transition-colors"
+            className="group flex items-center gap-3 text-slate-400 hover:text-slate-900 transition-colors"
           >
             <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Return to Dashboard</span>
+            <span className="text-[10px] font-bold uppercase tracking-[4px]">Return to Dash</span>
           </button>
           <div className="space-y-1">
-            <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">
-              Deep <span className="text-indigo-600">Cognitive</span> Analysis
+            <h1 className="text-4xl md:text-6xl font-bold text-slate-950 tracking-tight">
+              Deep <span className="text-indigo-600 underline decoration-indigo-200 decoration-8 underline-offset-4">Cognitive</span> Analysis.
             </h1>
-            <p className="text-slate-500 font-bold uppercase tracking-[4px] text-[10px]">
-              Platform Intelligence • Career Trajectory Simulation
+            <p className="text-slate-400 font-bold uppercase tracking-[6px] text-[10px] mt-4">
+              Platform Intelligence • Trajectory Simulation
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 p-6 bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl">
+        <div className="flex items-center gap-6 p-8 bg-slate-950 rounded-[2.5rem] border border-white/5 shadow-[var(--soft-shadow)]">
            <div className="text-right">
-              <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Market Readiness</p>
-              <p className="text-3xl font-black text-white tabular-nums">{data?.score}%</p>
+              <p className="text-[10px] font-bold text-white/30 uppercase tracking-[4px] mb-2">Market Readiness</p>
+              <p className="text-4xl font-bold text-white tabular-nums tracking-tight">{data?.score}%</p>
            </div>
-           <div className="size-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/20">
-              <TrendingUp size={24} />
+           <div className="size-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-600/20">
+              <TrendingUp size={28} />
            </div>
         </div>
       </header>
@@ -104,13 +104,13 @@ export default function AnalysisPage() {
               <RadarChart data={data?.radarData || []} />
             </div>
             <div className="mt-8 pt-8 border-t border-slate-100 flex items-center justify-between">
-               <div>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Role Alignment</p>
-                  <div className="flex items-center gap-3">
-                     <span className="text-2xl font-black text-slate-900">{data?.roleAlignment}%</span>
-                     <div className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase">High Match</div>
-                  </div>
-               </div>
+                <div>
+                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[4px] mb-2">Role Alignment</p>
+                   <div className="flex items-center gap-4">
+                      <span className="text-3xl font-bold text-slate-950 tracking-tight">{data?.roleAlignment}%</span>
+                      <div className="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-600 text-[9px] font-bold uppercase tracking-widest border border-emerald-100">Optimal Match</div>
+                   </div>
+                </div>
                <div className="size-12 rounded-full border-4 border-slate-100 border-t-emerald-500" />
             </div>
           </PremiumCard>
@@ -139,9 +139,9 @@ export default function AnalysisPage() {
                   <p className="text-[11px] font-bold text-indigo-100 leading-relaxed uppercase tracking-tight">
                     {data?.summary}
                   </p>
-                  <div className="flex flex-wrap gap-2 pt-4">
+                  <div className="flex flex-wrap gap-2 pt-6">
                     {['Strategic', 'Iterative', 'Goal-Oriented'].map(tag => (
-                      <span key={tag} className="px-3 py-1 rounded-full bg-white/10 text-[8px] font-black uppercase tracking-widest">{tag}</span>
+                      <span key={tag} className="px-4 py-1.5 rounded-xl bg-white/10 text-[9px] font-bold uppercase tracking-[3px] border border-white/5">{tag}</span>
                     ))}
                   </div>
                 </div>
@@ -153,19 +153,19 @@ export default function AnalysisPage() {
                 icon={<BarChart3 size={28} />}
              >
                 <div className="space-y-6">
-                   <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100">
-                      <div className="flex items-center gap-3">
-                         <div className="size-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600"><Star size={16} /></div>
-                         <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">High Demand</span>
+                   <div className="flex items-center justify-between p-5 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                      <div className="flex items-center gap-4">
+                         <div className="size-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm"><Star size={18} /></div>
+                         <span className="text-[11px] font-bold text-slate-950 uppercase tracking-[3px]">Target Market Demand</span>
                       </div>
-                      <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">+24% growth</span>
+                      <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">+24% growth</span>
                    </div>
-                   <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100">
-                      <div className="flex items-center gap-3">
-                         <div className="size-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600"><Zap size={16} /></div>
-                         <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Fast Track</span>
+                   <div className="flex items-center justify-between p-5 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                      <div className="flex items-center gap-4">
+                         <div className="size-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-sm"><Zap size={18} /></div>
+                         <span className="text-[11px] font-bold text-slate-950 uppercase tracking-[3px]">Institutional Velocity</span>
                       </div>
-                      <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Active Hiring</span>
+                      <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Active Hiring</span>
                    </div>
                 </div>
              </PremiumCard>

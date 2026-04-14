@@ -15,6 +15,7 @@ import AnimatedSection from '@/components/ui/AnimatedSection';
 import { AI_ENGINE } from '@/lib/ai-engine';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
+import { useDBMS } from '@/context/DBMSContext';
 
 export default function InternshipsPage() {
   const router = useRouter();
@@ -31,6 +32,7 @@ export default function InternshipsPage() {
     isLoading: false
   });
   const [cgpa, setCgpa] = useState<number>(0);
+  const { addTrace } = useDBMS();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -181,6 +183,15 @@ export default function InternshipsPage() {
       if (result.success) {
         const pitch = result.data.ai_pitch ? `AI Pitch: "${result.data.ai_pitch.substring(0, 50)}..."` : `Match Score: ${internship.match_percentage}%`;
         toast.success(`Application Syndicated! ${pitch}`, { id: toastId, duration: 5000 });
+        
+        // DBMS TRACE: Job Application
+        addTrace({
+          operation: 'INSERT',
+          table: 'application',
+          description: `Create new application node for student internship request`,
+          sql: `INSERT INTO application (student_id, internship_id, status, applied_at) \nVALUES ('${userId}', '${internship.internship_id}', 'pending', NOW());`
+        });
+
         await load();
       } else {
         toast.error(result.error || 'Failed to syndicate application.', { id: toastId });
@@ -217,7 +228,7 @@ export default function InternshipsPage() {
         <AnimatedSection direction="up" distance={40}>
           <div className="flex items-center gap-4 mb-4 md:mb-6">
              <div className="size-8 md:size-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm shrink-0">
-                <Target size={16} md:size={18} className="animate-pulse" />
+                <Target size={16}  className="animate-pulse" />
              </div>
              <h2 className="text-[8px] md:text-[10px] font-black uppercase tracking-[4px] md:tracking-[8px] text-slate-500">Career Portal — Internship Search</h2>
           </div>
@@ -280,7 +291,7 @@ export default function InternshipsPage() {
             onChange={e => setSearch(e.target.value)}
             className="w-full h-14 md:h-20 pl-14 md:pl-16 pr-6 md:pr-8 rounded-xl md:rounded-[2rem] border border-slate-200 bg-white text-[9px] md:text-[12px] font-black uppercase tracking-[2px] md:tracking-[3px] text-slate-900 placeholder:text-slate-300 transition-all focus:border-amber-500/30 focus:shadow-2xl focus:shadow-amber-500/5 shadow-sm active:scale-[0.99] relative z-20"
           />
-          <Search size={18} md:size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors z-30" />
+          <Search size={18}  className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors z-30" />
         </div>
       </AnimatedSection>
 
@@ -366,28 +377,28 @@ export default function InternshipsPage() {
                             </div>
                             <div className="grid grid-cols-2 md:flex md:flex-wrap gap-x-6 md:gap-x-10 gap-y-4 md:gap-y-6">
                                <div className="flex items-center gap-3 group/item">
-                                  <div className="size-8 md:size-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:text-amber-600 shadow-inner group-hover/item:border-amber-200 transition-all duration-500"><Globe size={14} md:size={16} /></div>
+                                  <div className="size-8 md:size-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:text-amber-600 shadow-inner group-hover/item:border-amber-200 transition-all duration-500"><Globe size={14}  /></div>
                                   <div className="flex flex-col">
                                      <span className="text-[7px] md:text-[8px] font-black uppercase tracking-[2px] text-slate-300">Location</span>
                                      <span className="text-[9px] md:text-[11px] font-black text-slate-500 uppercase tracking-[1px] md:tracking-[2px] truncate max-w-[80px] md:max-w-none">{i.location}</span>
                                   </div>
                                </div>
                                <div className="flex items-center gap-3 group/item">
-                                  <div className="size-8 md:size-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:text-amber-600 shadow-inner group-hover/item:border-amber-200 transition-all duration-500"><Calendar size={14} md:size={16} /></div>
+                                  <div className="size-8 md:size-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:text-amber-600 shadow-inner group-hover/item:border-amber-200 transition-all duration-500"><Calendar size={14}  /></div>
                                   <div className="flex flex-col">
                                      <span className="text-[7px] md:text-[8px] font-black uppercase tracking-[2px] text-slate-300">Duration</span>
                                      <span className="text-[9px] md:text-[11px] font-black text-slate-500 uppercase tracking-[1px] md:tracking-[2px]">{i.duration}</span>
                                   </div>
                                </div>
                                <div className="flex items-center gap-3 group/item">
-                                  <div className="size-8 md:size-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:text-amber-600 shadow-inner group-hover/item:border-amber-200 transition-all duration-500"><DollarSign size={14} md:size={16} /></div>
+                                  <div className="size-8 md:size-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:text-amber-600 shadow-inner group-hover/item:border-amber-200 transition-all duration-500"><DollarSign size={14}  /></div>
                                   <div className="flex flex-col">
                                      <span className="text-[7px] md:text-[8px] font-black uppercase tracking-[2px] text-slate-300">Stipend</span>
                                      <span className="text-[9px] md:text-[11px] font-black text-amber-600 uppercase tracking-[1px] md:tracking-[2px]">{i.stipend}</span>
                                   </div>
                                </div>
                                <div className="flex items-center gap-3 group/item">
-                                  <div className="size-8 md:size-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:text-indigo-600 shadow-inner group-hover/item:border-indigo-200 transition-all duration-500"><GraduationCap size={14} md:size={16} /></div>
+                                  <div className="size-8 md:size-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:text-indigo-600 shadow-inner group-hover/item:border-indigo-200 transition-all duration-500"><GraduationCap size={14}  /></div>
                                   <div className="flex flex-col">
                                      <span className="text-[7px] md:text-[8px] font-black uppercase tracking-[2px] text-slate-300">Requirement</span>
                                      <span className={`text-[9px] md:text-[11px] font-black uppercase tracking-[1px] md:tracking-[2px] ${cgpa < (i.min_cgpa || 0) ? 'text-rose-600' : 'text-indigo-600'}`}>{i.min_cgpa || '0.0'}+ CGPA</span>
@@ -399,7 +410,7 @@ export default function InternshipsPage() {
                                   onClick={() => handleInterviewPrep(i)}
                                   className="px-4 md:px-6 py-2.5 md:py-3 rounded-lg md:rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 text-[8px] md:text-[9px] font-black uppercase tracking-[2px] md:tracking-[3px] flex items-center gap-2 hover:bg-indigo-100 transition-all shadow-sm"
                                 >
-                                  <Sparkles size={12} md:size={14} />
+                                  <Sparkles size={12}  />
                                   Interview Prep
                                 </button>
                              </div>
@@ -415,7 +426,7 @@ export default function InternshipsPage() {
                            }`}
                          >
                             <div className="absolute inset-0 bg-white/20 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                            {applying === i.id ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2 }}><Cpu size={16} md:size={20} /></motion.div> : i.applied ? <ShieldCheck size={16} md:size={20} /> : cgpa < (i.min_cgpa || 0) ? <ShieldCheck size={16} md:size={20} className="opacity-20" /> : <Zap size={16} md:size={20} className="fill-white" />}
+                            {applying === i.id ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2 }}><Cpu size={16}  /></motion.div> : i.applied ? <ShieldCheck size={16}  /> : cgpa < (i.min_cgpa || 0) ? <ShieldCheck size={16}  className="opacity-20" /> : <Zap size={16}  className="fill-white" />}
                             <span className="relative z-10">{applying === i.id ? 'Processing...' : i.applied ? 'Applied' : cgpa < (i.min_cgpa || 0) ? 'Low CGPA' : 'Apply Now'}</span>
                          </motion.button>
                       </div>
@@ -426,7 +437,7 @@ export default function InternshipsPage() {
 
                       <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-slate-100 flex flex-col md:flex-row md:items-start justify-between gap-4">
                          <div className="flex items-center gap-3 pr-8 md:border-r border-slate-100 shrink-0">
-                            <Terminal size={12} md:size={14} className="text-amber-600/40" />
+                            <Terminal size={12}  className="text-amber-600/40" />
                             <span className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-[3px] md:tracking-[5px]">Core Skills</span>
                          </div>
                          <div className="flex flex-wrap gap-1.5 md:gap-3">
@@ -483,7 +494,7 @@ export default function InternshipsPage() {
                         onClick={() => setAiInterviewModal(prev => ({ ...prev, open: false }))}
                         className="absolute top-6 right-6 md:top-10 md:right-10 size-10 md:size-12 rounded-xl md:rounded-2xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all"
                       >
-                        <X size={18} md:size={20} />
+                        <X size={18}  />
                       </button>
                   </div>
                   
@@ -491,7 +502,7 @@ export default function InternshipsPage() {
                       {aiInterviewModal.isLoading ? (
                         <div className="py-12 md:py-20 flex flex-col items-center justify-center gap-4 md:gap-6">
                            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="text-amber-600">
-                              <Cpu size={32} md:size={40} />
+                              <Cpu size={32} /> // Refined Size Protocol
                            </motion.div>
                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[3px] md:tracking-[4px] text-slate-400 animate-pulse">Generating Behavioral Scenarios...</span>
                         </div>

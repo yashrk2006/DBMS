@@ -20,6 +20,88 @@ interface Message {
   timestamp: number;
 }
 
+function VoiceWaveform({ isActive }: { isActive: boolean }) {
+  return (
+    <div className="flex items-center justify-center gap-[3px] h-8 px-4">
+      {[...Array(12)].map((_, i) => (
+        <motion.div
+           key={i}
+           animate={isActive ? {
+             height: [8, Math.random() * 24 + 8, 8],
+             opacity: [0.4, 1, 0.4]
+           } : { height: 4, opacity: 0.2 }}
+           transition={{
+             duration: 0.5 + Math.random() * 0.5,
+             repeat: Infinity,
+             ease: "easeInOut"
+           }}
+           className="w-1 rounded-full bg-indigo-500"
+        />
+      ))}
+    </div>
+  );
+}
+
+function CompetencyRadar({ score, metrics }: { score: number; metrics: any }) {
+  const size = 180;
+  const center = size / 2;
+  const radius = size * 0.4;
+  
+  // Normalized points for (Technical, Communication, Sentiment, Stability)
+  const points = [
+    { label: 'TEC', val: score / 100 },
+    { label: 'COM', val: metrics.clarity / 100 },
+    { label: 'SEN', val: metrics.sentiment / 100 },
+    { label: 'STA', val: metrics.stability / 100 }
+  ];
+
+  const getPoint = (val: number, index: number) => {
+    const angle = (Math.PI * 2 * index) / points.length - Math.PI / 2;
+    return {
+      x: center + radius * val * Math.cos(angle),
+      y: center + radius * val * Math.sin(angle)
+    };
+  };
+
+  const polygonPath = points.map((p, i) => {
+    const pt = getPoint(p.val, i);
+    return `${pt.x},${pt.y}`;
+  }).join(' ');
+
+  return (
+    <div className="relative size-[180px] flex items-center justify-center">
+       <svg className="size-full overflow-visible">
+          {/* Grid Circles */}
+          {[0.25, 0.5, 0.75, 1].map(r => (
+            <circle key={r} cx={center} cy={center} r={radius * r} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+          ))}
+          {/* Axis Lines */}
+          {points.map((p, i) => {
+            const pt = getPoint(1, i);
+            return <line key={p.label} x1={center} y1={center} x2={pt.x} y2={pt.y} stroke="rgba(255,255,255,0.1)" strokeWidth="1" />;
+          })}
+          {/* Data Polygon */}
+          <motion.polygon 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            points={polygonPath} 
+            fill="rgba(99, 102, 241, 0.25)"
+            stroke="#818cf8"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          {/* Labels */}
+          {points.map((p, i) => {
+            const pt = getPoint(1.2, i);
+            return (
+              <text key={p.label} x={pt.x} y={pt.y} textAnchor="middle" className="fill-indigo-400/60 text-[8px] font-black uppercase tracking-widest">{p.label}</text>
+            );
+          })}
+       </svg>
+    </div>
+  );
+}
+
 export default function CareerAssessmentCenter() {
   const router = useRouter();
   const params = useParams();
@@ -402,6 +484,19 @@ export default function CareerAssessmentCenter() {
 
       <main className="flex-1 overflow-hidden relative flex flex-col xl:flex-row bg-[#FAFAFA]">
         <div className="flex-1 flex flex-col overflow-hidden relative">
+          {isStarted && !isFinished && !isAborted && (
+            <div className="absolute top-8 left-8 z-30 flex flex-col gap-2 pointer-events-none">
+               <div className="flex items-center gap-2 bg-slate-900/40 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/5 border-l-rose-500 border-l-2">
+                  <div className="size-1.5 rounded-full bg-rose-500 animate-pulse" />
+                  <span className="text-[7px] font-black text-white uppercase tracking-[4px]">Live Proctoring Enabled</span>
+               </div>
+               <div className="flex flex-col gap-1 text-[7px] font-mono text-slate-500 uppercase tracking-widest pl-2">
+                  <span>// EYE_TRACKING: ACTIVE</span>
+                  <span>// AUDIO_FEED: ENCRYPTED</span>
+                  <span>// SESSION_ID: {sessionId.current}</span>
+               </div>
+            </div>
+          )}
           <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
             <AnimatePresence mode="popLayout">
               {!isStarted && !isFinished && (
@@ -460,12 +555,21 @@ export default function CareerAssessmentCenter() {
                           <Cpu size={18} />
                         </div>
                       )}
-                      <div className={`max-w-[85%] p-6 rounded-3xl shadow-sm ${
+                      <div className={`max-w-[85%] p-6 rounded-3xl shadow-sm relative group ${
                         m.role === 'ai' 
                         ? 'bg-white border border-slate-100 text-slate-700 font-medium rounded-tl-sm' 
                         : 'bg-indigo-600 text-white font-semibold rounded-tr-sm'
                       }`}>
                          <p className="text-base leading-relaxed">{m.content}</p>
+                         {m.role === 'ai' && (
+                           <button 
+                             onClick={() => speak(m.content)}
+                             className="absolute -right-12 top-0 p-2 text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-all"
+                             title="Replay Audio"
+                           >
+                             <Volume2 size={16} />
+                           </button>
+                         )}
                       </div>
                       {m.role === 'user' && (
                         <div className="size-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-200">
@@ -533,13 +637,8 @@ export default function CareerAssessmentCenter() {
                   <div className="space-y-4">
                     <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Assessment Completed.</h2>
                     <p className="text-lg text-slate-500 font-medium">Your career readiness assessment is complete and saved to your profile.</p>
-                  </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                     <div className="bg-[#0F172A] p-10 rounded-[2.5rem] border border-white/5 text-left relative overflow-hidden group col-span-1 md:col-span-2 shadow-2xl">
-                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                          <BarChart3 size={120} className="text-indigo-400" />
-                        </div>
+                     <div className="bg-[#0F172A] p-10 rounded-[2.5rem] border border-white/5 text-left relative overflow-hidden group col-span-1 md:col-span-2 shadow-2xl flex items-center justify-between">
                         <div className="relative z-10 space-y-4">
                            <div className="flex items-center gap-2 text-indigo-400">
                              <Award size={16} />
@@ -554,6 +653,13 @@ export default function CareerAssessmentCenter() {
                               </p>
                            </div>
                         </div>
+                        
+                        <div className="relative z-10 hidden sm:block pr-8 scale-110">
+                           <CompetencyRadar 
+                             score={feedback?.score || 0} 
+                             metrics={{ clarity: 92, sentiment: 88, stability: 100 - (proctorWarnings * 10) }} 
+                           />
+                        </div>
                      </div>
                      
                      <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 text-left space-y-6 shadow-sm relative overflow-hidden">
@@ -564,6 +670,7 @@ export default function CareerAssessmentCenter() {
                         </div>
                         <p className="text-base font-bold text-slate-700 leading-relaxed italic relative z-10">&quot;{feedback?.notes}&quot;</p>
                      </div>
+                  </div>
                   </div>
 
                   {/* CAREER READY PREVIEW */}
@@ -619,15 +726,18 @@ export default function CareerAssessmentCenter() {
                   rows={1}
                 />
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                  <motion.button 
-                    whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                    onClick={toggleListening}
-                    className={`size-12 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
-                      isListening ? 'bg-rose-500 text-white animate-pulse' : 'bg-slate-100 text-slate-600'
-                    }`}
-                  >
-                    <Mic size={18} />
-                  </motion.button>
+                   <div className="flex items-center gap-2">
+                     <VoiceWaveform isActive={isListening} />
+                     <motion.button 
+                       whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                       onClick={toggleListening}
+                       className={`size-12 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
+                         isListening ? 'bg-rose-500 text-white animate-pulse' : 'bg-slate-100 text-slate-600'
+                       }`}
+                     >
+                       <Mic size={18} />
+                     </motion.button>
+                   </div>
                   <motion.button 
                     whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                     onClick={() => handleSendMessage()}

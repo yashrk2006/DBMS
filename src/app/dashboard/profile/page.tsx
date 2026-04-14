@@ -5,13 +5,15 @@ import { useRouter } from 'next/navigation';
 import { 
   User, School, GraduationCap, FileText, Save, CheckCircle2,
   AlertCircle, Camera, Activity, Cpu, ShieldCheck, Link as LinkIcon,
-  TrendingUp, Zap, BookOpen, Award, Upload, Terminal
+  TrendingUp, Zap, BookOpen, Award, Upload, Terminal, ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PremiumCard from '@/components/ui/PremiumCard';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { supabase } from '@/lib/supabase';
+import { SkillManager } from '@/components/dashboard/SkillManager';
 import { toast } from 'react-hot-toast';
+import { useDBMS } from '@/context/DBMSContext';
 
 interface ProfileState {
   name: string;
@@ -42,6 +44,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [authId, setAuthId] = useState<string>('');
+  const { addTrace } = useDBMS();
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,10 +94,12 @@ export default function ProfilePage() {
     async function load() {
       const { data: { session } } = await supabase.auth.getSession();
       const userId = session?.user?.id;
+
       if (!userId) {
         setLoading(false);
         return; // Redirect handled by layout
       }
+      setAuthId(userId);
 
       try {
         const res = await fetch(`/api/students/profile?userId=${userId}`);
@@ -172,6 +178,15 @@ export default function ProfilePage() {
       if (data.success) {
         setSaved(true);
         toast.success('Profile saved successfully!');
+        
+        // DBMS TRACE: Profile Update
+        addTrace({
+          operation: 'UPDATE',
+          table: 'student',
+          description: `Update core student identity and academic metrics`,
+          sql: `UPDATE student \nSET name = '${profile.name}', \n    college = '${profile.college}', \n    branch = '${profile.branch}', \n    cgpa = ${profile.cgpa || 0}, \n    bio = '${profile.bio.replace(/'/g, "''")}', \n    resume_url = '${profile.resume_url}'\nWHERE user_id = '${userId}';`
+        });
+
         setTimeout(() => setSaved(false), 2500);
       } else {
         toast.error(data.error || 'Failed to save profile');
@@ -205,6 +220,14 @@ export default function ProfilePage() {
 
       {/* Hero Banner */}
       <AnimatedSection direction="up" distance={40}>
+        <div className="mb-6">
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-amber-600 transition-colors"
+          >
+            <ChevronRight size={14} className="rotate-180" /> Back to Dashboard
+          </button>
+        </div>
         <div className="relative min-h-[16rem] md:h-64 rounded-[2.5rem] md:rounded-[4rem] bg-white border border-slate-100 overflow-hidden shadow-premium flex items-end p-6 md:p-14 group">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-slate-50 opacity-40 pointer-events-none" />
           <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 blur-[120px] rounded-full -mr-32 -mt-32 pointer-events-none" />
@@ -216,13 +239,13 @@ export default function ProfilePage() {
                   <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'User')}&background=f59e0b&color=fff&bold=true&size=256`} alt="Profile" className="absolute inset-0 size-full object-cover" />
                </div>
                <div className="absolute -bottom-1 -right-1 size-8 md:size-10 rounded-xl md:rounded-2xl bg-slate-950 border-2 md:border-4 border-white flex items-center justify-center text-white shadow-lg cursor-pointer hover:bg-amber-600 transition-colors">
-                  <Camera size={12} md:size={14} />
+                  <Camera size={12}  />
                </div>
             </div>
             <div className="flex-1 pb-2">
                <div className="flex items-center justify-center md:justify-start gap-3 mb-2 md:mb-4">
                   <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/10">
-                    <ShieldCheck size={10} md:size={12} className="text-amber-600" />
+                    <ShieldCheck size={10}  className="text-amber-600" />
                     <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[2px] md:tracking-[3px] text-amber-700">Verified identity</span>
                   </div>
                </div>
@@ -268,7 +291,7 @@ export default function ProfilePage() {
                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl -mr-10 -mt-10" />
               <div className="flex items-center gap-4 relative z-10">
                 <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-amber-500/10 border border-amber-500/10 flex items-center justify-center text-amber-600 shadow-inner shrink-0">
-                  <Activity size={18} md:size={20} />
+                  <Activity size={18}  />
                 </div>
                 <div>
                   <div className="text-[8px] md:text-[10px] font-black uppercase tracking-[2px] md:tracking-[4px] text-slate-400">Capability Sync</div>
@@ -291,7 +314,7 @@ export default function ProfilePage() {
                 {completionSteps.map((step) => (
                   <div key={step.label} className={`flex items-start gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl transition-all duration-500 ${step.done ? 'bg-emerald-500/5 border border-emerald-500/10' : 'bg-slate-50/50 border border-slate-100 hover:border-amber-500/20'}`}>
                     <div className={`size-7 md:size-8 rounded-lg md:rounded-xl flex items-center justify-center shrink-0 ${step.done ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-white border border-slate-200 text-slate-300'}`}>
-                      {step.done ? <CheckCircle2 size={12} md:size={14} /> : <step.icon size={12} md:size={14} />}
+                      {step.done ? <CheckCircle2 size={12}  /> : <step.icon size={12}  />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className={`text-[9px] md:text-[11px] font-black uppercase tracking-[1px] md:tracking-[2px] ${step.done ? 'text-emerald-700 opacity-60' : 'text-slate-700'}`}>
@@ -328,6 +351,53 @@ export default function ProfilePage() {
             </div>
           </AnimatedSection>
 
+          {/* Intelligence Snapshot - NEW PREMIUM SECTION */}
+          <AnimatedSection direction="right" delay={0.2}>
+            <div className="bg-slate-900 rounded-[3rem] p-10 text-white border border-white/5 relative overflow-hidden shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent pointer-events-none" />
+              <div className="relative z-10 space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="size-10 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 border border-indigo-500/30">
+                    <Terminal size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black tracking-tighter uppercase leading-none">Intelligence.</h3>
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-[3px]">Skill DNA Analysis</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {[
+                    { label: 'Technical Maturity', pct: 88, color: 'bg-indigo-500' },
+                    { label: 'System Logic', pct: 74, color: 'bg-emerald-500' },
+                    { label: 'Communication Sync', pct: 92, color: 'bg-amber-500' }
+                  ].map((metric, i) => (
+                    <div key={metric.label} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{metric.label}</span>
+                        <span className="text-[10px] font-black">{metric.pct}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }} 
+                          animate={{ width: `${metric.pct}%` }} 
+                          transition={{ delay: 0.5 + (i * 0.1), duration: 1 }}
+                          className={`h-full rounded-full ${metric.color}`}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-6 border-t border-white/5">
+                  <p className="text-[9px] font-medium text-slate-500 leading-relaxed italic">
+                    &quot;Heuristics indicate high affinity for Full-Stack Architecture and Distributed Systems based on recent activity telemetry.&quot;
+                  </p>
+                </div>
+              </div>
+            </div>
+          </AnimatedSection>
+
           {/* Quick Stats */}
           <AnimatedSection direction="right" delay={0.1}>
             <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-4 md:p-6 grid grid-cols-2 gap-3 md:gap-4">
@@ -336,7 +406,7 @@ export default function ProfilePage() {
                 { label: 'Applications', value: appCount, color: 'text-indigo-600', icon: Zap },
               ].map(item => (
                 <div key={item.label} className="bg-slate-50 rounded-xl border border-slate-100 p-3 md:p-4 flex flex-col gap-1 md:gap-2">
-                  <item.icon size={12} md:size={14} className={item.color} />
+                  <item.icon size={12}  className={item.color} />
                   <div className={`text-xl md:text-2xl font-black tracking-tighter ${item.color}`}>{item.value}</div>
                   <div className="text-[8px] md:text-[9px] font-black uppercase tracking-[2px] text-slate-400">{item.label}</div>
                 </div>
@@ -539,7 +609,7 @@ export default function ProfilePage() {
                       ) : saved ? (
                         <><CheckCircle2 size={20} /> Profile Updated</>
                       ) : (
-                        <><Save size={20} /> Save Changes</>
+                        <><Terminal size={20} /> Deploy Changes</>
                       )}
                     </motion.button>
                   </AnimatePresence>
@@ -554,6 +624,93 @@ export default function ProfilePage() {
                   )}
                 </div>
               </form>
+            </div>
+          </AnimatedSection>
+
+          {/* Project Showcase — NEW PREMIUM SECTION */}
+          <AnimatedSection direction="up" delay={0.1}>
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-premium p-8 md:p-14 space-y-10 mt-10">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="size-10 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm">
+                      <Terminal size={18} />
+                    </div>
+                    <h2 className="text-xl md:text-3xl font-black text-slate-950 tracking-tighter uppercase leading-none">Impact Logic.</h2>
+                  </div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[4px] ml-1">Evidence of Technical Contribution</p>
+                </div>
+                <button className="px-6 py-3 rounded-2xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl shadow-slate-900/10">Add Deployment</button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 {[
+                   { name: 'Distributed Mesh Network', tech: 'Rust, gRPC', impact: 'Optimized packet synchronization by 42% across heterogeneous nodes.' },
+                   { name: 'GenAI Recruitment Engine', tech: 'Next.js, OpenAI', impact: 'Automated skill extraction for 1.6k student profiles with 98% accuracy.' }
+                 ].map((proj, i) => (
+                   <div key={proj.name} className="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 hover:border-amber-600/30 transition-all group cursor-pointer relative overflow-hidden">
+                      <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-10 transition-opacity">
+                         <LinkIcon size={48} className="text-amber-600" />
+                      </div>
+                      <div className="space-y-4 relative z-10">
+                         <div className="flex items-center gap-3">
+                            <span className="text-[8px] font-black px-2 py-0.5 rounded bg-amber-100 text-amber-700 uppercase tracking-widest">{proj.tech}</span>
+                         </div>
+                         <h4 className="text-lg font-black text-slate-950 uppercase tracking-tight">{proj.name}</h4>
+                         <p className="text-[11px] text-slate-500 font-medium leading-relaxed italic border-l-2 border-slate-200 pl-4">
+                            &quot;{proj.impact}&quot;
+                         </p>
+                      </div>
+                   </div>
+                 ))}
+              </div>
+            </div>
+          </AnimatedSection>
+
+          {/* Skills Sync Hub — NEW PREMIUM MODULE */}
+          <AnimatedSection direction="up" delay={0.1}>
+            <div className="bg-white/40 backdrop-blur-xl rounded-[2rem] border border-white/60 shadow-premium p-8 md:p-14 space-y-10 mt-10">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="size-10 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-sm">
+                      <Zap size={18} />
+                    </div>
+                    <h2 className="text-xl md:text-3xl font-black text-slate-950 tracking-tighter uppercase leading-none">Skills Sync Hub.</h2>
+                  </div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[4px] ml-1">Relational Capability Mapping Engine</p>
+                </div>
+
+                <div className="flex items-center gap-4 bg-slate-900 px-6 py-3 rounded-2xl border border-white/5">
+                   <div className="flex flex-col items-start">
+                      <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Active Nodes</span>
+                      <span className="text-lg font-black text-white leading-none">{skillCount}</span>
+                   </div>
+                   <div className="w-[1px] h-6 bg-white/10 mx-2" />
+                   <div className="flex flex-col items-start text-indigo-400">
+                      <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Sync Priority</span>
+                      <span className="text-lg font-black leading-none">High</span>
+                   </div>
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <SkillManager 
+                  userId={authId} 
+                  onUpdate={(count) => setSkillCount(count)} 
+                />
+              </div>
+
+              <div className="p-6 rounded-[2rem] bg-indigo-50/50 border border-indigo-100 flex items-start gap-4">
+                 <ShieldCheck className="text-indigo-600 mt-1 shrink-0" size={24} />
+                 <div>
+                    <h5 className="text-[10px] font-black text-indigo-700 uppercase tracking-widest mb-1">Knowledge Verification</h5>
+                    <p className="text-[11px] font-medium text-indigo-900/60 leading-relaxed">
+                      Skills added here are cross-referenced with educational transcripts and project repositories to generate your 
+                      <span className="font-black text-indigo-600"> Skill DNA Score</span>.
+                    </p>
+                 </div>
+              </div>
             </div>
           </AnimatedSection>
         </div>

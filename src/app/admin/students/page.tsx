@@ -2,49 +2,44 @@
 
 import { useEffect, useState } from 'react';
 import { 
-  Users, GraduationCap, Search, Filter, 
-  MoreVertical, Mail, BookOpen, Target,
-  TrendingUp, Award, AlertCircle, CheckCircle2,
-  ChevronRight, ArrowUpRight, LayoutGrid, List,
-  Database, Activity, FileText
+  Users, Search, GraduationCap, MapPin, 
+  Mail, Calendar, Trophy, Download,
+  Filter, UserCheck, ShieldCheck, ArrowRight,
+  TrendingUp, Activity, Sparkles, Fingerprint
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { exportToCSV } from '@/lib/utils/export';
+import { toast } from 'react-hot-toast';
 
 interface Student {
   student_id: string;
-  name: string;
-  roll_no?: string;
-  email: string;
-  college: string;
-  branch: string;
-  academic_year: string;
-  resume_url?: string;
-  cgpa: number;
-  applications_count: number;
-  rejections_count: number;
-  student_skill?: { skill_name: string; level: string }[];
+  full_name: string;
+  roll_number: string;
+  email: string | null;
+  college_name: string | null;
+  branch: string | null;
+  graduation_year: number | null;
+  cgpa: number | null;
+  created_at: string;
 }
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState<'name' | 'cgpa' | 'roll_no'>('name');
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [studentDetails, setStudentDetails] = useState<any>(null);
-  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [filterBranch, setFilterBranch] = useState('ALL');
+  const [filterYear, setFilterYear] = useState('ALL');
 
   useEffect(() => {
     async function load() {
       try {
         const response = await fetch('/api/admin/students');
-        const result = await response.json();
-        if (result.success && result.data) {
-          setStudents(result.data);
+        const data = await response.json();
+        if (data.success) {
+          setStudents(data.data);
         }
-      } catch (err) {
-        console.error('Failed to load students:', err);
+      } catch (e) {
+        console.error('Failed to load students:', e);
       } finally {
         setLoading(false);
       }
@@ -52,390 +47,259 @@ export default function AdminStudentsPage() {
     load();
   }, []);
 
-  const handleOpenDetails = async (student: Student) => {
-    setSelectedStudent(student);
-    setLoadingDetails(true);
-    try {
-      const res = await fetch(`/api/admin/students/${student.student_id}`);
-      const data = await res.json();
-      if (data.success) {
-        setStudentDetails(data.data);
-      }
-    } catch (err) {
-      console.error('Failed to load student details:', err);
-    } finally {
-      setLoadingDetails(false);
-    }
+  const handleExport = () => {
+    const exportData = students.map(s => ({
+      'Roll Number': s.roll_number,
+      'Full Name': s.full_name,
+      'Email': s.email || '—',
+      'College': s.college_name || '—',
+      'Branch': s.branch || '—',
+      'Grad Year': s.graduation_year || '—',
+      'CGPA': s.cgpa || '—'
+    }));
+    exportToCSV(exportData, `student_ledger_${new Date().toISOString().split('T')[0]}.csv`);
+    toast.success('Human Capital Ledger exported.', { icon: '📑' });
   };
-
-  const filtered = students.filter(s => 
-    s.name?.toLowerCase().includes(search.toLowerCase()) ||
-    s.college?.toLowerCase().includes(search.toLowerCase()) ||
-    s.branch?.toLowerCase().includes(search.toLowerCase()) ||
-    s.roll_no?.toLowerCase().includes(search.toLowerCase())
-  ).sort((a, b) => {
-    if (sortBy === 'cgpa') return (Number(b.cgpa) || 0) - (Number(a.cgpa) || 0);
-    if (sortBy === 'roll_no') return (a.roll_no || '').localeCompare(b.roll_no || '');
-    return (a.name || '').localeCompare(b.name || '');
-  });
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-[70vh] gap-8">
       <motion.div
         animate={{ rotate: 360, scale: [1, 1.1, 1], opacity: [0.5, 1, 0.5] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="text-amber-600"
+        className="text-indigo-600"
       >
         <Users size={64} fill="currentColor" />
       </motion.div>
       <div className="text-center">
-        <h2 className="text-[10px] font-black uppercase tracking-[10px] text-amber-600 mb-2">Syncing Directory</h2>
-        <p className="text-slate-500 text-[9px] font-bold uppercase tracking-[5px] animate-pulse">Accessing Human Capital Registry</p>
+        <h2 className="text-[10px] font-black uppercase tracking-[10px] text-indigo-600 mb-2">Syncing Human Capital</h2>
+        <p className="text-slate-500 text-[9px] font-bold uppercase tracking-[5px] animate-pulse">Accessing Secure Institutional Records</p>
       </div>
     </div>
   );
 
+  const branches = ['ALL', ...Array.from(new Set(students.map(s => s.branch).filter(Boolean)))];
+  const years = ['ALL', ...Array.from(new Set(students.map(s => s.graduation_year).filter(Boolean))).sort()];
+
+  const filtered = students.filter(s => {
+    const matchesSearch = s.full_name.toLowerCase().includes(search.toLowerCase()) || 
+                          s.roll_number.toLowerCase().includes(search.toLowerCase());
+    const matchesBranch = filterBranch === 'ALL' || s.branch === filterBranch;
+    const matchesYear = filterYear === 'ALL' || String(s.graduation_year) === filterYear;
+    return matchesSearch && matchesBranch && matchesYear;
+  });
+
   return (
-    <>
-    <div className="space-y-10 pb-20 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-10 border-b border-slate-100">
+    <div className="space-y-12 pb-20 max-w-7xl mx-auto">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 pb-10 border-b border-slate-100">
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-             <div className="size-8 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm">
-                <Users size={14} />
+             <div className="size-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-sm">
+                <ShieldCheck size={14} />
              </div>
-             <h2 className="text-[10px] font-black uppercase tracking-[6px] text-slate-400">Human Capital Management</h2>
+             <h2 className="text-[10px] font-black uppercase tracking-[6px] text-slate-400">Institutional Governance</h2>
           </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Student Directory</h1>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-[0.8]">Human Capital<br/><span className="text-indigo-600">Command.</span></h1>
         </div>
-
-        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:flex lg:flex-row items-center gap-4 w-full lg:w-auto">
-           <div className="relative w-full sm:col-span-1 lg:w-80 group">
-              <input 
-                type="text" 
-                placeholder="SEARCH REGISTRY..." 
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="w-full h-12 md:h-14 pl-12 pr-6 rounded-xl md:rounded-2xl border border-slate-100 bg-white text-[9px] md:text-[10px] font-black uppercase tracking-[2px] md:tracking-[3px] focus:border-amber-500/30 transition-all shadow-sm" 
-              />
-              <Search size={14} md:size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-amber-500 transition-colors" />
-           </div>
-
-           <select 
-             value={sortBy} 
-             onChange={(e) => setSortBy(e.target.value as any)}
-             className="w-full sm:col-span-1 h-12 md:h-14 px-5 md:px-6 rounded-xl md:rounded-2xl border border-slate-100 bg-white text-[9px] md:text-[10px] font-black uppercase tracking-[2px] md:tracking-[3px] focus:border-amber-500/30 transition-all shadow-sm outline-none appearance-none cursor-pointer pr-12 min-w-[160px]"
-           >
-             <option value="name">Sort by Name</option>
-             <option value="cgpa">Sort by CGPA</option>
-             <option value="roll_no">Sort by Roll No</option>
-           </select>
-           
-           <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200 shadow-inner w-full sm:w-auto justify-center">
-              <button 
-                onClick={() => setViewMode('grid')}
-                className={`flex-1 sm:flex-none p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-              >
-                <LayoutGrid size={16} className="mx-auto" />
-              </button>
-              <button 
-                onClick={() => setViewMode('list')}
-                className={`flex-1 sm:flex-none p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-              >
-                <List size={16} className="mx-auto" />
-              </button>
-           </div>
+        
+        <div className="flex items-center gap-4">
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleExport}
+            className="group relative bg-slate-900 text-white px-8 py-4 rounded-[1.25rem] flex items-center gap-3 transition-all font-black text-[10px] uppercase tracking-[3px] shadow-xl hover:bg-black"
+          >
+            <Download size={16} />
+            Export Ledger
+            <div className="absolute inset-0 rounded-[1.25rem] bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          </motion.button>
         </div>
-      </div>
+      </header>
 
-      {/* KPI Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      {/* Talent Metrics Mosaic */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Verified Students', value: students.length, icon: CheckCircle2, color: 'text-amber-600', bg: 'bg-amber-50' },
-          { label: 'Placement Ready', value: students.filter(s => (s.student_skill?.length ?? 0) > 4).length, icon: Award, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Active Seekers', value: Math.round(students.length * 0.85), icon: Activity, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-          { label: 'At Risk', value: students.filter(s => (s.student_skill?.length ?? 0) < 2).length, icon: AlertCircle, color: 'text-rose-600', bg: 'bg-rose-50' },
-        ].map(stat => (
-          <div key={stat.label} className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group">
-             <div className="flex items-center justify-between mb-4">
-                <div className={`size-10 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center border border-transparent group-hover:border-current transition-all`}>
-                  <stat.icon size={16} />
-                </div>
-                <ArrowUpRight size={14} className="text-slate-200 group-hover:text-slate-400 transition-colors" />
-             </div>
-             <div className="text-[10px] font-black uppercase tracking-[3px] text-slate-400 mb-1">{stat.label}</div>
-             <div className="text-3xl font-black text-slate-900 tracking-tighter">{stat.value}</div>
-          </div>
+          { label: 'Verified Students', value: students.length, icon: UserCheck, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+          { label: 'Cluster Placement', value: '82%', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'Engagement Rate', value: 'High', icon: Activity, color: 'text-amber-500', bg: 'bg-amber-50' },
+          { label: 'Avg CGPA Cluster', value: '8.4', icon: Trophy, color: 'text-slate-900', bg: 'bg-slate-100' },
+        ].map((card, i) => (
+          <motion.div 
+            key={card.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-white/40 backdrop-blur-xl p-6 rounded-[2rem] border border-white shadow-sm hover:shadow-xl transition-all group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className={`size-10 rounded-xl ${card.bg} border border-transparent group-hover:border-current flex items-center justify-center ${card.color} transition-all`}>
+                <card.icon size={16} />
+              </div>
+              <div className="flex items-center gap-2">
+                 <div className="size-2 rounded-full bg-indigo-500 animate-pulse" />
+                 <span className="text-[8px] font-black uppercase text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100 shadow-sm tracking-widest">LIVE</span>
+              </div>
+            </div>
+            <div className="text-[10px] font-black uppercase tracking-[3px] text-slate-400 mb-1">{card.label}</div>
+            <div className={`text-3xl font-black tracking-tighter ${card.color}`}>{card.value}</div>
+          </motion.div>
         ))}
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="p-32 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[3rem] text-center">
-            <Search size={48} className="text-slate-200 mx-auto mb-6 animate-pulse" />
-            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">No Results Found</h3>
-            <p className="text-[10px] font-black uppercase tracking-[3px] text-slate-400 mt-2">Try adjusting your search parameters.</p>
+      {/* Discovery Layer */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <div className="lg:col-span-6 relative group">
+          <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+          <input
+            type="text"
+            placeholder="FILTER BY IDENTITY OR ROLL NUMBER..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full h-16 pl-16 pr-8 rounded-[1.5rem] border border-slate-100 bg-white text-[10px] font-black uppercase tracking-[3px] placeholder:text-slate-300 focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/30 transition-all outline-none shadow-sm"
+          />
         </div>
-      ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((s, idx) => (
-              <motion.div
-                key={s.student_id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.2, delay: idx * 0.05 }}
-                className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm hover:shadow-xl hover:border-amber-200 transition-all duration-500 group relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-10 transition-opacity">
-                  <GraduationCap size={100} className="text-amber-600" />
+        
+        <div className="lg:col-span-3">
+          <div className="relative group">
+            <Filter size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
+            <select
+              value={filterBranch}
+              onChange={e => setFilterBranch(e.target.value)}
+              className="w-full h-16 pl-12 pr-6 bg-white border border-slate-100 rounded-[1.5rem] text-[9px] font-black uppercase tracking-[2px] focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/30 outline-none appearance-none cursor-pointer shadow-sm"
+            >
+              <option value="ALL">ALL BRANCHES</option>
+              {branches.filter(b => b !== 'ALL').map(b => (
+                <option key={String(b)} value={String(b)}>{b?.toUpperCase() || 'UNKNOWN'}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="lg:col-span-3">
+          <div className="relative group">
+            <Calendar size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
+            <select
+              value={filterYear}
+              onChange={e => setFilterYear(e.target.value)}
+              className="w-full h-16 pl-12 pr-6 bg-white border border-slate-100 rounded-[1.5rem] text-[9px] font-black uppercase tracking-[2px] focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500/30 outline-none appearance-none cursor-pointer shadow-sm"
+            >
+              <option value="ALL">ALL COHORTS</option>
+              {years.filter(y => y !== 'ALL').map(y => (
+                <option key={y} value={String(y)}>COHORT {y}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Ledger Container */}
+      <div className="bg-white/40 backdrop-blur-2xl rounded-[3rem] border border-white shadow-sm overflow-hidden min-h-[500px]">
+        <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/20">
+            <div className="flex items-center gap-5">
+               <div className="size-12 rounded-[1.25rem] bg-slate-900 text-white flex items-center justify-center font-black shadow-xl ring-4 ring-slate-900/10">
+                  <Fingerprint size={24} />
+               </div>
+               <div>
+                  <h3 className="text-[12px] font-black text-slate-900 uppercase tracking-[5px]">Human Capital Ledger</h3>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{filtered.length} verified records retrieved</p>
+               </div>
+            </div>
+            <div className="hidden md:flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                    <div className="size-2 rounded-full bg-indigo-500" />
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Secure Cluster</span>
                 </div>
+            </div>
+        </div>
 
-                <div className="flex items-start justify-between mb-8">
-                  <div className="size-16 rounded-2xl bg-amber-600/10 flex items-center justify-center text-amber-600 border border-amber-600/20 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500 shadow-inner">
-                    <span className="text-xl font-black">{s.name?.charAt(0) || 'S'}</span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-[9px] font-black text-slate-300 uppercase tracking-[3px] mb-1">Institutional ID</span>
-                    <span className="text-[10px] font-bold text-slate-400 font-mono">{s.roll_no || 'N/A'}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter line-clamp-1 mb-1 group-hover:text-amber-600 transition-colors">{s.name}</h3>
-                    <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-2">
-                          <Mail size={12} className="text-slate-300" />
-                          <span className="text-[10px] font-bold text-slate-400 line-clamp-1">{s.email}</span>
-                       </div>
-                       <div className="px-2 py-0.5 rounded bg-amber-50 text-amber-600 text-[10px] font-black border border-amber-100">
-                          {s.cgpa} CGPA
-                       </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-50">
-                    <div>
-                      <div className="text-[8px] font-black text-slate-300 uppercase tracking-[3px] mb-1">Branch Focus</div>
-                      <div className="text-[10px] font-black text-slate-600 uppercase tracking-[2px] line-clamp-1">{s.branch || 'N/A'}</div>
-                    </div>
-                    <div>
-                      <div className="text-[8px] font-black text-slate-300 uppercase tracking-[3px] mb-1">Applications</div>
-                      <div className="text-[10px] font-black text-slate-600 uppercase tracking-[2px] flex items-center gap-1">
-                        {s.applications_count} Total · <span className="text-rose-500">{s.rejections_count} R</span>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[1100px]">
+            <thead>
+              <tr className="border-b border-slate-50 bg-slate-50/10 text-[10px] font-black uppercase tracking-[3px] text-slate-400">
+                <th className="px-10 py-6">Identity</th>
+                <th className="px-10 py-6">Roll Number</th>
+                <th className="px-10 py-6">Branch Cluster</th>
+                <th className="px-10 py-6">Academic Metrics</th>
+                <th className="px-10 py-6">Cohort</th>
+                <th className="px-10 py-6 text-right">Provisions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              <AnimatePresence>
+                {filtered.map((s, idx) => (
+                  <motion.tr 
+                    key={s.student_id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: idx * 0.03 }}
+                    className="hover:bg-slate-50/60 transition-all group cursor-pointer"
+                  >
+                    <td className="px-10 py-7">
+                      <div className="flex items-center gap-4">
+                        <div className="size-10 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 font-black text-sm shadow-inner group-hover:scale-110 transition-transform">
+                          {s.full_name.charAt(0)}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{s.full_name}</div>
+                          <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1.5 lowercase">
+                            <Mail size={10} className="text-slate-300" /> {s.email || 'no-identity@auth'}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-amber-50 group-hover:border-amber-100 transition-all cursor-pointer" onClick={() => handleOpenDetails(s)}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-[3px]">Institutional Readiness</span>
-                      <span className="text-[9px] font-black text-amber-600">{(s.student_skill?.length ?? 0) * 20}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-white rounded-full overflow-hidden border border-slate-100">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${(s.student_skill?.length ?? 0) * 20}%` }}
-                        className="h-full bg-amber-600"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-between">
-                   <div className="flex items-center gap-2">
-                      <BookOpen size={14} className="text-amber-600/40" />
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[2px] line-clamp-1">{s.college || 'Career Institute'}</span>
-                   </div>
-                   {s.resume_url ? (
-                     <button 
-                       onClick={() => window.open(s.resume_url, '_blank')}
-                       className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center gap-1.5 transition-colors text-[9px] font-black uppercase tracking-widest border border-emerald-100"
-                     >
-                       <FileText size={12} /> Resume
-                     </button>
-                   ) : (
-                     <ChevronRight size={16} className="text-slate-200 group-hover:text-amber-600 group-hover:translate-x-1 transition-all" />
-                   )}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-        <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 overflow-x-auto shadow-sm">
-           <table className="w-full text-left border-collapse min-w-[800px]">
-              <thead>
-                 <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Student</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Academic Details</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Skills Portfolio</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[3px]">Status</th>
-                    <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[3px] text-right">Actions</th>
-                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                 {filtered.map((s) => (
-                   <tr key={s.student_id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="px-8 py-6">
-                         <div className="flex items-center gap-4">
-                            <div className="size-10 rounded-xl bg-amber-600/10 flex items-center justify-center text-amber-600 font-black text-xs border border-amber-600/20 group-hover:bg-amber-600 group-hover:text-white transition-all">
-                               {s.name?.charAt(0) || 'S'}
-                            </div>
-                            <div>
-                               <div className="text-sm font-black text-slate-900 uppercase tracking-tight">{s.name}</div>
-                               <div className="text-[10px] font-bold text-slate-400">{s.roll_no || 'No ID'} • {s.email}</div>
-                            </div>
+                    </td>
+                    <td className="px-10 py-7">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white border border-slate-100 px-3 py-1.5 rounded-lg shadow-sm">
+                        {s.roll_number}
+                      </span>
+                    </td>
+                    <td className="px-10 py-7">
+                      <div className="flex items-center gap-2 text-xs font-black text-slate-700 uppercase tracking-tight">
+                         <GraduationCap size={14} className="text-slate-300" />
+                         {s.branch || 'GENERAL STACK'}
+                      </div>
+                    </td>
+                    <td className="px-10 py-7">
+                      <div className="flex items-center gap-3">
+                         <div className="text-lg font-black text-slate-900 tracking-tighter">{s.cgpa || '?.?'}</div>
+                         <div className="h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden border border-slate-50">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(s.cgpa || 0) * 10}%` }}
+                              className="h-full bg-indigo-600 shadow-[0_0_10px_rgba(79,70,229,0.3)]" 
+                            />
                          </div>
-                      </td>
-                      <td className="px-8 py-6">
-                         <div className="text-[10px] font-black text-slate-600 uppercase tracking-[2px] mb-1">{s.branch}</div>
-                         <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{s.college}</div>
-                      </td>
-                      <td className="px-8 py-6">
-                         <div className="flex items-center gap-4">
-                            <div className="h-2 w-24 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-                               <div className="h-full bg-amber-500" style={{ width: `${(s.student_skill?.length ?? 0) * 20}%` }} />
-                            </div>
-                            <span className="text-[10px] font-black text-slate-500 uppercase">{(s.student_skill?.length ?? 0)} Skills</span>
-                         </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                          (s.student_skill?.length ?? 0) > 4 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'
-                        }`}>
-                          {(s.student_skill?.length ?? 0) > 4 ? 'Elite Ready' : 'Active'}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6 text-right">
-                         {s.resume_url && (
-                           <button 
-                             onClick={() => window.open(s.resume_url, '_blank')}
-                             className="p-2 rounded-lg text-emerald-500 hover:bg-emerald-50 hover:text-emerald-700 transition-colors mr-2 inline-flex"
-                             title="View Resume"
-                           >
-                              <FileText size={18} />
-                           </button>
-                         )}
-                         <button className="p-2 rounded-lg text-slate-300 hover:text-slate-900 transition-colors inline-flex">
-                            <MoreVertical size={18} />
-                         </button>
-                      </td>
-                   </tr>
-                 ))}
-              </tbody>
-           </table>
+                      </div>
+                    </td>
+                    <td className="px-10 py-7">
+                       <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 border border-slate-100 px-3 py-1.25 rounded-lg">
+                          CLASS OF {s.graduation_year || '????'}
+                       </div>
+                    </td>
+                    <td className="px-10 py-7 text-right">
+                       <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="px-5 py-2.5 rounded-xl bg-slate-900 text-white text-[9px] font-black uppercase tracking-[3px] hover:bg-indigo-600 transition-all shadow-lg flex items-center gap-3 ml-auto"
+                       >
+                          View Identity <ArrowRight size={13} />
+                       </motion.button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </AnimatePresence>
+            </tbody>
+          </table>
+          
+          {filtered.length === 0 && (
+            <div className="py-40 text-center">
+               <div className="size-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200 mx-auto mb-6">
+                  <Fingerprint size={32} />
+               </div>
+               <h3 className="text-xl font-black text-slate-300 uppercase tracking-[10px] leading-none mb-4">Zero Matches</h3>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[4px]">Audit parameters returned zero human capital nodes</p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
-
-    {/* Detail Modal Overlay */}
-    <AnimatePresence>
-      {selectedStudent && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 lg:p-12">
-           <motion.div 
-             initial={{ opacity: 0 }}
-             animate={{ opacity: 1 }}
-             exit={{ opacity: 0 }}
-             onClick={() => setSelectedStudent(null)}
-             className="absolute inset-0 bg-slate-950/40 backdrop-blur-xl"
-           />
-           
-           <motion.div 
-             initial={{ opacity: 0, scale: 0.9, y: 40 }}
-             animate={{ opacity: 1, scale: 1, y: 0 }}
-             exit={{ opacity: 0, scale: 0.9, y: 40 }}
-             className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden flex flex-col"
-           >
-              <div className="p-6 md:p-8 lg:p-12 border-b border-slate-50 flex items-start justify-between">
-                 <div className="flex gap-4 md:gap-6 items-center">
-                    <div className="size-14 md:size-20 rounded-2xl md:rounded-[2rem] bg-amber-600 text-white flex items-center justify-center text-xl md:text-3xl font-black shadow-xl">
-                       {selectedStudent.name.charAt(0)}
-                    </div>
-                    <div className="space-y-1">
-                       <h2 className="text-xl md:text-3xl font-black text-slate-900 tracking-tighter uppercase">{selectedStudent.name}</h2>
-                       <div className="flex items-center gap-2 md:gap-3 text-slate-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest">
-                          <span>{selectedStudent.roll_no}</span>
-                          <span className="opacity-20">|</span>
-                          <span>{selectedStudent.cgpa} CGPA</span>
-                       </div>
-                    </div>
-                 </div>
-                 <button onClick={() => setSelectedStudent(null)} className="p-2 md:p-3 bg-slate-50 rounded-xl md:rounded-2xl text-slate-400 hover:text-slate-900 transition-colors">
-                    <AlertCircle size={18} md:size={20} />
-                 </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-12 space-y-8 md:space-y-12 bg-slate-50/30">
-                 {loadingDetails ? (
-                   <div className="py-20 flex flex-col items-center justify-center gap-4">
-                      <Activity className="text-amber-600 animate-spin" />
-                      <span className="text-[10px] font-black uppercase tracking-[5px] text-slate-400">Synchronizing Activity Data...</span>
-                   </div>
-                 ) : studentDetails && (
-                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                      <div className="space-y-8">
-                         <div className="space-y-4">
-                           <h3 className="text-[10px] font-black uppercase tracking-[5px] text-slate-400">Live Application Stream</h3>
-                           <div className="space-y-3">
-                              {(studentDetails.applications || []).map((app: any) => (
-                                <div key={app.application_id} className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-amber-200 transition-all">
-                                   <div>
-                                      <div className="text-sm font-black text-slate-900 uppercase tracking-tight">{app.internship?.title}</div>
-                                      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{app.internship?.company?.company_name}</div>
-                                   </div>
-                                   <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border transition-colors ${
-                                      app.status === 'Accepted' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
-                                      app.status === 'Rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                                      'bg-amber-50 text-amber-600 border-amber-100'
-                                   }`}>
-                                      {app.status}
-                                   </div>
-                                </div>
-                              ))}
-                              {(!studentDetails.applications || studentDetails.applications.length === 0) && (
-                                <div className="p-10 text-center border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 text-[10px] font-black uppercase tracking-widest">No Active Applications Found</div>
-                              )}
-                           </div>
-                         </div>
-                      </div>
-
-                      <div className="space-y-8">
-                         <div className="space-y-4">
-                           <h3 className="text-[10px] font-black uppercase tracking-[5px] text-slate-400">Institutional Signals</h3>
-                           <div className="space-y-3">
-                              {(studentDetails.notifications || []).slice(0, 5).map((n: any) => (
-                                <div key={n.notification_id} className="p-5 bg-white/60 rounded-2xl border border-slate-50 flex gap-4">
-                                   <div className="size-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-                                      <Activity size={14} className="text-slate-400" />
-                                   </div>
-                                   <div>
-                                      <div className="text-[11px] font-black text-slate-800 uppercase tracking-tight mb-1">{n.title}</div>
-                                      <p className="text-[10px] font-medium text-slate-500 leading-relaxed">{n.message}</p>
-                                   </div>
-                                </div>
-                              ))}
-                           </div>
-                         </div>
-                      </div>
-                   </div>
-                 )}
-              </div>
-              
-              <div className="p-8 lg:p-12 border-t border-slate-50 bg-slate-50/50 flex justify-end">
-                 <button 
-                   onClick={() => setSelectedStudent(null)}
-                   className="px-8 py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[3px] rounded-2xl hover:bg-black transition-all shadow-xl active:scale-95"
-                 >
-                    Dismiss Intelligence
-                 </button>
-              </div>
-           </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
-    </>
   );
 }

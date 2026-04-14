@@ -19,16 +19,32 @@ export async function GET(request: Request) {
       supabase.from('internship').select('title, internship_skill(skill(skill_name))').limit(50)
     ]);
 
-    if (studentResp.error || !studentResp.data) {
-      return NextResponse.json({ success: false, error: 'Student profile not found' }, { status: 404 });
-    }
-
-    const studentData = studentResp.data;
-    const studentSkills = (skillsResp.data || []).map((s: any) => ({
+    let studentData = studentResp.data;
+    let studentSkills = (skillsResp.data || []).map((s: any) => ({
       name: s.skill?.skill_name || 'Skill',
       level: s.proficiency_level || 'Beginner',
       category: s.skill?.category || 'General'
     }));
+
+    // AUTO-PROVISIONING: If student doesn't exist, create a skeleton profile
+    if (!studentData) {
+      console.log(`[PROVISIONING] Analysis request triggered creation for: ${userId}`);
+      const { data: newStudent, error: createError } = await supabase
+        .from('student')
+        .insert({ 
+          student_id: userId, 
+          name: 'New Scholar', 
+          college: 'Institutional Partner',
+          branch: 'General Engineering',
+          graduation_year: new Date().getFullYear() + 2,
+          market_reach: 25
+        })
+        .select()
+        .single();
+      
+      if (createError) throw createError;
+      studentData = newStudent;
+    }
 
     // 2. Identify Target Role Skills (Aggregation of common internships)
     const allRequiredSkills = (internshipsResp.data || []).flatMap((i: any) => 

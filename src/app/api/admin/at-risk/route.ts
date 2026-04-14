@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-export async function GET(request: Request) {
+interface StudentAtRisk {
+  student_id: string;
+  name: string;
+  email: string;
+  college: string;
+  application: { status: string; ai_match_score?: number }[];
+}
+
+export async function GET() {
   try {
-    // 1. Fetch all students
-    const { data: students, error: studentError } = await supabase
+    // 1. Fetch all students with their application summaries
+    const { data: studentsRaw, error: studentError } = await supabase
       .from('student')
       .select(`
         student_id,
@@ -16,31 +24,55 @@ export async function GET(request: Request) {
 
     if (studentError) throw studentError;
 
-    // 2. Compute "At-Risk" logic
-    // Criteria: 
-    // - No applications
-    // - OR Avg Match Score < 30%
-    // - OR All applications rejected
-    const atRisk = (students || []).filter((s: any) => {
+    const students = (studentsRaw as unknown as StudentAtRisk[]) || [];
+
+    // 2. Compute "At-Risk" logic with high-fidelity intensity scoring
+    const atRisk = students.reduce((acc: any[], s) => {
       const apps = s.application || [];
-      if (apps.length === 0) return true;
+      const noApps = apps.length === 0;
+      const allRejected = apps.length > 0 && apps.every(a => a.status === 'Rejected');
       
-      const avgScore = apps.reduce((acc: number, curr: any) => acc + (curr.ai_match_score || 0), 0) / apps.length;
-      if (avgScore < 40) return true;
+      const totalScore = apps.reduce((sum, curr) => sum + (curr.ai_match_score || 0), 0);
+      const avgScore = apps.length > 0 ? totalScore / apps.length : 0;
+      
+      let riskScore = 0;
+      let reason = '';
 
-      const allRejected = apps.every((a: any) => a.status === 'Rejected');
-      if (allRejected) return true;
+      if (noApps) {
+        riskScore = 85;
+        reason = "Zero career engagement detected.";
+      } else if (allRejected) {
+        riskScore = 90;
+        reason = "High friction in recruitment funnel (100% rejection).";
+      } else if (avgScore < 40) {
+        riskScore = 75;
+        reason = "Critically low AI match parity.";
+      }
 
-      return false;
-    }).map((s: any) => ({
-      student_id: s.student_id,
-      name: s.name,
-      college: s.college,
-      reason: s.application.length === 0 ? "No career engagement detected." : s.application.every((a: any) => a.status === 'Rejected') ? "High friction in recruitment funnel." : "Low AI match parity."
-    }));
+      const intensity = riskScore > 80 ? 'HIGH' : riskScore > 50 ? 'MEDIUM' : 'LOW';
 
-    return NextResponse.json({ success: true, count: atRisk.length, data: atRisk });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+      if (riskScore > 0) {
+        acc.push({
+          student_id: s.student_id,
+          name: s.name,
+          college: s.college,
+          email: s.email,
+          reason,
+          riskScore,
+          intensity
+        });
+      }
+      return acc;
+    }, []);
+
+    return NextResponse.json({ 
+      success: true, 
+      count: atRisk.length, 
+      data: atRisk 
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('At-Risk API Error:', error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

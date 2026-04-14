@@ -56,9 +56,9 @@ export default function NotificationsPage() {
 
   const getIcon = (type: string) => {
     switch(type) {
-      case 'system':       return <Info size={18} className="text-blue-500" />;
+      case 'system':       return <Info size={18} className="text-indigo-500" />;
       case 'application':  return <CheckCircle2 size={18} className="text-emerald-500" />;
-      case 'interview':    return <AlertCircle size={18} className="text-orange-500" />;
+      case 'interview':    return <AlertCircle size={18} className="text-amber-500" />;
       default:             return <Bell size={18} className="text-slate-500" />;
     }
   };
@@ -69,10 +69,11 @@ export default function NotificationsPage() {
     <div className="space-y-12 p-6 lg:p-10 max-w-4xl mx-auto pb-24">
       <AnimatedSection direction="up" distance={40}>
         <div className="flex items-center gap-4 mb-4">
-           <div className="size-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 shadow-sm border border-slate-200 relative">
-              <BellRing size={18} />
+           <div className="size-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-xl border border-white/10 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent" />
+              <BellRing size={18} className="relative z-10" />
               {unreadCount > 0 && (
-                <span className="absolute -top-2 -right-2 size-5 bg-[#575a93] text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white">
+                <span className="absolute -top-1 -right-1 size-4 bg-amber-500 text-slate-900 text-[8px] font-black rounded-full flex items-center justify-center border-2 border-slate-900">
                   {unreadCount}
                 </span>
               )}
@@ -94,10 +95,10 @@ export default function NotificationsPage() {
               <button
                 onClick={markAllAsRead}
                 disabled={markingAll}
-                className="px-5 py-2.5 rounded-xl bg-[#575a93] text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-[#434575] transition-all disabled:opacity-50 shadow-lg"
+                className="px-5 py-3 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-[3px] flex items-center gap-2 hover:bg-slate-800 transition-all disabled:opacity-50 shadow-xl border border-white/10"
               >
-                <Check size={14} />
-                Mark All Read
+                <Check size={14} className="text-amber-400" />
+                Flush Notifications
               </button>
             )}
           </div>
@@ -124,10 +125,12 @@ export default function NotificationsPage() {
                 }`}
                 onClick={() => !n.is_read && markAsRead(n.notification_id)}
               >
-                <div className={`size-12 rounded-2xl flex items-center justify-center shadow-inner shrink-0 border transition-colors ${
-                  n.is_read ? 'bg-slate-50 border-slate-100' : 'bg-[#575a93]/10 border-[#575a93]/20'
+                <div className={`size-14 rounded-2xl flex items-center justify-center shadow-inner shrink-0 border transition-all duration-500 ${
+                  n.is_read ? 'bg-slate-50 border-slate-100 group-hover:bg-slate-100' : 'bg-indigo-500/10 border-indigo-500/20 group-hover:border-indigo-500/40'
                 }`}>
-                  {getIcon(n.type)}
+                  <div className={n.is_read ? 'opacity-40 grayscale' : 'animate-pulse'}>
+                    {getIcon(n.type)}
+                  </div>
                 </div>
                 <div className="flex-1 space-y-1.5 min-w-0">
                   <div className="flex justify-between items-start gap-4">

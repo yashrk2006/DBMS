@@ -38,10 +38,10 @@ export function CareerSummaryWidget({
 
   return (
     <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileHover={{ y: -5 }} animate={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, scale: 0.98 }}
+      whileHover={{ y: -2 }} animate={{ opacity: 1, scale: 1 }}
       onClick={onViewDetail}
-      className="bg-white rounded-[2.5rem] border border-slate-100 p-5 md:p-8 shadow-xl shadow-slate-200/40 relative overflow-hidden group h-full cursor-pointer transition-all active:scale-[0.98]"
+      className="bg-white rounded-[2.5rem] border border-slate-100 p-6 md:p-10 shadow-[var(--soft-shadow)] relative overflow-hidden group h-full cursor-pointer transition-all active:scale-[0.99]"
     >
       {/* Background patterns */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.02] bg-[radial-gradient(#575a93_1px,transparent_1px)] [background-size:16px_16px]" />
@@ -68,20 +68,20 @@ export function CareerSummaryWidget({
 
         {/* Middle Layout for Application Status & Latest Job */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 mt-2">
-            <div className="flex flex-col justify-center bg-slate-50 p-5 md:p-6 rounded-[2rem] border border-slate-100 group/item hover:border-indigo-200 transition-colors">
+            <div className="flex flex-col justify-center bg-slate-50/50 p-6 md:p-8 rounded-[2rem] border border-slate-100 group/item hover:border-slate-200 transition-colors">
                 <div className="flex items-center gap-4 mb-4">
-                    <div className="size-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg">
+                    <div className="size-12 rounded-2xl bg-white border border-slate-100 text-slate-600 flex items-center justify-center shadow-sm">
                         <Rocket size={20} />
                     </div>
                     <div>
-                        <p className="text-xs font-black text-slate-900 uppercase tracking-tight">Active Applications</p>
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Real-time Status</p>
+                        <p className="text-xs font-bold text-slate-900 uppercase tracking-tight">Active Applications</p>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Performance Pipeline</p>
                     </div>
                 </div>
                 <div className="flex items-end justify-between">
-                    <span className="text-4xl font-black text-slate-900 tracking-tighter">{applicationStatus.active}<span className="text-lg text-slate-300 ml-1">/ {applicationStatus.total}</span></span>
-                    <div className="text-[9px] font-black text-indigo-600 bg-white px-3 py-1.5 rounded-xl border border-indigo-50 shadow-sm">
-                        {Math.round((applicationStatus.active / Math.max(1, applicationStatus.total)) * 100)}% Progress
+                    <span className="text-4xl font-bold text-slate-900 tracking-tight">{applicationStatus.active}<span className="text-lg text-slate-300 ml-1">/ {applicationStatus.total}</span></span>
+                    <div className="text-[9px] font-bold text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
+                        {Math.round((applicationStatus.active / Math.max(1, applicationStatus.total)) * 100)}% Match Rate
                     </div>
                 </div>
             </div>
@@ -93,13 +93,13 @@ export function CareerSummaryWidget({
                 <div className="relative z-10">
                     <div className="flex items-center gap-2 mb-3">
                         <Zap size={14} className="text-amber-400 fill-amber-400" />
-                        <span className="text-[9px] font-black text-amber-400 uppercase tracking-[3px]">Latest Posting</span>
+                        <span className="text-[9px] font-bold text-amber-400 uppercase tracking-[3px]">Latest Posting</span>
                     </div>
-                    <h4 className="text-sm font-black text-white leading-tight mb-1">{latestOpportunity.title}</h4>
-                    <p className="text-[10px] font-black text-indigo-300 uppercase tracking-widest">{latestOpportunity.company}</p>
+                    <h4 className="text-sm font-bold text-white leading-tight mb-1">{latestOpportunity.title}</h4>
+                    <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">{latestOpportunity.company}</p>
                     
                     <div className="mt-4 flex justify-between items-center">
-                        <span className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">In Review</span>
+                        <span className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest">In Review</span>
                         <div className="flex gap-1">
                              <div className="w-2.5 h-0.5 bg-amber-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
                              <div className="w-2.5 h-0.5 bg-amber-400 rounded-full animate-bounce [animation-delay:-0.15s]" />

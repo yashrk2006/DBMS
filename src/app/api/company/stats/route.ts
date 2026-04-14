@@ -20,64 +20,48 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'Company ID required' }, { status: 400 });
     }
 
-    // 1. Fetch Company Data — auto-provision if not found (first login flow)
-    let { data: company, error: companyError } = await supabase
-      .from('company')
-      .select('company_id, company_name, is_verified, email')
-      .eq('company_id', companyId)
-      .single();
+    // 1. Unified Parallel Data Acquisition
+    const [
+      companyResponse,
+      internshipsResponse,
+      appsResponse,
+      studentsResponse
+    ] = await Promise.all([
+      supabase.from('company').select('company_id, company_name, is_verified, email').eq('company_id', companyId).single(),
+      supabase.from('internship').select('internship_id, title, internship_type, openings, deadline, perks, company_id, internship_skill(skill(skill_name))').eq('company_id', companyId),
+      supabase.from('application').select('application_id, status, applied_date, internship_id, student(student_id, name, roll_no, student_skill(skill(skill_name)), ai_resume_analysis, resume_url), internship!inner(title, internship_type, company_id)').eq('internship.company_id', companyId),
+      supabase.from('student').select('student_id, name, student_skill(skill(skill_name)), ai_resume_analysis')
+    ]);
 
-    if (!company || companyError) {
+    let company = companyResponse.data;
+
+    // Handle Auto-provisioning (First Login Flow)
+    if (!company) {
       console.log(`🏢 Auto-provisioning company record for auth user: ${companyId}`);
-      
       const { data: { user: authUser } } = await supabase.auth.admin.getUserById(companyId);
       const email = authUser?.email || `company_${companyId.slice(0, 8)}@platform.com`;
-      const displayName = authUser?.user_metadata?.company_name 
-        || authUser?.user_metadata?.full_name 
-        || email.split('@')[0];
+      const displayName = authUser?.user_metadata?.company_name || authUser?.user_metadata?.full_name || email.split('@')[0];
 
-      const { data: newCompany, error: createError } = await supabase
-        .from('company')
-        .upsert({
+      const { data: newCompany, error: createError } = await supabase.from('company').upsert({
           company_id: companyId,
           email,
           company_name: displayName,
           is_verified: true,
           industry: 'Technology',
           location: 'India'
-        }, { onConflict: 'company_id' })
-        .select('company_id, company_name, is_verified, email')
-        .single();
+        }, { onConflict: 'company_id' }).select('company_id, company_name, is_verified, email').single();
 
-      if (createError) {
-        console.error('❌ Company auto-provision failed:', createError.message);
-        return NextResponse.json({ success: false, error: 'Company provisioning failed.' }, { status: 500 });
-      }
+      if (createError) return NextResponse.json({ success: false, error: 'Company provisioning failed.' }, { status: 500 });
       company = newCompany;
     }
 
-    // 2. Fetch Company Internships with Requirements
-    const { data: internshipsRaw } = await supabase
-      .from('internship')
-      .select(`
-        internship_id,
-        title,
-        internship_type,
-        openings,
-        deadline,
-        perks,
-        company_id,
-        internship_skill(skill(skill_name))
-      `)
-      .eq('company_id', companyId);
-
-    const internships: IInternship[] = (internshipsRaw || []).map((i: any) => ({
+    const internships: IInternship[] = (internshipsResponse.data || []).map((i: any) => ({
       id: i.internship_id.toString(),
       internship_id: i.internship_id,
       company_id: i.company_id,
-      company_name: company.company_name, // Company name already known
+      company_name: company?.company_name || 'Independent',
       title: i.title,
-      description: '', // Description not needed for stats comparison
+      description: '',
       type: i.internship_type || 'Remote',
       openings: i.openings || 1,
       deadline: i.deadline,
@@ -88,28 +72,7 @@ export async function GET(request: Request) {
       }
     } as any));
 
-    // 3. Fetch Applications for the company with student info
-    const internshipIds = internships.map((i: any) => i.internship_id);
-    const { data: filteredAppsRaw } = await supabase
-      .from('application')
-      .select(`
-        application_id,
-        status,
-        applied_date,
-        internship_id,
-        student(
-          student_id, 
-          name, 
-          roll_no, 
-          student_skill(skill(skill_name)), 
-          ai_resume_analysis, 
-          resume_url
-        ),
-        internship(title, internship_type)
-      `)
-      .in('internship_id', internshipIds);
-
-    const enrichedApplications: EnrichedCompanyApplication[] = (filteredAppsRaw || []).map((app: any) => {
+    const enrichedApplications: EnrichedCompanyApplication[] = (appsResponse.data || []).map((app: any) => {
       const studentSkills = app.student?.student_skill?.map((sk: any) => sk.skill.skill_name) || [];
       const role = internships.find(i => i.internship_id === app.internship_id);
       const requiredSkills = role?.requirements.role_skills || [];
@@ -138,9 +101,7 @@ export async function GET(request: Request) {
     });
 
     // 4. Talent Discovery: Find top students not yet applied
-    const { data: allStudentsRaw } = await supabase
-      .from('student')
-      .select('student_id, name, student_skill(skill(skill_name)), ai_resume_analysis');
+    const allStudentsRaw = studentsResponse.data;
 
     const appliedStudentIds = new Set(enrichedApplications.map((a) => a.student_id));
     

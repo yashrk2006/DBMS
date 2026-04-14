@@ -69,10 +69,11 @@ export async function GET(request: Request) {
         status: app.status,
         applied_date: app.applied_date,
         student_name: app.student?.name || 'Unknown',
+        student_email: app.student?.email || 'N/A',
         student_roll_no: app.student?.roll_no || 'N/A',
         student_skills: studentSkills,
         role_title: app.internship?.title || 'Unknown Role',
-        match_score: matchScore,
+        match_score: isNaN(matchScore) ? 0 : matchScore,
         resume_analysis: app.student?.ai_resume_analysis ? {
           ...app.student.ai_resume_analysis,
           resume_url: app.student.resume_url

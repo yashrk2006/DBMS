@@ -12,47 +12,49 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'User ID required' }, { status: 400 });
     }
 
-    // 1. Fetch Student Data - Optimized Selection
-    const { data: studentData, error: studentError } = await supabase
-      .from('student')
-      .select('student_id, name, email, roll_no, college, cgpa, ai_resume_analysis')
-      .eq('student_id', userId)
-      .single();
+    // Parallel execution pipeline for high-performance retrieval
+    const [studentResponse, skillsResponse, internsResponse, appsResponse] = await Promise.all([
+      supabase.from('student').select('student_id, name, email, roll_no, college, cgpa, ai_resume_analysis').eq('student_id', userId).single(),
+      supabase.from('student_skill').select('proficiency_level, skill(skill_id, skill_name, category)').eq('student_id', userId),
+      supabase.from('internship').select('internship_id, title, description, duration, stipend, location, company_id, min_cgpa, company:company_id (company_name), internship_skill (skill (skill_name))'),
+      supabase.from('application').select('application_id, student_id, internship_id, status, applied_date, ai_match_score, interview_score, interview_notes, interview_logs, internship:internship_id (title, company:company_id (company_name))').eq('student_id', userId)
+    ]);
 
-    if (studentError || !studentData) {
-      return NextResponse.json({ success: false, error: 'Student not found' }, { status: 404 });
+    let studentData = studentResponse.data;
+
+    // Auto-provisioning for New Students (First Login Flow)
+    if (studentResponse.error || !studentData) {
+      console.log(`🎓 Auto-provisioning student record for user: ${userId}`);
+      
+      const { data: { user: authUser } } = await supabase.auth.admin.getUserById(userId);
+      const email = authUser?.email || `student_${userId.slice(0, 8)}@university.edu`;
+      const displayName = authUser?.user_metadata?.full_name || authUser?.user_metadata?.name || email.split('@')[0];
+
+      const { data: newStudent, error: createError } = await supabase
+        .from('student')
+        .upsert({
+          student_id: userId,
+          email,
+          name: displayName,
+          roll_no: authUser?.user_metadata?.roll_no || `R-${userId.slice(0, 6).toUpperCase()}`,
+          college: 'Institutional Partner',
+          cgpa: 0
+        }, { onConflict: 'student_id' })
+        .select('student_id, name, email, roll_no, college, cgpa, ai_resume_analysis')
+        .single();
+
+      if (createError) {
+        console.error('❌ Student auto-provision failed:', createError.message);
+        return NextResponse.json({ success: false, error: 'Student provisioning failed.' }, { status: 500 });
+      }
+      studentData = newStudent;
     }
-
-    // 2. Fetch Student Skills
-    const { data: skilledData, error: skillsError } = await supabase
-      .from('student_skill')
-      .select('proficiency_level, skill(skill_id, skill_name, category)')
-      .eq('student_id', userId);
-
-    const studentSkills = (skilledData || []).map((s: any) => ({
+    const studentSkills = (skillsResponse.data || []).map((s: any) => ({
       skill_name: s.skill?.skill_name || 'Legacy Skill',
       level: s.proficiency_level || 'Beginner'
     }));
 
-    // 3. Fetch All Internships (for AI matching) - Optimized Selection
-    const { data: allInternshipsRaw, error: internError } = await supabase
-      .from('internship')
-      .select(`
-        internship_id,
-        title,
-        description,
-        duration,
-        stipend,
-        location,
-        company_id,
-        min_cgpa,
-        company:company_id (company_name),
-        internship_skill (
-          skill (skill_name)
-        )
-      `);
-
-    const allInternships: IInternship[] = (allInternshipsRaw || []).map((i: any) => ({
+    const allInternships: IInternship[] = (internsResponse.data || []).map((i: any) => ({
       id: i.internship_id.toString(),
       internship_id: i.internship_id,
       company_id: i.company_id,
@@ -71,31 +73,11 @@ export async function GET(request: Request) {
       required_skills: i.internship_skill?.map((ir: any) => ir.skill.skill_name) || []
     }));
 
-    // 4. Fetch Applications for this student - Optimized Selection
-    const { data: allApplicationsRaw, error: appsError } = await supabase
-      .from('application')
-      .select(`
-        application_id,
-        student_id,
-        internship_id,
-        status,
-        applied_date,
-        ai_match_score,
-        interview_score,
-        interview_notes,
-        interview_logs,
-        internship:internship_id (
-          title,
-          company:company_id (company_name)
-        )
-      `)
-      .eq('student_id', userId);
-
-    const allApplications: IApplication[] = (allApplicationsRaw || []).map((a: any) => ({
+    const allApplications: IApplication[] = (appsResponse.data || []).map((a: any) => ({
       application_id: a.application_id.toString(),
       student_id: a.student_id,
       internship_id: a.internship_id?.toString(),
-      company_id: '', // placeholder if not directly in join
+      company_id: '',
       status: a.status as any,
       applied_date: a.applied_date,
       ai_match_score: a.ai_match_score || 0,
@@ -106,20 +88,15 @@ export async function GET(request: Request) {
       interview_logs: a.interview_logs
     }));
 
-    // Platform Features: Skill Growth Analysis
+    // Post-processing
     const skillList = studentSkills.map((s: any) => s.skill_name);
     const marketReach = AI_ENGINE.calculateMarketReach(skillList, allInternships);
     const highImpactSkill = AI_ENGINE.getHighImpactSkill(skillList, allInternships);
 
-    // Update student's profile performance in DB (Automated Profile Update)
-    try {
-      await supabase
-        .from('student')
-        .update({ market_reach: marketReach })
-        .eq('student_id', userId);
-    } catch (e) {
-      console.warn("Market reach persistence delay - column might be missing.");
-    }
+    // Non-blocking background sync
+    supabase.from('student').update({ market_reach: marketReach }).eq('student_id', userId).then(({ error }: { error: any }) => {
+      if (error) console.warn("Background market reach sync failed:", error.message);
+    });
 
     return NextResponse.json({
       success: true,

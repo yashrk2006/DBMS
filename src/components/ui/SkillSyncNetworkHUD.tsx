@@ -78,7 +78,7 @@ export function SkillSyncNetworkHUD({ progress, range = [0.2, 0.4] }: HUDProps) 
             transition={{ duration: 2, repeat: Infinity }}
             className="mb-2 md:mb-4 text-amber-500"
           >
-            <Zap size={32} md:size={48} strokeWidth={1} />
+            <Zap size={32}  strokeWidth={1} />
           </motion.div>
           
           <div className="text-[7px] md:text-[10px] font-black tracking-[0.4em] text-amber-500 uppercase mb-1 md:mb-2">SkillSync Active</div>
@@ -104,7 +104,7 @@ export function SkillSyncNetworkHUD({ progress, range = [0.2, 0.4] }: HUDProps) 
              transition={{ duration: 4, repeat: Infinity }}
              className="absolute top-4 left-4 md:top-10 md:left-10 flex items-center gap-1 md:gap-2 border-l border-amber-500/30 pl-2 md:pl-3"
            >
-              <Activity size={8} md:size={10} />
+              <Activity size={8}  />
               <span>STATUS::ACTIVE</span>
            </motion.div>
 
@@ -116,7 +116,7 @@ export function SkillSyncNetworkHUD({ progress, range = [0.2, 0.4] }: HUDProps) 
            >
               <div className="flex items-center gap-1 md:gap-2">
                  <span>OPTIMIZED::ON</span>
-                 <Radio size={8} md:size={10} className="text-emerald-500" />
+                 <Radio size={8}  className="text-emerald-500" />
               </div>
               <span className="text-[6px] md:text-[7px] text-white/40">DATA_VERIFIED</span>
            </motion.div>

@@ -57,3 +57,71 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const { 
+      company_id, title, description, duration, 
+      stipend, location, min_cgpa, required_skills 
+    } = await request.json();
+
+    if (!company_id || !title) {
+      return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // 1. Insert Internship
+    const { data: internship, error: internError } = await supabaseAdmin
+      .from('internship')
+      .insert({
+        company_id,
+        title,
+        description,
+        duration,
+        stipend,
+        location,
+        min_cgpa: min_cgpa || 0,
+        status: 'Open'
+      })
+      .select('internship_id')
+      .single();
+
+    if (internError) throw internError;
+
+    // 2. Insert Skills if provided
+    if (required_skills && required_skills.length > 0) {
+      // First, ensure skills exist and get their IDs
+      const skillInsertions = required_skills.map(async (skillName: string) => {
+        const { data: skillData } = await supabaseAdmin
+          .from('skill')
+          .upsert({ skill_name: skillName }, { onConflict: 'skill_name' })
+          .select('skill_id')
+          .single();
+        return skillData?.skill_id;
+      });
+
+      const skillIds = (await Promise.all(skillInsertions)).filter(id => id);
+
+      if (skillIds.length > 0) {
+        const { error: skillError } = await supabaseAdmin
+          .from('internship_skill')
+          .insert(
+            skillIds.map(id => ({
+              internship_id: internship.internship_id,
+              skill_id: id
+            }))
+          );
+        if (skillError) console.error("Skill mapping error:", skillError.message);
+      }
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      data: { internship_id: internship.internship_id },
+      message: 'Internship deployment synchronized' 
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Submission Error:', error);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}

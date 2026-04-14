@@ -97,6 +97,7 @@ export interface MarketEquilibriumItem {
 
 export interface EnrichedCompanyApplication extends Application {
   student_name: string;
+  student_email?: string;
   student_roll_no?: string;
   student_skills: string[];
   role_title: string;
@@ -143,6 +144,7 @@ export interface Course {
   url?: string;
   icon?: string;
   color?: string;
+  difficulty?: string;
 }
 
 export interface CalendarEvent {

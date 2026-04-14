@@ -155,10 +155,10 @@ export default function LandingPage() {
             className="max-w-6xl mx-auto text-center relative z-20"
           >
             <AnimatedSection delay={0.2}>
-              <div className="inline-flex items-center gap-3 px-6 py-2 rounded-2xl bg-slate-950 border border-white/10 mb-10 shadow-2xl backdrop-blur-xl">
-                <Sparkles size={14} className="text-amber-500 animate-pulse" />
-                <span className="text-[10px] text-white font-black uppercase tracking-[0.6em]">
-                  Now Live: SkillSync Platform v2.0
+              <div className="inline-flex items-center gap-3 px-6 py-2 rounded-2xl bg-slate-950 border border-white/10 mb-10 shadow-[var(--soft-shadow)] backdrop-blur-xl">
+                <Sparkles size={14} className="text-amber-500" />
+                <span className="text-[10px] text-white font-bold uppercase tracking-[6px]">
+                  Now Live: PLATFORM v2.0
                 </span>
               </div>
 
@@ -175,17 +175,17 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8 w-full max-w-lg mx-auto md:max-w-none">
                 <Link
                   href="/auth/login"
-                  className="w-full sm:w-auto px-10 md:px-20 py-5 md:py-8 rounded-[1.5rem] md:rounded-[2.5rem] bg-slate-950 text-white text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] md:tracking-[0.6em] shadow-[0_45px_90px_-20px_rgba(0,0,0,0.4)] hover:scale-110 active:scale-95 transition-all flex items-center justify-center gap-4 md:gap-6 group"
+                  className="w-full sm:w-auto px-16 md:px-24 py-6 md:py-8 rounded-[2rem] md:rounded-[3rem] bg-slate-950 text-white text-[11px] font-bold uppercase tracking-[6px] shadow-[var(--soft-shadow)] hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-4 md:gap-6 group"
                 >
-                  Get Started
-                  <Zap size={18} md:size={22} className="fill-amber-500 text-amber-500 group-hover:rotate-45 transition-transform duration-500" />
+                  Enter Platform
+                  <Zap size={18}  className="fill-amber-500 text-amber-500 group-hover:rotate-12 transition-transform duration-500" />
                 </Link>
                 <button
                   onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
                   className="w-full sm:w-auto px-10 md:px-20 py-5 md:py-8 rounded-[1.5rem] md:rounded-[2.5rem] bg-white border border-slate-200 text-slate-950 text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] md:tracking-[0.6em] hover:bg-slate-50 hover:border-amber-500 transition-all flex items-center justify-center gap-4 md:gap-6 group shadow-2xl"
                 >
                   Explore Features
-                  <Box size={18} md:size={22} className="group-hover:translate-x-3 transition-transform duration-500" />
+                  <Box size={18}  className="group-hover:translate-x-3 transition-transform duration-500" />
                 </button>
               </div>
             </AnimatedSection>

@@ -103,9 +103,9 @@ export default function DashboardLayout({
               <Icon name="support" className="text-xl" />
               <span className="text-[15px] font-bold tracking-tight">Help & Support</span>
             </button>
-            <button onClick={() => router.push('/dashboard/profile')} className="flex items-center gap-4 px-4 py-3 text-[#717171] hover:text-[#2d3335] transition-colors w-full text-left font-sans">
+            <button onClick={() => router.push('/dashboard/settings')} className="flex items-center gap-4 px-4 py-3 text-[#717171] hover:text-[#2d3335] transition-colors w-full text-left font-sans">
               <Icon name="settings" className="text-xl" />
-              <span className="text-[15px] font-bold tracking-tight">Profile Settings</span>
+              <span className="text-[15px] font-bold tracking-tight">System Settings</span>
             </button>
             <button 
               onClick={handleLogout} 
