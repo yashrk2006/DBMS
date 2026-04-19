@@ -283,7 +283,7 @@ export default function LoginPage() {
           </GsapMagnetic>
           
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4 uppercase">
-            {step === 'role' ? 'Login Hub' : 'SkillSync Access'}
+            {step === 'role' ? 'Login Hub' : 'DBMS Project Access'}
           </h1>
           <p className="text-slate-400 font-black uppercase tracking-[5px] text-[10px]">
              {step === 'role' ? 'Secure Login • Select your Role' : 'Verified Access Protocol'}
@@ -582,7 +582,7 @@ export default function LoginPage() {
 
         <div className="mt-20 pt-10 border-t border-slate-100 text-center">
           <p className="text-slate-300 text-[9px] font-black uppercase tracking-[4px]">
-             SkillSync Auth Protocol • Secured Access
+             DBMS Project Auth Protocol • Secured Access
           </p>
         </div>
       </motion.div>

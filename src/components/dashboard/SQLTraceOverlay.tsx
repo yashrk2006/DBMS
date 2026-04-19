@@ -110,7 +110,7 @@ export function SQLTraceOverlay() {
     let highlighted = sql;
     keywords.forEach(key => {
       const reg = new RegExp(`\\b${key}\\b`, 'gi');
-      highlighted = highlighted.replace(reg, `<span class="text-indigo-400 font-black">${key}</span>`);
+      highlighted = highlighted.replace(reg, `<span class="text-indigo-300 font-black">${key}</span>`);
     });
     return <span dangerouslySetInnerHTML={{ __html: highlighted }} />;
   };
@@ -281,10 +281,10 @@ export function SQLTraceOverlay() {
                             </div>
                           ) : (
                             <div className="p-4 bg-white/[0.03] rounded-xl border border-white/5 relative group hover:border-indigo-500/20 transition-all">
-                              <div className="text-[10px] text-slate-400 font-bold mb-2 italic">
+                              <div className="text-[10px] text-slate-300 font-bold mb-2 italic">
                                  -- {trace.description}
                               </div>
-                              <pre className="text-[11px] font-mono leading-relaxed overflow-x-auto scrollbar-hide whitespace-pre-wrap">
+                              <pre className="text-[11px] font-mono leading-relaxed overflow-x-auto scrollbar-hide whitespace-pre-wrap text-slate-100">
                                 {highlightSQL(trace.sql)}
                               </pre>
                               
@@ -342,7 +342,7 @@ export function SQLTraceOverlay() {
                   <div className="h-full flex flex-col items-center justify-center space-y-8 py-10 animate-in fade-in zoom-in duration-500">
                      <div className="text-center space-y-2">
                         <h2 className="text-sm font-black text-indigo-400 uppercase tracking-[4px]">Relational Schema</h2>
-                        <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">BoothIQ/SkillSync Production Cluster</p>
+                        <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">DBMS Project Production Cluster</p>
                      </div>
                      
                      <div className="relative w-full max-w-[320px] h-[280px]">

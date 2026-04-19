@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
+import { useDBMS } from '@/context/DBMSContext';
 import { Users, Search, Globe, ShieldCheck, MailPlus, Loader2, ArrowUpRight, GraduationCap } from 'lucide-react';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { toast } from 'react-hot-toast';
@@ -19,6 +20,7 @@ interface Peer {
 }
 
 export default function NetworkingPage() {
+  const { addTrace } = useDBMS();
   const [peers, setPeers] = useState<Peer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,6 +42,13 @@ export default function NetworkingPage() {
         
         if (data.success) {
           setPeers(data.peers);
+          
+          addTrace({
+            operation: 'SELECT',
+            table: 'student',
+            description: 'Synchronize peer intelligence directory and institutional skill matrix.',
+            sql: `SELECT name, roll_no, email, skills FROM student WHERE roll_no IS NOT NULL;`
+          });
         } else {
           toast.error("Failed to connect with peers.");
         }

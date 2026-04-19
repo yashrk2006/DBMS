@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
+import { useDBMS } from '@/context/DBMSContext';
 import { Student, Application, Course, CalendarEvent, Notification } from '@/types';
 import { toast } from 'react-hot-toast';
 import { StatGrid } from '@/components/dashboard/StatGrid';
@@ -16,6 +17,7 @@ import Icon from '@/components/ui/Icon';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { addTrace } = useDBMS();
   const [userName, setUserName] = useState('');
   const [rollNo, setRollNo] = useState('');
   const [cgpa, setCgpa] = useState<number>(0);
@@ -71,6 +73,14 @@ export default function DashboardPage() {
           calRes.json(),
           notifRes.json()
         ]);
+        
+        // DBMS TRACE: Bulk Initialization
+        addTrace({
+          operation: 'SELECT',
+          table: 'multiple',
+          description: 'Initialize institutional dashboard telemetry and notification buffers.',
+          sql: `SELECT * FROM student WHERE id = '${userId}';\nSELECT * FROM application WHERE student_id = '${userId}' ORDER BY created_at DESC LIMIT 5;\nSELECT * FROM notification WHERE student_id = '${userId}' AND is_read = false;\nSELECT * FROM event WHERE student_id = '${userId}' OR company_id IS NULL;`
+        });
         
         if (data.success && !controller.signal.aborted) {
           const student = data.student as Student;
@@ -162,6 +172,14 @@ export default function DashboardPage() {
       const data = await res.json();
       if (data.success) {
          setResumeAnalysis(data.analysis);
+         
+         addTrace({
+           operation: 'UPDATE',
+           table: 'student',
+           description: 'Synchronize neural resume analysis into student permanent record.',
+           sql: `UPDATE student \nSET ai_resume_analysis = '${JSON.stringify(data.analysis).replace(/'/g, "''")}' \nWHERE id = '${userId}';`
+         });
+         
          toast.success(`Profile Updated.`, { id: "resume-toast" });
          
          const statsRes = await fetch(`/api/dashboard/stats?userId=${userId}`, { signal: controller.signal });
@@ -305,6 +323,14 @@ export default function DashboardPage() {
       const data = await res.json();
       if (data.success) {
         toast.success(`Application submitted!`, { id: "apply-toast" });
+        
+        addTrace({
+          operation: 'INSERT',
+          table: 'application',
+          description: 'Initialize recruitment bridge for student-to-corporate matching.',
+          sql: `INSERT INTO application (student_id, internship_id, company_id, status) \nVALUES ('${session.user.id}', '${job.internship_id}', '${job.company_id}', 'Applied');`
+        });
+        
         setStats(prev => ({ ...prev, applications: prev.applications + 1 }));
         if (aiJobs) setAiJobs(aiJobs.map(j => (j.internship_id === job.internship_id) ? { ...j, applied: true } : j));
       } else {
@@ -403,7 +429,7 @@ export default function DashboardPage() {
                   .slice(0, 4)
                 }
                 applicationStatus={{ active: recentApplications.filter(a => a.status !== 'Rejected').length, total: recentApplications.length }}
-                latestOpportunity={aiJobs?.length ? { title: aiJobs[0].title, company: aiJobs[0].company_name } : { title: "Ready for Matching", company: "SkillSync Hub" }}
+                latestOpportunity={aiJobs?.length ? { title: aiJobs[0].title, company: aiJobs[0].company_name } : { title: "Ready for Matching", company: "DBMS Assessment Center" }}
                 onViewDetail={() => router.push('/dashboard/analysis')}
               />
             </div>
@@ -435,6 +461,7 @@ export default function DashboardPage() {
               onClearAnalysis={handleClearAnalysis}
               onCourseClick={() => router.push('/dashboard/learning')}
               onMockInterview={() => router.push('/dashboard/interview')}
+              searchTerm={searchTerm}
             />
           </div>
 

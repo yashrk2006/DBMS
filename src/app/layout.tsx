@@ -13,8 +13,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "SkillSync - Your Career Partner",
-  description: "Your student-friendly career growth and hiring platform.",
+  title: "DBMS Recruitment Protocol - Strategic Database Assessment",
+  description: "Institutional-grade database management and recruitment intelligence platform.",
 };
 
 export default function RootLayout({

@@ -68,7 +68,7 @@ export default function LearningPage() {
              <h2 className="text-[11px] font-black uppercase tracking-[6px] text-slate-400 mb-0.5">Learning Hub</h2>
              <div className="flex items-center gap-2">
                <div className="size-1.5 rounded-full bg-purple-500 animate-pulse" />
-               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">SkillSync Curated</p>
+               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">DBMS Project Curated</p>
              </div>
            </div>
         </div>

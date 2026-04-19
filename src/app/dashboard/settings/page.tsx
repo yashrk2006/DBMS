@@ -321,7 +321,7 @@ export default function SettingsPage() {
       
       {/* Footer Info */}
       <footer className="pt-20 opacity-30 text-center">
-         <p className="text-[8px] font-black uppercase tracking-[10px] text-slate-900">SkillSync Governance Suite v4.2.0</p>
+         <p className="text-[8px] font-black uppercase tracking-[10px] text-slate-900">DBMS Governance Suite v4.2.0</p>
       </footer>
     </div>
   );

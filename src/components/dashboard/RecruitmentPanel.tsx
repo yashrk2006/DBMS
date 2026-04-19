@@ -17,6 +17,7 @@ interface RecruitmentPanelProps {
   onClearAnalysis: () => void;
   onCourseClick: () => void;
   onMockInterview: () => void;
+  searchTerm?: string;
 }
 
 export const RecruitmentPanel = ({
@@ -30,14 +31,25 @@ export const RecruitmentPanel = ({
   onSyncSkills,
   onClearAnalysis,
   onCourseClick,
-  onMockInterview
+  onMockInterview,
+  searchTerm = ""
 }: RecruitmentPanelProps) => {
   const [hideApplied, setHideApplied] = React.useState(false);
 
   const filteredJobs = React.useMemo(() => {
     if (!aiJobs) return [];
-    return hideApplied ? aiJobs.filter(j => !j.applied) : aiJobs;
-  }, [aiJobs, hideApplied]);
+    let result = hideApplied ? aiJobs.filter(j => !j.applied) : aiJobs;
+    
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase().trim();
+      result = result.filter(j => 
+        j.title.toLowerCase().includes(q) || 
+        j.company_name.toLowerCase().includes(q)
+      );
+    }
+    
+    return result;
+  }, [aiJobs, hideApplied, searchTerm]);
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-fit">
       {/* Skill Prep Card */}

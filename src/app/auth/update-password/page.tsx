@@ -137,7 +137,7 @@ export default function UpdatePasswordPage() {
         </div>
 
         <p className="mt-12 text-center text-[9px] font-black uppercase tracking-[4px] text-slate-300">
-          Secure Auth Protocol • SkillSync v4.2
+          Secure Auth Protocol • DBMS Project v4.2
         </p>
       </motion.div>
     </div>

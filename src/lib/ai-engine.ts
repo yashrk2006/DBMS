@@ -1,7 +1,7 @@
 import { Student, Internship } from '@/types';
 
 /**
- * AI Intelligence Engine for SkillSync
+ * AI Intelligence Engine for DBMS Project
  * Implements: 
  * 1. Skill Evolution Predictor
  * 2. AI Interview Engine

@@ -20,7 +20,7 @@ export function CareerSummaryWidget({
   topSkills = ['Project Design', 'Technical Writing', 'Team Collaboration'],
   lastUpdate = 'Just Now',
   applicationStatus = { active: 3, total: 5 },
-  latestOpportunity = { title: 'Junior Software Engineer', company: 'SkillSync Partner' },
+  latestOpportunity = { title: 'Junior Software Engineer', company: 'DBMS Institutional Partner' },
   onViewDetail
 }: AIReadinessWidgetProps) {
   

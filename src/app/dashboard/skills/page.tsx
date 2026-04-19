@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import AnimatedSection from '@/components/ui/AnimatedSection';
 import { supabase } from '@/lib/supabase';
+import { useDBMS } from '@/context/DBMSContext';
 
 interface Skill { skill_id: number; skill_name: string; category?: string; }
 interface StudentSkill { skill_id: number; skill_name: string; proficiency_level: string; category?: string; }
@@ -28,6 +29,7 @@ const levelConfig: Record<string, { color: string, glow: string, bg: string, ico
 
 export default function SkillsPage() {
   const router = useRouter();
+  const { addTrace } = useDBMS();
   const [allSkills, setAllSkills] = useState<Skill[]>([]);
   const [mySkills, setMySkills] = useState<StudentSkill[]>([]);
   const [adding, setAdding] = useState(false);
@@ -55,6 +57,13 @@ export default function SkillsPage() {
         setAllSkills(result.allSkills || []);
         setMySkills(result.studentSkills || []);
         setAiInsights(result.aiInsights);
+        
+        addTrace({
+          operation: 'SELECT',
+          table: 'skill',
+          description: 'Synchronize personal skill matrix with institutional registry.',
+          sql: `SELECT s.skill_id, s.skill_name, ss.proficiency_level \nFROM student_skill ss \nJOIN skill s ON ss.skill_id = s.skill_id \nWHERE ss.student_id = '${storedUserId}';`
+        });
         
         // Extract suggestions from AI Resume Analysis
         if (result.aiResumeAnalysis?.skills) {
@@ -93,6 +102,14 @@ export default function SkillsPage() {
         setSelectedSkillName('');
         setSearchTerm('');
         setAiSkillSuggestions(prev => prev.filter(s => s !== skillToAdd));
+        
+        addTrace({
+          operation: 'INSERT',
+          table: 'student_skill',
+          description: 'Authenticate and ingest new skill node into relational grid.',
+          sql: `INSERT INTO student_skill (student_id, skill_id, proficiency_level) \nVALUES ('${userId}', (SELECT skill_id FROM skill WHERE skill_name = '${skillToAdd}'), '${selectedLevel}');`
+        });
+        
         toast.success(`${skillToAdd} added to your matrix!`);
       } else {
         toast.error(result.error || 'Failed to add skill.');
@@ -119,6 +136,13 @@ export default function SkillsPage() {
       const result = await resp.json();
       if (result.success) {
         setMySkills(result.data);
+        
+        addTrace({
+          operation: 'DELETE',
+          table: 'student_skill',
+          description: 'Decouple relational node from student competency graph.',
+          sql: `DELETE FROM student_skill \nWHERE student_id = '${userId}' \nAND skill_id = (SELECT skill_id FROM skill WHERE skill_name = '${skillName}');`
+        });
       }
     } catch (err) { console.error(err); }
   };
@@ -136,7 +160,7 @@ export default function SkillsPage() {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">Skill Matrix</h1>
-          <p className="text-slate-500 font-bold uppercase tracking-[4px] text-[10px]">SkillSync Platform • Personal Skill Inventory</p>
+          <p className="text-slate-500 font-bold uppercase tracking-[4px] text-[10px]">DBMS Project Platform • Personal Skill Inventory</p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-100 shadow-sm text-slate-400 font-black text-[9px] uppercase tracking-[3px]">
           <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />

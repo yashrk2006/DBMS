@@ -189,8 +189,8 @@ export async function studentAssistantAgent(message: string, history: { role: st
     ${context.applications.map((a: any) => `- Internship ID ${a.internship_id} | Status: ${a.status} | Applied: ${a.applied_date}`).join("\n")}
     ` : "You have not applied to any roles yet.";
 
-    const systemPrompt = `You are SkillSync Pulse, your dedicated career partner.
-    You help students navigate their career journey on the SkillSync platform.
+    const systemPrompt = `You are DBMS Protocol Hub, your dedicated career partner.
+    You help students navigate their career journey on the DBMS Project platform.
 
     USER CONTEXT:
     ${studentContext}

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Zap, Menu, X, Globe, ShieldCheck, LogOut } from "lucide-react";
+import { Database, Menu, X, Globe, ShieldCheck, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function Navbar() {
@@ -94,18 +94,18 @@ export default function Navbar() {
             <div className={`size-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
                 scrolled ? "bg-amber-600 text-white shadow-lg shadow-amber-600/20" : "bg-white text-amber-600 border border-slate-200 shadow-sm"
             } group-hover:bg-amber-600 group-hover:text-white transition-all`}>
-              <Zap size={20} className={scrolled ? "" : "animate-pulse"} />
+              <Database size={20} className={scrolled ? "" : "animate-pulse"} />
             </div>
             <div className="flex flex-col">
               <h2 className={`text-xl font-black leading-none tracking-tighter transition-colors uppercase ${
                   scrolled ? "text-slate-900" : "text-slate-950"
               } group-hover:text-amber-600`}>
-                SkillSync
+                DBMS
               </h2>
               <div className="flex items-center gap-1.5 mt-0.5">
                  <div className="size-1 rounded-full bg-amber-600" />
                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-[0.3em]">
-                   Career Hub
+                   Recruitment Protocol
                  </span>
               </div>
             </div>

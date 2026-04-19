@@ -7,7 +7,7 @@ import { StatusUpdateEmail } from '@/components/emails/StatusUpdateEmail';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
- * Persist notification to the SkillSync repository for in-app visibility.
+ * Persist notification to the DBMS repository for in-app visibility.
  */
 export async function persistNotification({
   userId,
@@ -61,7 +61,7 @@ export async function sendEmail({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'SkillSync <recruitment@skillsync.com>', 
+      from: 'DBMS Project <recruitment@dbms.project>', // Institutional sender
       to,
       subject,
       react: react as any,
@@ -92,7 +92,7 @@ export async function notifyApplicationReceived(studentId: string, studentEmail:
 
   return sendEmail({
     to: studentEmail,
-    subject: `[SkillSync] Application Received: ${internshipTitle}`,
+    subject: `[DBMS] Application Received: ${internshipTitle}`,
     react: <ApplicationReceivedEmail studentName={studentName} internshipTitle={internshipTitle} />,
   });
 }
@@ -152,7 +152,7 @@ export async function notifyInvitation(studentId: string, studentEmail: string, 
         <p>Hello {studentName},</p>
         <p>You have been identified as a high-potential candidate by <strong>{companyName}</strong>.</p>
         <p>They would like to invite you to apply for their <strong>{internshipTitle}</strong> program.</p>
-        <p>Check your SkillSync dashboard for more details and to accept this invitation.</p>
+        <p>Check your DBMS Project dashboard for more details and to accept this invitation.</p>
       </div>
     ),
   });
@@ -167,7 +167,7 @@ export async function sendCustomNotification(email: string, subject: string, mes
     subject: subject,
     react: (
       <div style={{ fontFamily: 'Inter, sans-serif' }}>
-        <h3>SkillSync Administrative Update</h3>
+        <h3>DBMS Institutional Update</h3>
         <p>{message}</p>
       </div>
     ),

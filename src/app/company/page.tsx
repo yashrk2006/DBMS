@@ -16,6 +16,7 @@ import {
 import { exportToCSV } from '@/lib/utils/export';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
+import { useDBMS } from '@/context/DBMSContext';
 
 const HiringAnalytics = {
   generateResponseDraft: (name: string, score: number, role: string) => {
@@ -26,7 +27,7 @@ const HiringAnalytics = {
       return `${greeting} ${name},\n\nI just reviewed your application for the ${role} position. Your Technical Maturity score of ${score}% is among the highest in our current recruitment cluster. We'd like to fast-track your profile for an engineering sync.\n\nPlease let us know your availability for a technical architecture discussion.\n\nBest regards,\nTalent Acquisition Engineering`;
     }
     
-    return `${greeting} ${name},\n\nThank you for synchronizing your profile for the ${role} position. We've analyzed your skill DNA and found strong alignment with our core requirements. We'd like to move forward with a preliminary interview.\n\nRegards,\nSkillSync Platform Hub`;
+    return `${greeting} ${name},\n\nThank you for synchronizing your profile for the ${role} position. We've analyzed your skill DNA and found strong alignment with our core requirements. We'd like to move forward with a preliminary interview.\n\nRegards,\nDBMS Project Platform Hub`;
   }
 };
 
@@ -40,6 +41,7 @@ const statusColors: Record<string, { color: string; bg: string; border: string }
 
 export default function CompanyDashboard() {
   const router = useRouter();
+  const { addTrace } = useDBMS();
   const [stats, setStats] = useState<CompanyStats>({ 
     activeRoles: 0, 
     totalApplicants: 0, 
@@ -55,6 +57,7 @@ export default function CompanyDashboard() {
   const [activeDraft, setActiveDraft] = useState<string | null>(null);
   const [isDrafting, setIsDrafting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const generateDraft = (app: EnrichedCompanyApplication) => {
     setIsDrafting(true);
@@ -89,6 +92,13 @@ export default function CompanyDashboard() {
           setStats(result.stats);
           setApplications(result.applications);
           setTalentDiscovery(result.talentDiscovery);
+          
+          addTrace({
+             operation: 'SELECT',
+             table: 'application',
+             description: 'Synchronize relational applicant buffers for corporate assessment.',
+             sql: `SELECT a.*, s.name, s.email, i.title \nFROM application a \nJOIN student s ON a.student_id = s.id \nJOIN internship i ON a.internship_id = i.id \nWHERE a.company_id = '${storedId}';`
+          });
         }
         setLoading(false);
       } catch (e: any) {
@@ -113,6 +123,13 @@ export default function CompanyDashboard() {
       const result = await res.json();
       if (result.success) {
         setApplications(apps => apps.map(a => a.application_id === appId ? { ...a, status: newStatus as any } : a));
+        
+        addTrace({
+          operation: 'UPDATE',
+          table: 'application',
+          description: 'Authenticate institutional status shift for recruitment candidate.',
+          sql: `UPDATE application SET status = '${newStatus}' \nWHERE application_id = '${appId}';`
+        });
         if (selectedApplication?.application_id === appId) {
           setSelectedApplication(prev => prev ? { ...prev, status: newStatus as any } : null);
         }
@@ -326,6 +343,8 @@ export default function CompanyDashboard() {
                 <input 
                   type="text"
                   placeholder="Seach and set live query run (E.g. Student Name, Roll No...)"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full h-14 pl-14 pr-6 bg-slate-50 border border-slate-100 rounded-2xl text-[11px] font-black text-slate-900 placeholder:text-slate-300 focus:outline-none focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/40 transition-all shadow-inner"
                 />
               </div>
@@ -359,7 +378,15 @@ export default function CompanyDashboard() {
           </div>
 
           <div className="space-y-6">
-            {applications.map((app, i) => (
+            {applications
+              .filter(app => {
+                const q = searchQuery.toLowerCase().trim();
+                if (!q) return true;
+                return app.student_name.toLowerCase().includes(q) || 
+                       app.student_roll_no.toLowerCase().includes(q) ||
+                       app.role_title.toLowerCase().includes(q);
+              })
+              .map((app, i) => (
               <motion.div 
                 key={app.application_id}
                 initial={{ opacity: 0, x: -20 }}

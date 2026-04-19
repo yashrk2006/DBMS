@@ -1,5 +1,5 @@
 /**
- * SkillSync Professional Error Adapter
+ * DBMS Project Professional Error Adapter
  * Maps technical system/database errors to polished institutional terminology.
  */
 

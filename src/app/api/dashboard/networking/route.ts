@@ -33,7 +33,6 @@ export async function GET(request: Request) {
           skill (skill_name)
         )
       `)
-      .like('roll_no', '24/940%')
       .not('name', 'is', null)
       .neq('name', 'Student User')
       .order('market_reach', { ascending: false });

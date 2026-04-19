@@ -91,7 +91,7 @@ export default function ChatPage() {
       <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
         <div>
            <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter">Comms <span className="text-amber-600">Hub.</span></h1>
-           <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">SkillSync Pulse Recruiter Link</p>
+           <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">DBMS Protocol Recruiter Link</p>
         </div>
         <div className="size-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center">
            <MoreVertical size={20} className="text-slate-400" />

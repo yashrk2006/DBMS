@@ -7,7 +7,7 @@ import { Resend } from 'resend';
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 /**
- * SkillSync OTP Dispatch Service
+ * DBMS Project OTP Dispatch Service
  * Generates a 6-digit verification code and stores it in the database.
  * Attempts to send via Resend email service, falls back to local auto-verify.
  */
@@ -73,12 +73,12 @@ export async function POST(request: Request) {
     if (resend) {
       try {
         const data = await resend.emails.send({
-          from: 'SkillSync Security <onboarding@resend.dev>', // Needs verified domain in production
+          from: 'DBMS Security <security@dbms.project>', // Needs verified domain in production
           to: [email],
-          subject: 'SkillSync - Institutional Verification Code',
+          subject: 'DBMS Project - Institutional Verification Code',
           html: `
             <div style="font-family: sans-serif; padding: 20px; color: #1e293b;">
-              <h2 style="color: #0f172a; text-transform: uppercase; letter-spacing: 2px;">SkillSync Intelligence Portal</h2>
+              <h2 style="color: #0f172a; text-transform: uppercase; letter-spacing: 2px;">DBMS Intelligence Portal</h2>
               <p>Hello ${directory.name},</p>
               <p>Your institutional verification code is:</p>
               <h1 style="font-size: 32px; letter-spacing: 5px; color: #10b981; background: #ecfdf5; padding: 10px 20px; display: inline-block; border-radius: 8px;">${otp}</h1>

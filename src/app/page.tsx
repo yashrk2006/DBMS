@@ -24,7 +24,7 @@ import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AnimatedSection from "@/components/ui/AnimatedSection";
-import { SkillSyncNetworkHUD } from "@/components/ui/SkillSyncNetworkHUD";
+import { DBMSNetworkHUD } from "@/components/ui/DBMSNetworkHUD";
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
@@ -65,13 +65,13 @@ export default function LandingPage() {
     },
     {
       title: "Interactive UI",
-      description: "Beautiful, responsive interfaces designed for the modern day college student.",
+      description: "Beautiful, responsive interfaces designed for the modern database professional.",
       icon: <Box className="size-6" />,
       subtitle: "FEATURE_03"
     },
     {
       title: "Global Reach",
-      description: "Our platform helps you sync your skills with job openings from top companies worldwide.",
+      description: "Our platform helps you sync your expertise with roles from top companies worldwide.",
       icon: <Globe className="size-6" />,
       subtitle: "FEATURE_04"
     }
@@ -100,7 +100,7 @@ export default function LandingPage() {
 
   const stats = [
     { label: "Active Students", value: "854", icon: <Globe className="size-4" /> },
-    { label: "Skill Syncs", value: "12,450", icon: <Activity className="size-4" /> },
+    { label: "Data Protocols", value: "12,450", icon: <Activity className="size-4" /> },
     { label: "Placements", value: "480", icon: <Zap className="size-4" /> },
     { label: "Success Rate", value: "99.9%", icon: <CheckCircle2 className="size-4" /> },
   ];
@@ -109,8 +109,8 @@ export default function LandingPage() {
     <div className="flex flex-col min-h-screen selection:bg-amber-500/30 text-slate-900 bg-white selection:text-white">
       <Navbar />
       
-      {/* SkillSync Background Overlay */}
-      {mounted && <SkillSyncNetworkHUD progress={scrollYProgress} range={[0.15, 0.4]} />}
+      {/* DBMS Background Overlay */}
+      {mounted && <DBMSNetworkHUD progress={scrollYProgress} range={[0.15, 0.4]} />}
 
       <main className="flex-grow pt-32">
         {/* --- HERO SECTION --- */}
@@ -163,13 +163,13 @@ export default function LandingPage() {
               </div>
 
               <h1 className="text-[clamp(2.5rem,10vw,12rem)] font-black text-slate-950 uppercase tracking-tighter mb-6 md:mb-10 leading-[0.85] md:leading-[0.75] italic">
-                Sync Skills. <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-400 to-amber-700 drop-shadow-2xl not-italic">Get Hired.</span>
+                DBMS Project. <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-400 to-amber-700 drop-shadow-2xl not-italic">Strategic Protocol.</span>
               </h1>
 
               <p className="text-slate-500 text-lg md:text-3xl font-bold max-w-4xl mx-auto mb-10 md:mb-16 leading-snug md:leading-[1.1] tracking-tighter px-4">
-                The ultimate <span className="text-slate-900 border-b-4 md:border-b-8 border-amber-500/30">Career Hub</span> for students. 
-                Seamlessly match your <span className="italic text-amber-600 font-black">Skills</span> with placements from 100+ top tech companies.
+                The institutional <span className="text-slate-900 border-b-4 md:border-b-8 border-amber-500/30">Recruitment Protocol</span>. 
+                Seamlessly evaluate <span className="italic text-amber-600 font-black">Database Expertise</span> with assessments from the DBMS core system.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8 w-full max-w-lg mx-auto md:max-w-none">
@@ -206,9 +206,9 @@ export default function LandingPage() {
                        <div className="space-y-4">
                           <div className="flex items-center gap-2">
                              <div className="size-2 rounded-full bg-emerald-500 animate-ping" />
-                             <span className="text-[10px] font-black text-amber-500 tracking-[0.6em] uppercase">SkillSync Active</span>
+                             <span className="text-[10px] font-black text-amber-500 tracking-[0.6em] uppercase">DBMS Protocol Active</span>
                           </div>
-                          <div className="text-6xl font-black text-white tracking-tighter uppercase leading-none italic">Student Match <br /> Center.</div>
+                          <div className="text-6xl font-black text-white tracking-tighter uppercase leading-none italic">Recruitment <br /> Control Center.</div>
                        </div>
                        <div className="size-24 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center text-white backdrop-blur-xl group-hover:bg-amber-600 transition-colors">
                           <Command size={40} />
@@ -353,14 +353,14 @@ export default function LandingPage() {
 
                 <div className="space-y-12">
                    <div>
-                      <h2 className="text-[11px] font-black uppercase tracking-[0.8em] text-amber-600 mb-8">SkillSync Center</h2>
+                      <h2 className="text-[11px] font-black uppercase tracking-[0.8em] text-amber-600 mb-8">DBMS Assessment</h2>
                       <h3 className="text-5xl md:text-8xl font-black text-slate-900 uppercase tracking-tighter leading-[0.8] mb-12">
-                         The Smart <br />
-                         <span className="italic text-amber-600">Network.</span>
+                         The Core <br />
+                         <span className="italic text-amber-600">Protocol.</span>
                       </h3>
                       <p className="text-slate-500 text-xl font-bold leading-relaxed max-w-xl italic">
-                         Our platform analyzes your skills and helps you connect with top companies worldwide. 
-                         Get matched with roles that fit your <span className="text-slate-900 border-b-4 border-amber-500/20">Professional Profile</span>.
+                         Our system evaluates database proficiency and maps expertise to strategic institutional roles. 
+                         Get matched with roles that fit your <span className="text-slate-900 border-b-4 border-amber-500/20">Institutional Profile</span>.
                       </p>
                    </div>
                    <div className="flex gap-12">
@@ -498,7 +498,7 @@ export default function LandingPage() {
                 Start Your <br /> <span className="text-amber-600">Career.</span>
             </h2>
             <p className="text-slate-500 text-2xl md:text-3xl font-bold max-w-3xl mx-auto mb-20 leading-tight italic">
-              Don't just code. Build your future with <span className="text-slate-900 underline decoration-amber-500 decoration-8">SkillSync</span>.
+              Don't just code. Build your future with <span className="text-slate-900 underline decoration-amber-500 decoration-8">DBMS Project</span>.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
                <Link

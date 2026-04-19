@@ -58,8 +58,8 @@ export default function DashboardLayout({
       {/* --- DESKTOP SIDEBAR --- */}
       <aside className="hidden lg:flex w-[260px] bg-white flex-col p-6 fixed h-full z-50 overflow-y-auto overflow-x-hidden">
         <div className="flex items-center gap-3 mb-10 px-4 shrink-0">
-          <Icon name="menu_book" className="text-2xl font-bold" />
-          <span className="text-xl font-extrabold tracking-[-0.04em]">SkillSync</span>
+          <Icon name="database" className="text-2xl font-bold text-amber-600" />
+          <span className="text-xl font-extrabold tracking-[-0.04em] uppercase">DBMS Project</span>
         </div>
 
         <nav className="flex flex-col gap-1 flex-1 px-2 shrink-0">
@@ -124,7 +124,7 @@ export default function DashboardLayout({
           <div className="text-[#575a93] cursor-pointer p-2 -ml-2" onClick={() => setIsMobileMenuOpen(true)}>
             <Icon name="menu" className="text-2xl" />
           </div>
-          <h1 className="text-[#575a93] font-black text-xl tracking-tighter">SkillSync</h1>
+          <h1 className="text-[#575a93] font-black text-xl tracking-tighter uppercase">DBMS</h1>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-[#575a93] cursor-pointer" onClick={() => router.push('/dashboard/notifications')}>
@@ -156,8 +156,8 @@ export default function DashboardLayout({
             >
               <div className="flex items-center justify-between mb-10 px-2">
                 <div className="flex items-center gap-3">
-                  <Icon name="menu_book" className="text-2xl font-bold text-[#575a93]" />
-                  <span className="text-xl font-black tracking-tighter text-slate-900">SkillSync</span>
+                  <Icon name="database" className="text-2xl font-bold text-[#575a93]" />
+                  <span className="text-xl font-black tracking-tighter text-slate-900 uppercase">DBMS</span>
                 </div>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400 p-2"><Icon name="close" /></button>
               </div>

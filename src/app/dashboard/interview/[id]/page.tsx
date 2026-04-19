@@ -200,7 +200,7 @@ export default function CareerAssessmentCenter() {
   const startAssessment = () => {
     setIsStarted(true);
     webcamRef.current?.startRecording();
-    const welcome = "Hello! I am your SkillSync career partner. Let's begin your assessment to help you prepare for your future role. Are you ready?";
+    const welcome = "Hello! I am your DBMS institutional partner. Let's begin your assessment to help you evaluate your database proficiency. Are you ready?";
     addAIMessage(welcome);
     speak(welcome);
   };
@@ -628,85 +628,110 @@ export default function CareerAssessmentCenter() {
 
               {isFinished && (
                 <motion.div 
-                  key="results" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                  className="max-w-4xl mx-auto space-y-12 py-12 text-center"
+                  key="results" 
+                  initial={{ opacity: 0, scale: 0.98 }} 
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={premiumSpring}
+                  className="max-w-6xl mx-auto space-y-12 py-12 md:py-20"
                 >
-                  <div className="size-24 rounded-[2.5rem] bg-indigo-600 text-white shadow-2xl flex items-center justify-center mx-auto">
-                    <CheckCircle2 size={48} />
+                  <div className="flex flex-col items-start gap-6 border-l-4 border-indigo-600 pl-8">
+                    <div className="flex items-center gap-3">
+                      <div className="size-3 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">Tactical assessment complete // validation: verified</span>
+                    </div>
+                    <h2 className="text-6xl md:text-8xl font-black text-[#09090B] uppercase tracking-[-0.04em] leading-[0.85]">
+                      Capability<br/>Validated.
+                    </h2>
                   </div>
-                  <div className="space-y-4">
-                    <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Assessment Completed.</h2>
-                    <p className="text-lg text-slate-500 font-medium">Your career readiness assessment is complete and saved to your profile.</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                     <div className="bg-[#0F172A] p-10 rounded-[2.5rem] border border-white/5 text-left relative overflow-hidden group col-span-1 md:col-span-2 shadow-2xl flex items-center justify-between">
-                        <div className="relative z-10 space-y-4">
-                           <div className="flex items-center gap-2 text-indigo-400">
-                             <Award size={16} />
-                             <span className="text-[10px] font-black uppercase tracking-[4px]">Assessment Score</span>
-                           </div>
-                           <h3 className="text-8xl font-black text-white tracking-tighter">{feedback?.score}%</h3>
-                           <div className="pt-4 border-t border-white/10">
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">
-                                Overall Status: <span className="text-indigo-400">EXCELLENT</span><br/>
-                                Session Integrity: <span className="text-emerald-500">OPTIMIZED</span><br/>
-                                Reference ID: <span className="text-slate-500">{applicationId}</span>
-                              </p>
-                           </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                     {/* Score Panel - Large/Primary */}
+                     <div className="lg:col-span-8 bg-[#09090B] p-12 rounded-[3.5rem] border border-white/5 text-left relative overflow-hidden group shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] min-h-[450px] flex flex-col justify-between">
+                        <div className="absolute top-0 right-0 p-16 opacity-[0.05] group-hover:scale-110 transition-transform duration-1000">
+                          <Brain size={300} />
                         </div>
                         
-                        <div className="relative z-10 hidden sm:block pr-8 scale-110">
-                           <CompetencyRadar 
-                             score={feedback?.score || 0} 
-                             metrics={{ clarity: 92, sentiment: 88, stability: 100 - (proctorWarnings * 10) }} 
-                           />
+                        <div className="relative z-10">
+                           <div className="flex items-center gap-2 text-indigo-400 mb-8">
+                             <Award size={20} />
+                             <span className="text-[11px] font-black uppercase tracking-[0.5em]">Institutional score matrix</span>
+                           </div>
+                           <div className="flex items-baseline gap-4">
+                             <h3 className="text-[10rem] font-black text-white tracking-tighter leading-none tabular-nums font-mono">
+                               {feedback?.score}
+                             </h3>
+                             <span className="text-4xl font-black text-indigo-400 opacity-50 uppercase tracking-tighter">%</span>
+                           </div>
+                        </div>
+
+                        <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 pt-12 border-t border-white/10">
+                           {[
+                             { label: 'Clarity', val: '92' },
+                             { label: 'Sentiment', val: '88' },
+                             { label: 'Stability', val: (100 - (proctorWarnings * 10)).toString() },
+                             { label: 'Heuristic', val: '95' }
+                           ].map(m => (
+                             <div key={m.label} className="space-y-1">
+                               <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{m.label}</div>
+                               <div className="text-2xl font-black text-white font-mono tabular-nums">{m.val}<span className="text-[10px] text-slate-600 ml-0.5">%</span></div>
+                             </div>
+                           ))}
                         </div>
                      </div>
-                     
-                     <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 text-left space-y-6 shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -mr-16 -mt-16" />
-                        <div className="flex items-center gap-2">
-                           <Zap size={14} className="text-indigo-600" />
-                           <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[4px]">Assessment Notes</span>
+
+                     {/* Radar/Visual Column */}
+                     <div className="lg:col-span-4 flex flex-col gap-8">
+                        <div className="flex-1 bg-white p-10 rounded-[3rem] border border-slate-100 shadow-xl flex flex-col items-center justify-center relative overflow-hidden group">
+                           <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent opacity-50" />
+                           <div className="relative z-10 scale-125">
+                              <CompetencyRadar 
+                                score={feedback?.score || 0} 
+                                metrics={{ clarity: 92, sentiment: 88, stability: 100 - (proctorWarnings * 10) }} 
+                              />
+                           </div>
+                           <div className="mt-8 text-center relative z-10">
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Multi-axial competency map</span>
+                           </div>
                         </div>
-                        <p className="text-base font-bold text-slate-700 leading-relaxed italic relative z-10">&quot;{feedback?.notes}&quot;</p>
+
+                        <div className="bg-[#09090B] p-10 rounded-[3rem] text-white flex flex-col justify-between shadow-2xl relative overflow-hidden group">
+                           <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:rotate-12 transition-transform">
+                              <Target size={120} />
+                           </div>
+                           <div className="relative z-10 space-y-4">
+                              <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Assessment notes</span>
+                              <p className="text-xl font-bold leading-tight text-white/90 italic">&quot;{feedback?.notes}&quot;</p>
+                           </div>
+                        </div>
                      </div>
                   </div>
-                  </div>
 
-                  {/* CAREER READY PREVIEW */}
-                  <motion.div 
-                    initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                    className="max-w-3xl mx-auto p-12 bg-gradient-to-br from-indigo-50 to-white rounded-[3rem] border border-indigo-100/50 shadow-xl text-left space-y-8 relative overflow-hidden"
-                  >
-                    <div className="flex items-start justify-between">
-                       <div className="space-y-2">
-                          <h4 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Career Readiness Badge</h4>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Digital Skills Certification</p>
+                  {/* Operational Controls */}
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-slate-100">
+                    <div className="flex items-center gap-4">
+                       <div className="size-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-xl">
+                          <CheckCircle2 size={24} />
                        </div>
-                       <div className="size-16 rounded-2xl border-4 border-white shadow-lg bg-[#0F172A] flex items-center justify-center text-white">
-                          <ShieldCheck size={32} />
+                       <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Session verified // Reference</p>
+                          <p className="text-sm font-black text-slate-900 font-mono tracking-tighter uppercase">{applicationId}-{sessionId.current}</p>
                        </div>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-8">
-                       <div className="space-y-1 text-center p-6 bg-white rounded-2xl shadow-sm border border-slate-50">
-                          <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Technical Skills</div>
-                          <div className="text-2xl font-black text-indigo-600">PREPARED</div>
-                       </div>
-                       <div className="space-y-1 text-center p-6 bg-white rounded-2xl shadow-sm border border-slate-50">
-                          <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Career Readiness</div>
-                          <div className="text-2xl font-black text-emerald-600">CERTIFIED</div>
-                       </div>
+                    
+                    <div className="flex gap-4 w-full md:w-auto">
+                      <button 
+                        onClick={() => router.push('/dashboard')} 
+                        className="flex-1 md:flex-none px-10 py-5 rounded-2xl border border-slate-200 text-slate-900 font-black uppercase text-[10px] tracking-[0.4em] hover:bg-slate-50 transition-all active:scale-95"
+                      >
+                        Navigate Home
+                      </button>
+                      <button 
+                        onClick={() => router.push('/dashboard/internships')} 
+                        className="flex-1 md:flex-none px-12 py-5 rounded-2xl bg-[#09090B] text-white font-black uppercase text-[11px] tracking-[0.5em] shadow-2xl hover:bg-indigo-600 transition-all active:scale-95"
+                      >
+                        Explore Channels
+                      </button>
                     </div>
-
-                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed bg-white/50 p-6 rounded-2xl border border-white/50">
-                       This student has successfully completed the Career Assessment session. All skills have been reviewed and validated to ensure career readiness.
-                    </p>
-                  </motion.div>
-
-                  <div className="flex justify-center gap-6">
-                    <button onClick={() => router.push('/dashboard')} className="px-10 py-5 rounded-2xl border border-slate-200 text-slate-600 font-black uppercase text-[10px] tracking-[4px] hover:bg-slate-50">Dashboard Home</button>
-                    <button onClick={() => router.push('/dashboard/internships')} className="px-12 py-5 rounded-2xl bg-[#0F172A] text-white font-black uppercase text-[11px] tracking-[5px] shadow-2xl">Apply for Roles</button>
                   </div>
                 </motion.div>
               )}
@@ -780,78 +805,79 @@ export default function CareerAssessmentCenter() {
                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[2px] leading-relaxed">
                       Real-time architectural assessment and communication metrics
                     </p>
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* PRIMARY ANALYSIS GAUGE */}
-                    <div className="p-6 rounded-[2rem] bg-[#0F172A] text-white space-y-4 shadow-xl">
-                       <div className="flex justify-between items-center">
-                          <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400">Technical Mastery</span>
-                          <span className="text-xl font-black">{isFinished ? feedback?.score : (isStarted ? '88' : '0')}%</span>
-                       </div>
-                       <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: isFinished ? `${feedback?.score}%` : (isStarted ? '88%' : '0%') }}
-                            className="h-full bg-gradient-to-r from-indigo-500 to-indigo-300"
-                          />
-                       </div>
-                    </div>
-
-                    {/* DETAILED METRICS GRID */}
-                    <div className="grid grid-cols-2 gap-3">
-                       {[
-                         { label: 'Confidence', val: 'HIGH', color: 'text-emerald-500', icon: ShieldCheck },
-                         { label: 'Clarity', val: 'OPTIMIZED', color: 'text-indigo-500', icon: Volume2 },
-                         { label: 'Sentiment', val: 'PROFESSIONAL', color: 'text-amber-500', icon: Sparkles },
-                         { label: 'Focus', val: proctorWarnings > 0 ? 'WARNING' : 'STABLE', color: proctorWarnings > 0 ? 'text-rose-500' : 'text-emerald-500', icon: AlertCircle }
-                       ].map(m => (
-                         <div key={m.label} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
-                            <div className="flex items-center gap-2 opacity-50">
-                               <m.icon size={10} />
-                               <span className="text-[8px] font-black uppercase tracking-widest">{m.label}</span>
-                            </div>
-                            <div className={`text-[9px] font-black uppercase tracking-widest ${m.color}`}>{m.val}</div>
+                               <div className="space-y-4">
+                      {/* PRIMARY ANALYSIS GAUGE */}
+                      <div className="p-8 rounded-[2.5rem] bg-[#09090B] text-white space-y-6 shadow-2xl border border-white/5 relative overflow-hidden group">
+                         <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
+                            <Activity size={100} />
                          </div>
-                       ))}
-                    </div>
-
-                    <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
-                       <div className="flex justify-between items-center">
-                          <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Session Integrity</div>
-                          <div className={`text-[8px] font-black uppercase tracking-widest ${proctorWarnings > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
-                            {proctorWarnings > 0 ? `Alert: ${proctorWarnings}/${MAX_INCIDENTS}` : 'Optimized'}
-                          </div>
-                       </div>
-                       <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden flex gap-0.5 p-0.5">
-                          {[...Array(MAX_INCIDENTS)].map((_, i) => (
+                         <div className="flex justify-between items-end relative z-10">
+                            <div>
+                               <span className="text-[9px] font-black uppercase tracking-[0.4em] text-indigo-400 block mb-1">Neural telemetry</span>
+                               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Technical Mastery</span>
+                            </div>
+                            <span className="text-5xl font-black font-mono tracking-tighter tabular-nums leading-none">
+                               {isFinished ? feedback?.score : (isStarted ? '88' : '0')}
+                               <span className="text-xs text-indigo-400 ml-1">%</span>
+                            </span>
+                         </div>
+                         <div className="h-2 bg-white/5 rounded-full overflow-hidden relative z-10">
                             <motion.div 
-                              key={i}
-                              initial={false}
-                              animate={{ 
-                                backgroundColor: i < proctorWarnings ? '#F43F5E' : (isStarted ? '#10B981' : '#E2E8F0'),
-                                opacity: i < proctorWarnings || (isStarted && i >= proctorWarnings) ? 1 : 0.3
-                              }}
-                              className="h-full flex-1 rounded-full shadow-inner"
+                              initial={{ width: 0 }}
+                              animate={{ width: isFinished ? `${feedback?.score}%` : (isStarted ? '88%' : '0%') }}
+                              className="h-full bg-gradient-to-r from-indigo-500 to-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.5)]"
                             />
-                          ))}
-                       </div>
-                    </div>
-                  </div>
-
-                   <div className="hidden md:flex flex-col gap-2 opacity-40 pt-4">
-                      {incidentLogs.slice(-3).map((log, i) => (
-                        <div key={i} className="text-[7px] font-mono text-slate-400 p-2 border-l border-indigo-500/20 bg-slate-50/50">
-                           {`> ${log}`}
-                        </div>
-                      ))}
-                   </div>
-                   
-                   <div className="mt-auto pt-6 text-center border-t border-slate-50">
-                      <WebcamPreview ref={webcamRef} />
-                      <div className="text-[8px] font-black text-slate-300 uppercase tracking-[4px] pt-4 pb-4">
-                        SESSION // {sessionId.current}
+                         </div>
                       </div>
+
+                      {/* DETAILED METRICS GRID */}
+                      <div className="grid grid-cols-2 gap-4">
+                         {[
+                           { label: 'Latency', val: '42ms', color: 'text-emerald-500', icon: Zap },
+                           { label: 'Clarity', val: 'HIGH', color: 'text-indigo-400', icon: Volume2 },
+                           { label: 'Heuristic', val: 'SYNT', color: 'text-amber-400', icon: Sparkles },
+                           { label: 'Stability', val: proctorWarnings > 0 ? 'FAIL' : 'NOMINAL', color: proctorWarnings > 0 ? 'text-rose-500' : 'text-emerald-500', icon: ShieldCheck }
+                         ].map(m => (
+                           <div key={m.label} className="p-6 rounded-[2rem] bg-white border border-slate-100 space-y-3 shadow-sm hover:shadow-md transition-shadow group">
+                              <div className="flex items-center gap-2 opacity-30 group-hover:opacity-100 transition-opacity">
+                                 <m.icon size={12} className="text-slate-900" />
+                                 <span className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-900">{m.label}</span>
+                              </div>
+                              <div className={`text-xl font-black uppercase tracking-tighter ${m.color} font-mono tabular-nums`}>{m.val}</div>
+                           </div>
+                         ))}
+                      </div>
+
+                      {/* Proctoring Log - Terminal Style */}
+                      <div className="p-8 rounded-[2.5rem] bg-[#09090B] border border-white/5 space-y-5 shadow-2xl relative overflow-hidden group">
+                         <div className="flex justify-between items-center relative z-10">
+                            <div className="flex items-center gap-2">
+                               <div className="size-2 rounded-full bg-indigo-500 animate-pulse" />
+                               <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">Proctoring events // log</span>
+                            </div>
+                            <div className={`text-[9px] font-black uppercase tracking-widest tabular-nums font-mono ${proctorWarnings > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                              {proctorWarnings > 0 ? `WARN: ${proctorWarnings}/${MAX_INCIDENTS}` : 'SYST: STABLE'}
+                            </div>
+                         </div>
+                         
+                         <div className="h-[120px] overflow-hidden relative flex flex-col gap-2 font-mono text-[8px] tracking-tight text-slate-500">
+                            {incidentLogs.slice(-5).map((log, i) => (
+                              <div key={i} className={`flex items-start gap-3 p-2 border-l border-indigo-500/20 bg-white/5 rounded-sm ${log.includes('WARNING') ? 'text-rose-400 bg-rose-500/5 border-l-rose-500' : ''}`}>
+                                 <span className="opacity-30 shrink-0">[{new Date().toLocaleTimeString('en-GB')}]</span>
+                                 <span className="truncate group-hover:whitespace-normal transition-all">{`>> ${log}`}</span>
+                              </div>
+                            ))}
+                            {/* Terminal Scanline */}
+                            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] z-20 bg-[length:100%_2px,3px_100%]" />
+                         </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-auto pt-8 border-t border-slate-100 flex flex-col gap-6">
+                       <div className="group relative">
+                          <WebcamPreview ref={webcamRef} />
+                          <div className="absolute inset-0 border-[8px] border-white/10 rounded-[2.5rem] pointer-events-none group-hover:border-indigo-500/20 transition-all duration-700" />
+                       </div>
                    </div>
                 </div>
               </motion.div>

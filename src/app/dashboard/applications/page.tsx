@@ -26,6 +26,7 @@ import AnimatedSection from '@/components/ui/AnimatedSection';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { useDBMS } from '@/context/DBMSContext';
 
 interface Application {
   application_id: number;
@@ -104,6 +105,7 @@ export default function ApplicationsPage() {
   const [apps, setApps] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [withdrawingId, setWithdrawingId] = useState<number | null>(null);
+  const { addTrace } = useDBMS();
 
   async function load() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -119,6 +121,14 @@ export default function ApplicationsPage() {
       const data = await res.json();
       if (data.success) {
         setApps(data.data || []);
+        
+        // DBMS TRACE: Load Applications
+        addTrace({
+          operation: 'SELECT',
+          table: 'application',
+          description: 'Synchronize application history with personal record vault.',
+          sql: `SELECT a.*, i.title, c.company_name \nFROM application a \nJOIN internship i ON a.internship_id = i.internship_id \nJOIN company c ON i.company_id = c.company_id \nWHERE a.student_id = '${userId}';`
+        });
       }
     } catch (e) {
       console.error('Failed to load applications:', e);
@@ -162,6 +172,14 @@ export default function ApplicationsPage() {
       if (data.success) {
         setApps(prev => prev.filter(a => a.application_id !== application_id));
         toast.success('Application request retracted successfully.', { icon: '🗑️' });
+
+        // DBMS TRACE: Withdraw Application
+        addTrace({
+          operation: 'DELETE',
+          table: 'application',
+          description: `Retract application node from recruitment workflow.`,
+          sql: `DELETE FROM application WHERE application_id = ${application_id};`
+        });
       } else {
         toast.error(data.error || 'System failed to process withdrawal.');
       }

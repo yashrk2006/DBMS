@@ -247,7 +247,7 @@ export default function CalendarPage() {
                     type="text"
                     value={form.title}
                     onChange={(e) => setForm(p => ({ ...p, title: e.target.value }))}
-                    placeholder="e.g. Workshop with SkillSync Partner"
+                    placeholder="e.g. Workshop with DBMS Partner"
                     className="w-full px-5 py-4 rounded-2xl border border-slate-100 bg-slate-50 text-sm font-bold text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-[#575a93]/30 focus:bg-white transition-all"
                   />
                 </div>
