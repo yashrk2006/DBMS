@@ -6,7 +6,7 @@ import {
   MessageSquare, Sparkles, Cpu, Play, CheckCircle2, 
   ArrowRight, ShieldCheck, Zap, BarChart3, AlertCircle,
   Send, User, Volume2, Mic, MicOff, Search, X, Award,
-  Brain, Target
+  Brain, Target, Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AI_ENGINE } from '@/lib/ai-engine';
