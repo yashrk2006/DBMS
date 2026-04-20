@@ -805,7 +805,8 @@ export default function CareerAssessmentCenter() {
                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[2px] leading-relaxed">
                       Real-time architectural assessment and communication metrics
                     </p>
-                               <div className="space-y-4">
+                  </div>
+                  <div className="space-y-4">
                       {/* PRIMARY ANALYSIS GAUGE */}
                       <div className="p-8 rounded-[2.5rem] bg-[#09090B] text-white space-y-6 shadow-2xl border border-white/5 relative overflow-hidden group">
                          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
