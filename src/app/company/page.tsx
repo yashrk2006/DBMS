@@ -382,9 +382,9 @@ export default function CompanyDashboard() {
               .filter(app => {
                 const q = searchQuery.toLowerCase().trim();
                 if (!q) return true;
-                return app.student_name.toLowerCase().includes(q) || 
-                       app.student_roll_no.toLowerCase().includes(q) ||
-                       app.role_title.toLowerCase().includes(q);
+                return (app.student_name?.toLowerCase() || '').includes(q) || 
+                       (app.student_roll_no?.toLowerCase() || '').includes(q) ||
+                       (app.role_title?.toLowerCase() || '').includes(q);
               })
               .map((app, i) => (
               <motion.div 
