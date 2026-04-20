@@ -42,6 +42,8 @@ next-env.d.ts
 
 # scratch and one-off scripts
 /scratch/
+/stitch-skills-temp/
+/stich desktop/
 *.mjs
 *.txt
 *.webp
