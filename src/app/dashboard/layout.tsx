@@ -25,15 +25,30 @@ export default function DashboardLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     async function checkSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push('/auth/login');
-        return;
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error || !session) {
+          if (isMounted) {
+            router.push('/auth/login');
+          }
+          return;
+        }
+        
+        if (isMounted) {
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Dashboard Session Check Error:", err);
+        if (isMounted) {
+          router.push('/auth/login');
+        }
       }
-      setLoading(false);
     }
     checkSession();
+    return () => { isMounted = false; };
   }, [router]);
 
   const handleLogout = async () => {

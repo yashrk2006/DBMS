@@ -47,15 +47,15 @@ export const DashboardHeader = ({
       accent: "bg-amber-500"
     },
     admin: {
-      label: "Platform Governance HQ",
-      subLabel: "System Intelligence",
-      idLabel: "GOV",
+      label: "Platform Intelligence",
+      subLabel: "System Stats",
+      idLabel: "ID",
       color: "text-indigo-500",
       accent: "bg-indigo-500"
     },
     company: {
-      label: "Recruitment Command",
-      subLabel: "Talent Scout",
+      label: "Career Hub",
+      subLabel: "Talent Advisor",
       idLabel: "PARTNER",
       color: "text-emerald-500",
       accent: "bg-emerald-500"
@@ -76,7 +76,7 @@ export const DashboardHeader = ({
           <div className={`h-[1px] w-8 ${roleConfig.accent}/30`} />
         </div>
         <h1 className="text-3xl md:text-5xl font-bold text-slate-950 tracking-tight leading-[1.1]">
-          {role === 'student' ? 'Welcome back,' : role === 'admin' ? 'Monitoring,' : 'Recruiting,'}
+          {role === 'student' ? 'Welcome back,' : role === 'admin' ? 'Active session,' : 'Matching talent,'}
           <br className="hidden lg:block" /> {userName || 'User'}
         </h1>
       </div>

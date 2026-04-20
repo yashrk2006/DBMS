@@ -85,15 +85,21 @@ export default function DashboardPage() {
         if (data.success && !controller.signal.aborted) {
           const student = data.student as Student;
           if (!student) { setLoading(false); return; }
-          setUserName(student.name.split(' ')[0]);
+          setUserName(student.name?.split(' ')[0] || 'User');
           setRollNo(student.roll_no || '');
           setCgpa(Number(student.cgpa) || 0);
-          setStats(data.stats);
-          setRecentApplications(data.recentApplications);
+          
+          if (data.stats) {
+            setStats(data.stats);
+          }
+          
+          if (data.recentApplications) {
+            setRecentApplications(data.recentApplications);
+          }
 
-          if (data.student?.skills && data.student.skills.length > 0) {
+          if (student.skills && student.skills.length > 0) {
             const colors = ['bg-emerald-400', 'bg-purple-500', 'bg-orange-400', 'bg-cyan-400', 'bg-[#575a93]'];
-            setSkills(data.student.skills.map((sk: any, i: number) => ({
+            setSkills(student.skills.map((sk: any, i: number) => ({
               label: (typeof sk === 'string' ? sk : sk?.skill_name) || 'Skill',
               val: typeof sk === 'object' && sk.level ? (sk.level === 'Advanced' ? 95 : sk.level === 'Intermediate' ? 70 : sk.level === 'Expert' ? 100 : 40) : 75,
               color: colors[i % colors.length]
@@ -102,7 +108,7 @@ export default function DashboardPage() {
             setSkills([]);
           }
 
-          const checks = [!!student.name, !!student.college, !!student.email, data.stats.skills >= 3];
+          const checks = [!!student.name, !!student.college, !!student.email, (data.stats?.skills || 0) >= 3];
           setCompletionPct(Math.round((checks.filter(Boolean).length / checks.length) * 100));
 
           if (student.ai_resume_analysis) {
@@ -429,7 +435,7 @@ export default function DashboardPage() {
                   .slice(0, 4)
                 }
                 applicationStatus={{ active: recentApplications.filter(a => a.status !== 'Rejected').length, total: recentApplications.length }}
-                latestOpportunity={aiJobs?.length ? { title: aiJobs[0].title, company: aiJobs[0].company_name } : { title: "Ready for Matching", company: "DBMS Assessment Center" }}
+                latestOpportunity={aiJobs?.length ? { title: aiJobs[0].title, company: aiJobs[0].company_name } : { title: "Ready for Matching", company: "Sync Career Hub" }}
                 onViewDetail={() => router.push('/dashboard/analysis')}
               />
             </div>

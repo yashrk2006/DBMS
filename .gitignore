@@ -13,9 +13,17 @@
 # testing
 /coverage
 
-# next.js
+# Next.js
 /.next/
 /out/
+
+# Temp & Research
+stitch-skills-temp/
+stich desk*/
+tsc_errors.txt
+ts_errors.txt
+tsc_output.txt
+tsconfig.tsbuildinfo
 
 # production
 /build
