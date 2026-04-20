@@ -5,7 +5,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { 
   MessageSquare, Sparkles, Cpu, Play, CheckCircle2, 
   ArrowRight, ShieldCheck, Zap, BarChart3, AlertCircle,
-  Send, User, Volume2, Mic, MicOff, Search, X, Award
+  Send, User, Volume2, Mic, MicOff, Search, X, Award,
+  Brain, Target
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AI_ENGINE } from '@/lib/ai-engine';
@@ -19,6 +20,12 @@ interface Message {
   content: string;
   timestamp: number;
 }
+
+const premiumSpring = {
+  type: "spring",
+  stiffness: 260,
+  damping: 20
+};
 
 function VoiceWaveform({ isActive }: { isActive: boolean }) {
   return (
