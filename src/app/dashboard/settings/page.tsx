@@ -53,9 +53,9 @@ export default function SettingsPage() {
       
       if (error) throw error;
       
-      toast.success("Security Magic Link dispatched to your inbox.", { id: "reset-toast" });
+      toast.success("Security link sent to your inbox.", { id: "reset-toast" });
     } catch (err: any) {
-      toast.error(err.message || "Failed to dispatch recovery token.", { id: "reset-toast" });
+      toast.error(err.message || "Failed to send recovery link.", { id: "reset-toast" });
     } finally {
       setUpdating(false);
     }
@@ -63,7 +63,7 @@ export default function SettingsPage() {
 
   const toggleVisibility = () => {
     setProfileVisibility(!profileVisibility);
-    toast.success(profileVisibility ? "Ghost Protocol Activated: Profile Hidden" : "Standard Mode: Profile Visible to Talent Scouts");
+    toast.success(profileVisibility ? "Privacy Mode Activated: Profile Hidden" : "Sync Mode Enabled: Profile Visible to Employers");
   };
 
   if (loading) return (
@@ -107,7 +107,7 @@ export default function SettingsPage() {
               Settings<span className="text-primary italic">.hub</span>
             </h1>
             <p className="text-slate-500 text-sm font-medium italic border-l-2 border-slate-200 pl-4 max-w-lg">
-              &quot;Configure your institutional presence, security protocols, and recruitment discovery heuristics.&quot;
+              &quot;Configure your professional profile, security, and job search preferences.&quot;
             </p>
           </div>
 
@@ -139,7 +139,7 @@ export default function SettingsPage() {
                         </div>
                         <div>
                            <h3 className="text-xl font-black text-slate-950 uppercase tracking-tighter">Core Identity</h3>
-                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Permanent Account Metadata</p>
+                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Basic Account Information</p>
                         </div>
                       </div>
 
@@ -170,8 +170,8 @@ export default function SettingsPage() {
                            <Lock size={22} />
                         </div>
                         <div>
-                           <h3 className="text-xl font-black text-slate-950 uppercase tracking-tighter">Security Console</h3>
-                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Credential & Access Guard</p>
+                           <h3 className="text-xl font-black text-slate-950 uppercase tracking-tighter">Security Settings</h3>
+                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Credential & Access Control</p>
                         </div>
                       </div>
 
@@ -219,7 +219,7 @@ export default function SettingsPage() {
               <div className="bg-white rounded-[3rem] border border-slate-100 shadow-premium p-8 md:p-12 space-y-10">
                  <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                       <h3 className="text-2xl font-black text-slate-950 uppercase tracking-tighter">Discovery Protocols</h3>
+                       <h3 className="text-2xl font-black text-slate-950 uppercase tracking-tighter">Search Settings</h3>
                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Talent Scout Visibility Controls</p>
                     </div>
                     {profileVisibility ? <Eye className="text-emerald-500" /> : <EyeOff className="text-red-500" />}
@@ -282,8 +282,8 @@ export default function SettingsPage() {
                        <BellRing size={22} />
                     </div>
                     <div>
-                       <h3 className="text-xl font-black text-white uppercase tracking-tighter leading-none">Telemetry.</h3>
-                       <p className="text-[8px] font-black text-slate-500 uppercase tracking-[3px]">Notification Heuristics</p>
+                       <h3 className="text-xl font-black text-white uppercase tracking-tighter leading-none">Alerts.</h3>
+                       <p className="text-[8px] font-black text-slate-500 uppercase tracking-[3px]">Notification Preferences</p>
                     </div>
                  </div>
 
@@ -321,7 +321,7 @@ export default function SettingsPage() {
       
       {/* Footer Info */}
       <footer className="pt-20 opacity-30 text-center">
-         <p className="text-[8px] font-black uppercase tracking-[10px] text-slate-900">DBMS Governance Suite v4.2.0</p>
+         <p className="text-[8px] font-black uppercase tracking-[10px] text-slate-900">DBMS Sync Skills Platform v4.2.0</p>
       </footer>
     </div>
   );

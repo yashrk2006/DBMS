@@ -81,8 +81,8 @@ export function DBMSNetworkHUD({ progress, range = [0.2, 0.4] }: HUDProps) {
             <Database size={32}  strokeWidth={1} />
           </motion.div>
           
-          <div className="text-[7px] md:text-[10px] font-black tracking-[0.4em] text-amber-500 uppercase mb-1 md:mb-2">DBMS Protocol Active</div>
-          <div className="text-2xl md:text-4xl font-black text-white tracking-tighter uppercase italic leading-none mb-2 md:mb-4">DBMS <br /> Project</div>
+          <div className="text-[7px] md:text-[10px] font-black tracking-[0.4em] text-amber-500 uppercase mb-1 md:mb-2">SYSTEM ACTIVE</div>
+          <div className="text-2xl md:text-4xl font-black text-white tracking-tighter uppercase italic leading-none mb-2 md:mb-4">Sync <br /> Skills</div>
           
           <div className="flex gap-1 md:gap-2">
             {[...Array(4)].map((_, i) => (
@@ -105,7 +105,7 @@ export function DBMSNetworkHUD({ progress, range = [0.2, 0.4] }: HUDProps) {
              className="absolute top-4 left-4 md:top-10 md:left-10 flex items-center gap-1 md:gap-2 border-l border-amber-500/30 pl-2 md:pl-3"
            >
               <Activity size={8}  />
-              <span>PROTOCOL::ACTIVE</span>
+              <span>SYSTEM::ONLINE</span>
            </motion.div>
 
            {/* Top Right */}
@@ -125,14 +125,14 @@ export function DBMSNetworkHUD({ progress, range = [0.2, 0.4] }: HUDProps) {
            <motion.div className="absolute bottom-10 left-0 md:bottom-20 md:left-0 space-y-1 md:space-y-2">
               <div className="flex items-center gap-2 md:gap-3">
                  <div className="size-1 md:size-2 bg-amber-500 animate-ping" />
-                 <span>ENVIRONMENT_ONLINE</span>
+                 <span>SYSTEM_READY</span>
               </div>
               <div className="w-20 md:w-32 h-[1px] bg-gradient-to-r from-amber-500/50 to-transparent" />
            </motion.div>
 
            {/* Bottom Right */}
            <motion.div className="absolute bottom-10 right-0 md:bottom-20 md:right-0 text-right">
-              <div className="mb-1 md:mb-2 text-white font-black italic text-xs md:text-sm">#INSTITUTIONAL_HUB</div>
+              <div className="mb-1 md:mb-2 text-white font-black italic text-xs md:text-sm">#SYNC_SKILLS_HUB</div>
               <div className="flex gap-0.5 md:gap-1 justify-end">
                 {[...Array(10)].map((_, i) => (
                    <motion.div

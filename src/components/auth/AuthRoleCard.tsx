@@ -91,7 +91,7 @@ export default function AuthRoleCard({
                 )}
               </button>
               <p className="text-center text-[9px] font-bold text-amber-600 uppercase tracking-widest flex items-center justify-center gap-2">
-                 <CheckCircle2 size={10} /> Secure Protocol Active
+                 <CheckCircle2 size={10} /> Secure Sync Active
               </p>
             </motion.div>
           ) : (
@@ -100,7 +100,7 @@ export default function AuthRoleCard({
               animate={{ opacity: 1 }}
               className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[2px] text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all"
             >
-              Initialize Node <ArrowRight size={14} />
+              Select Role <ArrowRight size={14} />
             </motion.div>
           )}
         </AnimatePresence>

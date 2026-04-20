@@ -100,8 +100,8 @@ export default function LandingPage() {
 
   const stats = [
     { label: "Active Students", value: "854", icon: <Globe className="size-4" /> },
-    { label: "Data Protocols", value: "12,450", icon: <Activity className="size-4" /> },
-    { label: "Placements", value: "480", icon: <Zap className="size-4" /> },
+    { label: "Skills Synced", value: "12,450", icon: <Activity className="size-4" /> },
+    { label: "Real Jobs", value: "480", icon: <Zap className="size-4" /> },
     { label: "Success Rate", value: "99.9%", icon: <CheckCircle2 className="size-4" /> },
   ];
 
@@ -162,14 +162,14 @@ export default function LandingPage() {
                 </span>
               </div>
 
-              <h1 className="text-[clamp(2.5rem,10vw,12rem)] font-black text-slate-950 uppercase tracking-tighter mb-6 md:mb-10 leading-[0.85] md:leading-[0.75] italic">
-                DBMS Project. <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-400 to-amber-700 drop-shadow-2xl not-italic">Strategic Protocol.</span>
+              <h1 className="text-[clamp(1.5rem,10vw,12rem)] font-black text-slate-950 uppercase tracking-tighter mb-6 md:mb-10 leading-[0.85] md:leading-[0.75] italic">
+                SYNC SKILLS. <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600 not-italic">GET HIRED.</span>
               </h1>
 
               <p className="text-slate-500 text-lg md:text-3xl font-bold max-w-4xl mx-auto mb-10 md:mb-16 leading-snug md:leading-[1.1] tracking-tighter px-4">
-                The institutional <span className="text-slate-900 border-b-4 md:border-b-8 border-amber-500/30">Recruitment Protocol</span>. 
-                Seamlessly evaluate <span className="italic text-amber-600 font-black">Database Expertise</span> with assessments from the DBMS core system.
+                The smart <span className="text-slate-900 border-b-4 md:border-b-8 border-amber-500/30">Career Path</span>. 
+                Seamlessly match your <span className="italic text-amber-600 font-black">Skills</span> to real roles from the DBMS core system.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8 w-full max-w-lg mx-auto md:max-w-none">
@@ -206,12 +206,12 @@ export default function LandingPage() {
                        <div className="space-y-4">
                           <div className="flex items-center gap-2">
                              <div className="size-2 rounded-full bg-emerald-500 animate-ping" />
-                             <span className="text-[10px] font-black text-amber-500 tracking-[0.6em] uppercase">DBMS Protocol Active</span>
+                             <span className="text-[10px] font-black text-amber-500 tracking-[0.6em] uppercase">SYSTEM ONLINE</span>
                           </div>
-                          <div className="text-6xl font-black text-white tracking-tighter uppercase leading-none italic">Recruitment <br /> Control Center.</div>
+                          <div className="text-6xl font-black text-white tracking-tighter uppercase leading-none italic">Career <br /> Hub v2.</div>
                        </div>
                        <div className="size-24 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center text-white backdrop-blur-xl group-hover:bg-amber-600 transition-colors">
-                          <Command size={40} />
+                          <CheckCircle2 size={40} />
                        </div>
                     </div>
                    
@@ -353,14 +353,14 @@ export default function LandingPage() {
 
                 <div className="space-y-12">
                    <div>
-                      <h2 className="text-[11px] font-black uppercase tracking-[0.8em] text-amber-600 mb-8">DBMS Assessment</h2>
+                      <h2 className="text-[11px] font-black uppercase tracking-[0.8em] text-amber-600 mb-8">Smart Review</h2>
                       <h3 className="text-5xl md:text-8xl font-black text-slate-900 uppercase tracking-tighter leading-[0.8] mb-12">
-                         The Core <br />
-                         <span className="italic text-amber-600">Protocol.</span>
+                         The Smart <br />
+                         <span className="italic text-amber-600">Career Path.</span>
                       </h3>
                       <p className="text-slate-500 text-xl font-bold leading-relaxed max-w-xl italic">
-                         Our system evaluates database proficiency and maps expertise to strategic institutional roles. 
-                         Get matched with roles that fit your <span className="text-slate-900 border-b-4 border-amber-500/20">Institutional Profile</span>.
+                         Our system reviews your skills and maps your expertise to real company roles. 
+                         Get matched with roles that fit your <span className="text-slate-900 border-b-4 border-amber-500/20">Skill Profile</span>.
                       </p>
                    </div>
                    <div className="flex gap-12">

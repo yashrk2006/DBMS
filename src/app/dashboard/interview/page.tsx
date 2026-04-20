@@ -81,18 +81,18 @@ export default function InterviewHub() {
                     />
                  </motion.div>
                  <div className="h-px w-12 bg-slate-200" />
-                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Institutional assessment suite</span>
+                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Smart Interview Suite</span>
               </div>
               
               <div className="space-y-4">
                 <h1 className="text-5xl md:text-6xl font-black text-[#09090B] uppercase tracking-[-0.04em] leading-[0.9] flex flex-col">
-                  <span>Strategic</span>
+                  <span>Smart</span>
                   <span className="text-indigo-600 flex items-center gap-4">
                     Assessment<span className="h-4 w-24 bg-indigo-600 rounded-full inline-block" />
                   </span>
                 </h1>
                 <p className="text-xl font-medium text-slate-500 max-w-xl leading-snug">
-                  High-precision AI simulations mapped to institutional benchmarks. Analyze competency patterns through neural telemetry.
+                  High-quality AI simulations. Analyze your strengths and get ready for your career.
                 </p>
               </div>
             </div>
@@ -167,9 +167,9 @@ export default function InterviewHub() {
                       <Zap size={32} className="text-indigo-200" />
                     </div>
                     <div className="space-y-6 relative z-10">
-                      <h3 className="text-4xl font-black uppercase tracking-tighter leading-[0.9]">General<br/>Tactical<br/>Training</h3>
+                      <h3 className="text-4xl font-black uppercase tracking-tighter leading-[0.9]">Skills<br/>Practice<br/>Room</h3>
                       <p className="text-indigo-100/80 text-lg font-medium max-w-xs leading-snug">
-                        Immediate access to institutional-grade technical scenarios.
+                        Immediate access to expert-level technical scenarios.
                       </p>
                       <button 
                         onClick={() => router.push('/dashboard/interview/general')}
@@ -261,10 +261,10 @@ export default function InterviewHub() {
                 
                 <div className="grid grid-cols-2 gap-6">
                    {[
-                     { icon: ShieldCheck, title: 'Institutional Benchmark' },
-                     { icon: Clock, title: 'Neural Latency Trace' },
-                     { icon: CheckCircle2, title: 'Capability Validation' },
-                     { icon: Sparkles, title: 'Heuristic Synthesis' }
+                     { icon: ShieldCheck, title: 'Verified Status' },
+                     { icon: Clock, title: 'Session Trace' },
+                     { icon: CheckCircle2, title: 'Skill Validation' },
+                     { icon: Sparkles, title: 'Smart Feedback' }
                    ].map(i => (
                      <div key={i.title} className="p-8 rounded-[2rem] bg-white/5 border border-white/10 flex flex-col items-center justify-center gap-4 text-center hover:bg-white/10 transition-all duration-500 group">
                         <i.icon size={24} className="text-indigo-400 group-hover:scale-110 transition-transform" />

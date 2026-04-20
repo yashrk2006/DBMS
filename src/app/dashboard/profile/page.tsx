@@ -448,7 +448,7 @@ export default function ProfilePage() {
                   {/* Roll Number (Official ID) */}
                   <div className="space-y-2">
                     <label className="text-[9px] font-black text-amber-600 uppercase tracking-[3px] flex items-center gap-2">
-                      <ShieldCheck size={11} /> Institutional ID
+                      <ShieldCheck size={11} /> Profile ID
                     </label>
                     <input 
                       type="text" value={profile.roll_no}

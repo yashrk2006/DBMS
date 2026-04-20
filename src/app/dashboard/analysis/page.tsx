@@ -130,7 +130,7 @@ export default function AnalysisPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
              <PremiumCard 
                 title="AI Summary" 
-                subtitle="Strategic Briefing"
+                subtitle="Skill Summary"
                 icon={<Brain size={28} />}
                 variant="flat"
                 className="bg-indigo-600 text-white"
@@ -140,7 +140,7 @@ export default function AnalysisPage() {
                     {data?.summary}
                   </p>
                   <div className="flex flex-wrap gap-2 pt-6">
-                    {['Strategic', 'Iterative', 'Goal-Oriented'].map(tag => (
+                    {['Skill-Based', 'Modern', 'Goal-Oriented'].map(tag => (
                       <span key={tag} className="px-4 py-1.5 rounded-xl bg-white/10 text-[9px] font-bold uppercase tracking-[3px] border border-white/5">{tag}</span>
                     ))}
                   </div>

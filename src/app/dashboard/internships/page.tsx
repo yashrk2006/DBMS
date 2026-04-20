@@ -502,7 +502,7 @@ export default function InternshipsPage() {
                       {aiInterviewModal.isLoading ? (
                         <div className="py-12 md:py-20 flex flex-col items-center justify-center gap-4 md:gap-6">
                            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="text-amber-600">
-                              <Cpu size={32} /> // Refined Size Protocol
+                              <Cpu size={32} /> // Refined Size Logic
                            </motion.div>
                            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[3px] md:tracking-[4px] text-slate-400 animate-pulse">Generating Behavioral Scenarios...</span>
                         </div>
@@ -524,7 +524,7 @@ export default function InternshipsPage() {
                         onClick={() => setAiInterviewModal(prev => ({ ...prev, open: false }))}
                         className="w-full py-4 md:py-6 bg-slate-900 text-white rounded-xl md:rounded-2xl font-black text-[10px] md:text-[11px] uppercase tracking-[3px] md:tracking-[4px] hover:bg-emerald-600 transition-all shadow-xl"
                       >
-                        Acknowledge Protocol
+                        Acknowledge & Sync
                       </button>
                   </div>
               </motion.div>

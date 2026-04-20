@@ -42,7 +42,7 @@ export default function CompanySettingsPage() {
     if (!user?.email) return;
     
     setUpdating(true);
-    toast.loading("Initiating Corporate Security Protocol...", { id: "corp-reset" });
+    toast.loading("Initiating Security Verification...", { id: "corp-reset" });
     
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
@@ -51,7 +51,7 @@ export default function CompanySettingsPage() {
       
       if (error) throw error;
       
-      toast.success("Security Handshake DISPATCHED to your official inbox.", { id: "corp-reset" });
+      toast.success("Security link SENT to your official inbox.", { id: "corp-reset" });
     } catch (err: any) {
       toast.error(err.message || "Security handshake failed.", { id: "corp-reset" });
     } finally {

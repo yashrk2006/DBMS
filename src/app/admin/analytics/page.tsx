@@ -103,7 +103,7 @@ export default function AdminAnalyticsPage() {
                 </div>
                 <h2 className="text-[10px] font-black uppercase tracking-[6px] text-slate-400">Intelligence Hub</h2>
             </div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-[0.8]">Strategic<br/><span className="text-indigo-600">Intelligence.</span></h1>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-[0.8]">Platform<br/><span className="text-indigo-600">Analytics.</span></h1>
         </div>
         
         <div className="flex items-center gap-4 bg-white/40 backdrop-blur-md p-2 rounded-2xl border border-white shadow-sm">

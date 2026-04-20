@@ -127,7 +127,7 @@ export default function CompanyDashboard() {
         addTrace({
           operation: 'UPDATE',
           table: 'application',
-          description: 'Authenticate institutional status shift for recruitment candidate.',
+          description: 'Update candidate hiring status for the internship role.',
           sql: `UPDATE application SET status = '${newStatus}' \nWHERE application_id = '${appId}';`
         });
         if (selectedApplication?.application_id === appId) {
@@ -197,7 +197,7 @@ export default function CompanyDashboard() {
         <div className="space-y-1">
           <div className="flex items-center gap-2 mb-2">
             <div className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]" />
-            <span className="text-[10px] font-black uppercase tracking-[4px] text-slate-400">Strategic Recruitment Hub</span>
+            <span className="text-[10px] font-black uppercase tracking-[4px] text-slate-400">Recruiter Hub</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-slate-950 tracking-tighter">Acquisition.</h1>
           <p className="text-sm text-slate-500 font-medium tracking-tight mt-2 max-w-lg">Identify, evaluate, and acquire high-performance talent clusters through real-time matching intelligence.</p>

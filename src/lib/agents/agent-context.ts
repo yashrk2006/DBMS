@@ -79,7 +79,7 @@ export async function applyForInternshipAgent(userId: string, internshipId: numb
     await supabaseAdmin.from('notification').insert([{
         user_id: userId,
         title: "Application Submitted via Pulse",
-        message: `Your application for Internship #${internshipId} has been successfully submitted by DBMS Protocol Hub.`,
+        message: `Your application for Internship #${internshipId} has been successfully submitted by DBMS Sync Skills Hub.`,
         type: 'system'
     }]);
 

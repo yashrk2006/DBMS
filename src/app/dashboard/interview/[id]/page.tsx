@@ -109,7 +109,7 @@ function CompetencyRadar({ score, metrics }: { score: number; metrics: any }) {
   );
 }
 
-export default function CareerAssessmentCenter() {
+export default function SkillSyncStation() {
   const router = useRouter();
   const params = useParams();
   const applicationId = params.id as string;
@@ -207,7 +207,7 @@ export default function CareerAssessmentCenter() {
   const startAssessment = () => {
     setIsStarted(true);
     webcamRef.current?.startRecording();
-    const welcome = "Hello! I am your DBMS institutional partner. Let's begin your assessment to help you evaluate your database proficiency. Are you ready?";
+    const welcome = "Hello! I am your career partner. Let's begin your session to help you sync your skills with the right opportunities. Are you ready?";
     addAIMessage(welcome);
     speak(welcome);
   };
@@ -282,7 +282,7 @@ export default function CareerAssessmentCenter() {
         const warnings = updatedLogs.filter(l => l.includes('PROCTOR_WARNING')).length;
         
         if (warnings >= MAX_INCIDENTS) {
-            leaveSession("Safety Warning: Focus Loss Threshold Exceeded.");
+            leaveSession("Session Alert: Focus Loss Threshold Exceeded.");
             return;
         }
 
@@ -436,7 +436,7 @@ export default function CareerAssessmentCenter() {
       setIsFinished(true);
       setFeedback(feedbackData);
       localStorage.setItem(`interview_results_${applicationId}`, JSON.stringify(feedbackData));
-      toast.success('Assessment Completed Successfully', { icon: '📊' });
+      toast.success('Session Completed Successfully', { icon: '📊' });
     } catch (err) {
       console.error('Failed to sync assessment:', err);
       setIsFinished(true);
@@ -451,7 +451,7 @@ export default function CareerAssessmentCenter() {
       <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity }} className="text-indigo-600">
         <Cpu size={64} />
       </motion.div>
-      <p className="text-xl font-bold text-slate-900 uppercase tracking-widest italic">Preparing your assessment room...</p>
+      <p className="text-xl font-bold text-slate-900 uppercase tracking-widest italic">Preparing your sync station...</p>
     </div>
   );
 
@@ -463,8 +463,8 @@ export default function CareerAssessmentCenter() {
              <Cpu size={18} />
           </div>
           <div>
-            <h1 className="text-lg font-black text-slate-900 uppercase tracking-tight">Career Assessment Center</h1>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[3px]">Interactive Career Assessment</p>
+            <h1 className="text-lg font-black text-slate-900 uppercase tracking-tight">Skill Sync Station</h1>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[3px]">Real-time Skill InterviewING</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -493,9 +493,9 @@ export default function CareerAssessmentCenter() {
         <div className="flex-1 flex flex-col overflow-hidden relative">
           {isStarted && !isFinished && !isAborted && (
             <div className="absolute top-8 left-8 z-30 flex flex-col gap-2 pointer-events-none">
-               <div className="flex items-center gap-2 bg-slate-900/40 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/5 border-l-rose-500 border-l-2">
-                  <div className="size-1.5 rounded-full bg-rose-500 animate-pulse" />
-                  <span className="text-[7px] font-black text-white uppercase tracking-[4px]">Live Proctoring Enabled</span>
+               <div className="flex items-center gap-2 bg-slate-900/40 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/5 border-l-emerald-500 border-l-2">
+                  <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[7px] font-black text-white uppercase tracking-[4px]">Smart Session Active</span>
                </div>
                <div className="flex flex-col gap-1 text-[7px] font-mono text-slate-500 uppercase tracking-widest pl-2">
                   <span>// EYE_TRACKING: ACTIVE</span>
@@ -514,7 +514,7 @@ export default function CareerAssessmentCenter() {
                   <div className="space-y-4 md:space-y-6 flex flex-col items-center">
                     <div className="flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-full">
                       <Sparkles size={16} className="text-indigo-600" />
-                      <span className="text-[10px] font-black uppercase tracking-[4px] text-indigo-600">Unified Career Intelligence</span>
+                      <span className="text-[10px] font-black uppercase tracking-[4px] text-indigo-600">Smart Skill Sync</span>
                     </div>
                     <h2 className="text-4xl md:text-8xl font-black text-slate-900 uppercase tracking-tighter leading-[0.85]">
                       Your <span className="text-indigo-600">Career</span> <br/>
@@ -644,10 +644,10 @@ export default function CareerAssessmentCenter() {
                   <div className="flex flex-col items-start gap-6 border-l-4 border-indigo-600 pl-8">
                     <div className="flex items-center gap-3">
                       <div className="size-3 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">Tactical assessment complete // validation: verified</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">Session complete // verification: verified</span>
                     </div>
                     <h2 className="text-6xl md:text-8xl font-black text-[#09090B] uppercase tracking-[-0.04em] leading-[0.85]">
-                      Capability<br/>Validated.
+                      Skills<br/>Synced.
                     </h2>
                   </div>
 
@@ -661,7 +661,7 @@ export default function CareerAssessmentCenter() {
                         <div className="relative z-10">
                            <div className="flex items-center gap-2 text-indigo-400 mb-8">
                              <Award size={20} />
-                             <span className="text-[11px] font-black uppercase tracking-[0.5em]">Institutional score matrix</span>
+                             <span className="text-[11px] font-black uppercase tracking-[0.5em]">Skill Match Index</span>
                            </div>
                            <div className="flex items-baseline gap-4">
                              <h3 className="text-[10rem] font-black text-white tracking-tighter leading-none tabular-nums font-mono">

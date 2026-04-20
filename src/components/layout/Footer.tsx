@@ -53,11 +53,11 @@ export default function Footer() {
             </div>
             <div className="flex flex-col">
               <h2 className="text-slate-950 text-3xl font-black leading-none tracking-tighter uppercase">DBMS</h2>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em] mt-1">Recruitment Protocol</span>
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.4em] mt-1">Sync Skills</span>
             </div>
           </Link>
           <p className="text-slate-600 text-sm max-w-sm mb-8 font-medium leading-relaxed">
-            Leading the institutional standard for database management recruitment, technical assessment, and talent optimization.
+            The modern way to manage your career, skill up, and find the perfect job match.
           </p>
           <div className="flex gap-5">
             {[Globe, Network, Cpu, ShieldCheck].map((IconComp, idx) => (
@@ -98,7 +98,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-8 pt-10 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
         <div className="flex flex-col gap-1">
           <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em]">
-            &copy; {currentYear} DBMS PROJECT // INSTITUTIONAL STANDARD
+            &copy; {currentYear} DBMS PROJECT // SMART RECRUITMENT
           </p>
           <p className="text-slate-400 text-[8px] font-mono tracking-widest uppercase">
             Edition: 2025 // Status: ACTIVE
@@ -112,12 +112,12 @@ export default function Footer() {
               <span className="relative inline-flex rounded-full size-2.5 bg-amber-500" />
             </span>
             <span className="text-[10px] text-amber-600 uppercase font-black tracking-[0.5em] antialiased">
-              System Live
+              System Syncing
             </span>
           </div>
           <div className="w-px h-4 bg-slate-200" />
           <span className="text-[10px] text-slate-500 uppercase font-black tracking-[0.4em]">
-            Network: DBMS Protocol Cloud
+            Network: DBMS Sync Cloud
           </span>
         </div>
       </div>

@@ -61,7 +61,7 @@ export default function SkillsPage() {
         addTrace({
           operation: 'SELECT',
           table: 'skill',
-          description: 'Synchronize personal skill matrix with institutional registry.',
+          description: 'Synchronize your personal skills with our career matching engine.',
           sql: `SELECT s.skill_id, s.skill_name, ss.proficiency_level \nFROM student_skill ss \nJOIN skill s ON ss.skill_id = s.skill_id \nWHERE ss.student_id = '${storedUserId}';`
         });
         

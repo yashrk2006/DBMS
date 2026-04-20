@@ -134,9 +134,9 @@ export const AI_ENGINE = {
    * 8. Corporate Intelligence Diagnostic
    */
   generatePerformanceNotes: (score: number) => {
-    if (score > 90) return "Exceptional mastery of technical principles. The candidate demonstrates superior architectural maturity and strategic foresight in technical decision-making.";
-    if (score > 80) return "Strong technical foundations with high-fidelity articulation. Demonstrates readiness for complex industrial integration and collaborative leadership.";
-    return "Competent technical proficiency. Focus on scaling architectural depth and articulating complex trade-offs with higher precision.";
+    if (score > 90) return "Exceptional mastery of technical principles. The candidate demonstrates strong growth potential and readiness for high-impact roles.";
+    if (score > 80) return "Strong technical foundations. Demonstrates readiness for real-world integration and collaborative growth.";
+    return "Competent technical proficiency. Focus on deepening your expertise and articulating trade-offs more clearly.";
   },
 
   /**
@@ -157,12 +157,12 @@ export const AI_ENGINE = {
    */
   generateResponseDraft: (name: string, score: number, role: string) => {
     if (score >= 90) {
-      return `Dear ${name},\n\nOur Strategic Assessment Engine has completed the diagnostic review of your recent interview for the ${role} position. Your Precision Index of ${score}% demonstrates exceptional technical maturity and architectural depth.\n\nWe are fast-tracking your application for a final sync with our lead engineering team. Please keep your dashboard active for the next phase of industrial deployment.`;
+      return `Dear ${name},\n\nOur Skill Match Hub has completed the review of your recent interview for the ${role} position. Your Match Index of ${score}% demonstrates exceptional skill and readiness.\n\nWe are fast-tracking your application for a final sync with the hiring team. Please keep your dashboard active for the next phase of your journey.`;
     }
     if (score >= 80) {
-      return `Dear ${name},\n\nThank you for engaging with our Strategic Assessment Hub. Our AI diagnostic indicates a strong technical foundation with a ${score}% mission alignment score.\n\nYour profile has been advanced to 'Industrial Review' status. We will reach out shortly for the next steps in our strategic integration process.`;
+      return `Dear ${name},\n\nThank you for using our Skill Match Hub. Our review indicates a strong technical foundation with a ${score}% career match score.\n\nYour profile has been advanced to 'Employer Review' status. We will reach out shortly for the next steps in the hiring process.`;
     }
-    return `Dear ${name},\n\nThank you for participating in our Strategic Assessment for the ${role} position. Our diagnostic engine has captured your performance metrics and archived them for review.\n\nWhile your technical proficiency is evident, we are currently prioritizing profiles with higher alignment in specific architectural domains. We wish you success in your professional journey.`;
+    return `Dear ${name},\n\nThank you for applying for the ${role} position. Our match engine has reviewed your performance metrics and saved them for future roles.\n\nWhile your technical proficiency is evident, we are currently prioritizing profiles with closer alignment to this specific role. We wish you great success in your career journey.`;
   },
 
   /**

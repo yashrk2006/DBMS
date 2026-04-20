@@ -13,8 +13,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "DBMS Recruitment Protocol - Strategic Database Assessment",
-  description: "Institutional-grade database management and recruitment intelligence platform.",
+  title: "DBMS Sync Skills - Smart Career Matching",
+  description: "Modern database management and smart career matching platform.",
 };
 
 export default function RootLayout({

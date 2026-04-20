@@ -68,7 +68,7 @@ export default function UpdatePasswordPage() {
             </Link>
           </GsapMagnetic>
           <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Security Rotation</h1>
-          <p className="text-[10px] font-black uppercase tracking-[5px] text-slate-400 mt-2">Credential Reset Protocol</p>
+          <p className="text-[10px] font-black uppercase tracking-[5px] text-slate-400 mt-2">Password Reset</p>
         </div>
 
         <div className="bg-white rounded-[2.5rem] p-10 shadow-2xl border border-slate-100 relative overflow-hidden">
@@ -137,7 +137,7 @@ export default function UpdatePasswordPage() {
         </div>
 
         <p className="mt-12 text-center text-[9px] font-black uppercase tracking-[4px] text-slate-300">
-          Secure Auth Protocol • DBMS Project v4.2
+          Secure Sync • DBMS Project v4.2
         </p>
       </motion.div>
     </div>

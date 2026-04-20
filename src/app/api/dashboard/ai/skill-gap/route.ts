@@ -25,7 +25,7 @@ export async function POST(request: Request) {
           `Phase 3: Operationalize your knowledge of ${missing[2] || 'Advanced Toolsets'} by building a portfolio-ready case study.`,
           "Phase 4: Simulated technical evaluation and final gap closure check."
         ],
-        summary: `Strategic growth path identified. You are currently proficient in ${studentSkills.length} core domains. Focused mastery of ${missing.length} missing vectors will bridge the gap to your target role.`
+        summary: `Smart growth path identified. You are currently proficient in ${studentSkills.length} core domains. Focused mastery of ${missing.length} missing areas will bridge the gap to your target role.`
       };
     }
 

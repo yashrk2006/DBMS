@@ -105,7 +105,7 @@ export default function Navbar() {
               <div className="flex items-center gap-1.5 mt-0.5">
                  <div className="size-1 rounded-full bg-amber-600" />
                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-[0.3em]">
-                   Recruitment Protocol
+                   Sync Skills
                  </span>
               </div>
             </div>
