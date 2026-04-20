@@ -77,7 +77,7 @@ export default function PostingsPage() {
     }
   };
 
-  const filteredPosts = posts.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredPosts = posts.filter(p => (p.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()));
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-[70vh] gap-8">

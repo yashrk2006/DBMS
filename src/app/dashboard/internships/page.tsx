@@ -205,8 +205,8 @@ export default function InternshipsPage() {
   }
 
   const filtered = internships.filter(i =>
-    i.title.toLowerCase().includes(search.toLowerCase()) ||
-    (i.company_name || '').toLowerCase().includes(search.toLowerCase())
+    (i.title?.toLowerCase() || '').includes(search.toLowerCase()) ||
+    (i.company_name?.toLowerCase() || '').includes(search.toLowerCase())
   );
 
   if (loading) return (

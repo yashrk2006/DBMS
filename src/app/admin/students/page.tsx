@@ -81,8 +81,8 @@ export default function AdminStudentsPage() {
   const years = ['ALL', ...Array.from(new Set(students.map(s => s.graduation_year).filter(Boolean))).sort()];
 
   const filtered = students.filter(s => {
-    const matchesSearch = s.full_name.toLowerCase().includes(search.toLowerCase()) || 
-                          s.roll_number.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = (s.full_name?.toLowerCase() || '').includes(search.toLowerCase()) || 
+                          (s.roll_number?.toLowerCase() || '').includes(search.toLowerCase());
     const matchesBranch = filterBranch === 'ALL' || s.branch === filterBranch;
     const matchesYear = filterYear === 'ALL' || String(s.graduation_year) === filterYear;
     return matchesSearch && matchesBranch && matchesYear;
@@ -236,7 +236,7 @@ export default function AdminStudentsPage() {
                     <td className="px-10 py-7">
                       <div className="flex items-center gap-4">
                         <div className="size-10 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 font-black text-sm shadow-inner group-hover:scale-110 transition-transform">
-                          {s.full_name.charAt(0)}
+                          {s.full_name?.charAt(0) || '?'}
                         </div>
                         <div className="space-y-1">
                           <div className="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{s.full_name}</div>

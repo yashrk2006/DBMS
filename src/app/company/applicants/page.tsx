@@ -74,8 +74,8 @@ export default function ApplicantsPage() {
   };
 
   const filtered = applicants.filter(a => {
-    const matchesSearch = a.student_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          a.student_roll_no?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (a.student_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+                          (a.student_roll_no?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'ALL' || a.status === filterStatus;
     return matchesSearch && matchesStatus;
   });

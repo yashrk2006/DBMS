@@ -13,7 +13,7 @@ import { useDBMS } from '@/context/DBMSContext';
 
 // High-fidelity spring physics from taste-design skill
 const premiumSpring = {
-  type: "spring",
+  type: "spring" as const,
   stiffness: 100,
   damping: 20
 };

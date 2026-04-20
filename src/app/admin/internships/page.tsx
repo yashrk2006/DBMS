@@ -98,7 +98,7 @@ export default function AdminInternshipsPage() {
 
   const filtered = internships
     .filter((i: Internship) =>
-      i.title.toLowerCase().includes(search.toLowerCase()) ||
+      (i.title?.toLowerCase() || '').includes(search.toLowerCase()) ||
       (i.company?.company_name ?? '').toLowerCase().includes(search.toLowerCase())
     )
     .sort((a: Internship, b: Internship) => {

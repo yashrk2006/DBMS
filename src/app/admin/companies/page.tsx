@@ -72,8 +72,8 @@ export default function AdminCompanies() {
   };
 
   const filteredCompanies = companies.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    c.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (c.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+    (c.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   if (loading) return (
@@ -178,7 +178,7 @@ export default function AdminCompanies() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-6">
                     <div className="size-16 bg-slate-900 text-white rounded-[1.25rem] flex items-center justify-center text-2xl font-black shadow-xl ring-4 ring-slate-900/10 group-hover:scale-110 transition-transform duration-500">
-                      {company.name.charAt(0)}
+                      {company.name?.charAt(0) || '?'}
                     </div>
                     <div>
                       <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter group-hover:text-indigo-600 transition-colors">{company.name}</h3>

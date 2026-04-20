@@ -150,8 +150,8 @@ export default function SkillsPage() {
   const filteredSkills = useMemo(() => {
     if (!searchTerm) return [];
     return allSkills.filter(s => 
-      s.skill_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      !mySkills.find(ms => ms.skill_name.toLowerCase() === s.skill_name.toLowerCase())
+      (s.skill_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) &&
+      !mySkills.find(ms => (ms.skill_name?.toLowerCase() || '') === (s.skill_name?.toLowerCase() || ''))
     ).slice(0, 10);
   }, [allSkills, searchTerm, mySkills]);
 
@@ -353,7 +353,7 @@ export default function SkillsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <AnimatePresence mode="popLayout">
                         {mySkills
-                        .filter(s => !matrixSearch || s.skill_name.toLowerCase().includes(matrixSearch.toLowerCase()))
+                        .filter(s => !matrixSearch || (s.skill_name?.toLowerCase() || '').includes(matrixSearch.toLowerCase()))
                         .map((ms, index) => {
                             const config = levelConfig[ms.proficiency_level] || levelConfig['Beginner'];
                             return (

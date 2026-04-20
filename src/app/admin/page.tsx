@@ -388,7 +388,7 @@ export default function AdminOverview() {
           
           <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar relative z-10">
             {atRiskStudents
-              .filter(s => !riskSearch || s.name.toLowerCase().includes(riskSearch.toLowerCase()) || s.reason.toLowerCase().includes(riskSearch.toLowerCase()))
+              .filter(s => !riskSearch || (s.name?.toLowerCase() || '').includes(riskSearch.toLowerCase()) || (s.reason?.toLowerCase() || '').includes(riskSearch.toLowerCase()))
               .map((student, i) => (
               <motion.div 
                 key={student.student_id}
@@ -467,9 +467,9 @@ export default function AdminOverview() {
             .filter(a => {
               const query = activitySearch.toLowerCase();
               return !query || 
-                a.title.toLowerCase().includes(query) || 
-                a.type.toLowerCase().includes(query) || 
-                a.status.toLowerCase().includes(query);
+                (a.title?.toLowerCase() || '').includes(query) || 
+                (a.type?.toLowerCase() || '').includes(query) || 
+                (a.status?.toLowerCase() || '').includes(query);
             })
             .length === 0 ? (
             <div className="py-32 text-center border-2 border-dashed rounded-[3rem] border-slate-100 bg-slate-50/30">
@@ -483,9 +483,9 @@ export default function AdminOverview() {
               .filter(a => {
                 const query = activitySearch.toLowerCase();
                 return !query || 
-                  a.title.toLowerCase().includes(query) || 
-                  a.type.toLowerCase().includes(query) || 
-                  a.status.toLowerCase().includes(query);
+                  (a.title?.toLowerCase() || '').includes(query) || 
+                  (a.type?.toLowerCase() || '').includes(query) || 
+                  (a.status?.toLowerCase() || '').includes(query);
               })
               .map((activity, idx) => (
               <motion.div 
